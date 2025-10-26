@@ -83,7 +83,8 @@ class TestRecipeCreateModel:
             common_ingredients=["salt", "pepper"],
             instructions="Cook and serve",
             prep_time=30,
-            portions=4
+            portions=4,
+            foto_url="https://example.com/recipe.jpg"
         )
         
         assert recipe.name == "Test Recipe"
@@ -93,6 +94,21 @@ class TestRecipeCreateModel:
         assert recipe.instructions == "Cook and serve"
         assert recipe.prep_time == 30
         assert recipe.portions == 4
+        assert recipe.foto_url == "https://example.com/recipe.jpg"
+    
+    def test_recipe_create_without_foto_url(self):
+        """Test recipe creation without foto_url (should default to None)"""
+        recipe = RecipeCreate(
+            name="Test Recipe",
+            category="dinner",
+            main_ingredients=[],
+            common_ingredients=[],
+            instructions="Cook and serve",
+            prep_time=30,
+            portions=4
+        )
+        
+        assert recipe.foto_url is None
     
     def test_recipe_create_empty_ingredients(self):
         """Test recipe with empty ingredient lists"""
@@ -144,12 +160,14 @@ class TestRecipeResponseModel:
             common_ingredients=["salt", "pepper"],
             instructions="Cook and serve",
             prep_time=30,
-            portions=4
+            portions=4,
+            foto_url="https://example.com/recipe.jpg"
         )
         
         assert response.id == 1
         assert response.name == "Test Recipe"
         assert isinstance(response.main_ingredients[0], Ingredient)
+        assert response.foto_url == "https://example.com/recipe.jpg"
     
     def test_recipe_response_invalid_id(self):
         """Test that invalid ID types raise ValidationError"""
@@ -162,9 +180,11 @@ class TestRecipeResponseModel:
                 common_ingredients=[],
                 instructions="Cook it",
                 prep_time=30,
-                portions=4
+                portions=4,
+                foto_url="www.my-foto-url.net"
             )
         
         errors = exc_info.value.errors()
+        print(errors)
         assert len(errors) == 1
         assert "id" in errors[0]["loc"]

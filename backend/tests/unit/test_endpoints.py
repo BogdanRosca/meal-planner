@@ -289,6 +289,7 @@ class TestGetRecipeByIdEndpoint:
         assert json_response["instructions"] == "Cook it"
         assert json_response["prep_time"] == 30
         assert json_response["portions"] == 4
+        assert json_response["foto_url"] == "https://example.com/recipe1.jpg"
         
         # Verify mock calls
         mock_db_client.connect.assert_called_once()

@@ -138,11 +138,12 @@ class TestDatabaseClientGetAllRecipes:
         assert recipe['instructions'] == SAMPLE_RECIPE_1['instructions']
         assert recipe['prep_time'] == SAMPLE_RECIPE_1['prep_time']
         assert recipe['portions'] == SAMPLE_RECIPE_1['portions']
+        assert recipe['portions'] == SAMPLE_RECIPE_1['portions']
         
         # Verify SQL query
         mock_cursor.execute.assert_called_once()
         sql_call = mock_cursor.execute.call_args[0][0]
-        assert "SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions" in sql_call
+        assert "SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url" in sql_call
         assert "FROM recipes" in sql_call
         
         mock_cursor.close.assert_called_once()
@@ -193,7 +194,7 @@ class TestDatabaseClientGetRecipeById:
         # Verify SQL query
         mock_cursor.execute.assert_called_once()
         call_args = mock_cursor.execute.call_args
-        assert "SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions" in call_args[0][0]
+        assert "SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url" in call_args[0][0]
         assert "FROM recipes" in call_args[0][0]
         assert "WHERE id = %s" in call_args[0][0]
         assert call_args[0][1] == (1,)
@@ -223,7 +224,7 @@ class TestDatabaseClientGetRecipeById:
         # Verify SQL query
         mock_cursor.execute.assert_called_once_with(
             """
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
             FROM recipes
             WHERE id = %s
         """, (999,)
@@ -303,7 +304,8 @@ class TestDatabaseClientAddRecipe:
                     common_ingredients=[],
                     instructions='Test',
                     prep_time=10,
-                    portions=1
+                    portions=1,
+                    foto_url="www.my-foto-url.net"
                 )
         
         assert "Not connected to database" in str(exc_info.value)
@@ -473,7 +475,7 @@ class TestUpdateRecipeMethod:
              [{'quantity': 300, 'unit': 'g', 'name': 'pasta'}],
              ['salt', 'pepper'],
              'Updated instructions',
-             35, 4)  # Updated recipe data
+             35, 4, 'https://example.com/recipe1.jpg')  # Updated recipe data with foto_url
         ]
         
         # Call method

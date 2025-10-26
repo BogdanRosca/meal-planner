@@ -66,7 +66,7 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
             FROM recipes
             ORDER BY id
         """)
@@ -81,7 +81,8 @@ class DatabaseClient:
                 'common_ingredients': row[4],
                 'instructions': row[5],
                 'prep_time': row[6],
-                'portions': row[7]
+                'portions': row[7],
+                'foto_url': row[8]
             }
             recipes.append(recipe)
         
@@ -95,7 +96,7 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
             FROM recipes
             WHERE id = %s
         """, (recipe_id,))
@@ -114,13 +115,14 @@ class DatabaseClient:
             'common_ingredients': row[4],
             'instructions': row[5],
             'prep_time': row[6],
-            'portions': row[7]
+            'portions': row[7],
+            'foto_url': row[8]
         }
         
         return recipe
     
     def add_recipe(self, name: str, category: str, main_ingredients: List[Dict[str, Any]], 
-                   common_ingredients: List[str], instructions: str, prep_time: int, portions: int) -> Dict[str, Any]:
+                   common_ingredients: List[str], instructions: str, prep_time: int, portions: int, foto_url: str) -> Dict[str, Any]:
         """Add a new recipe to the database"""
         if not self.is_connected():
             raise Exception("Not connected to database")
@@ -130,10 +132,10 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions
-        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions))
+            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
+        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url))
         
         # Fetch the inserted recipe
         row = cursor.fetchone()
@@ -194,7 +196,7 @@ class DatabaseClient:
         values = []
         
         for field, value in updates.items():
-            if field in ['name', 'category', 'instructions', 'prep_time', 'portions']:
+            if field in ['name', 'category', 'instructions', 'prep_time', 'portions', 'foto_url']:
                 set_clauses.append(f"{field} = %s")
                 values.append(value)
             elif field == 'main_ingredients':
@@ -220,7 +222,7 @@ class DatabaseClient:
         # Get the updated recipe
         cursor.execute("""
             SELECT id, name, category, main_ingredients, common_ingredients, 
-                   instructions, prep_time, portions 
+                   instructions, prep_time, portions, foto_url 
             FROM recipes WHERE id = %s
         """, (recipe_id,))
         
@@ -237,7 +239,8 @@ class DatabaseClient:
             'common_ingredients': row[4],
             'instructions': row[5],
             'prep_time': row[6],
-            'portions': row[7]
+            'portions': row[7],
+            'foto_url': row[8]
         }
         
         # Commit the transaction
