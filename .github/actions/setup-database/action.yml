@@ -51,7 +51,7 @@ runs:
           common_ingredients TEXT[] DEFAULT '{}',
           instructions TEXT NOT NULL,
           prep_time INTEGER,
-          portions INTEGER
+          portions INTEGER,
           foto_url VARCHAR(255)
         );"
 
