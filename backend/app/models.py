@@ -37,7 +37,8 @@ class NewRecipeResponse(BaseModel):
     category: str
     prep_time: int
     portions: int
-    
+
+
 class RecipeUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
