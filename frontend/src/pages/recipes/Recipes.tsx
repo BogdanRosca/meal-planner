@@ -10,11 +10,11 @@ import StatusMessage from '../../components/recipes/StatusMessage';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 
-interface RecipesProps {
-  searchQuery?: string;
-}
 
-const Recipes: React.FC<RecipesProps> = () => {
+
+
+
+const Recipes: React.FC = () => {
   const { recipes, loading, error, addRecipe, deleteRecipe } = useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
 
