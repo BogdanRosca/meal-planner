@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Recipes from './Recipes';
 import { recipeService } from '../../services/recipeService';
 import { Recipe } from '../../types/recipe';
@@ -156,6 +157,9 @@ describe('Recipes Component', () => {
 
   describe('Error Handling', () => {
     it('should display error message when fetch fails', async () => {
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       const errorMessage = 'Network error';
       mockGetAllRecipes.mockRejectedValue(new Error(errorMessage));
 
@@ -166,6 +170,8 @@ describe('Recipes Component', () => {
           screen.getByText('Failed to load recipes. Please try again later.')
         ).toBeInTheDocument();
       });
+
+      consoleErrorSpy.mockRestore();
     });
 
     it('should log error to console when fetch fails', async () => {
@@ -290,6 +296,7 @@ describe('Recipes Component', () => {
     });
 
     it('should handle search form submission', async () => {
+      const user = userEvent.setup();
       render(<Recipes />);
 
       await waitFor(() => {
@@ -297,13 +304,32 @@ describe('Recipes Component', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('Search recipes...');
-      const form = searchInput.closest('form');
 
-      fireEvent.change(searchInput, { target: { value: 'pasta' } });
-      fireEvent.submit(form!);
+      await user.type(searchInput, 'pasta');
+      await user.keyboard('{Enter}');
 
-      // Should still display filtered results
+      // Should still display filtered results and not reload the page
       expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument();
+      expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
+    });
+
+    it('should submit search by clicking search button', async () => {
+      const user = userEvent.setup();
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText('Search recipes...');
+      await user.type(searchInput, 'salad');
+
+      // Click the search button (which triggers form submit)
+      const searchButton = screen.getByAltText('Search');
+      await user.click(searchButton);
+
+      // Should display filtered results
+      expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
       expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
     });
 
@@ -528,6 +554,32 @@ describe('Recipes Component', () => {
       ).toBe(3);
     });
 
+    it('should close delete confirmation modal after successful deletion', async () => {
+      mockDeleteRecipe.mockResolvedValue();
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      // Open the delete confirmation
+      const deleteButtons = screen.getAllByAltText('Delete');
+      fireEvent.click(deleteButtons[0]);
+
+      // Verify modal is open
+      expect(screen.getByText('Delete Recipe')).toBeInTheDocument();
+
+      // Click the delete/confirm button
+      const confirmButton = screen.getByText('Delete');
+      fireEvent.click(confirmButton);
+
+      // Verify modal closes after successful deletion
+      await waitFor(() => {
+        expect(screen.queryByText('Delete Recipe')).not.toBeInTheDocument();
+      });
+    });
+
     it('should handle API errors when deleting a recipe', async () => {
       // Mock console.error to prevent error messages in test output
       const consoleErrorSpy = jest
@@ -564,6 +616,47 @@ describe('Recipes Component', () => {
 
       // Check that the recipe is still in the DOM (deletion failed)
       expect(screen.getByText('Pancakes')).toBeInTheDocument();
+
+      // Clean up
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should keep delete confirmation modal open when deletion fails', async () => {
+      // Mock console.error to prevent error messages in test output
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      // Mock the deleteRecipe to throw an error
+      mockDeleteRecipe.mockRejectedValue(new Error('API Error'));
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      // Open the delete confirmation
+      const deleteButtons = screen.getAllByAltText('Delete');
+      fireEvent.click(deleteButtons[0]);
+
+      // Verify modal is open
+      expect(screen.getByText('Delete Recipe')).toBeInTheDocument();
+
+      // Click the delete/confirm button
+      const confirmButton = screen.getByText('Delete');
+      fireEvent.click(confirmButton);
+
+      // Wait for the API call to complete
+      await waitFor(() => {
+        expect(mockDeleteRecipe).toHaveBeenCalledWith(1);
+      });
+
+      // Verify modal stays open after failed deletion
+      expect(screen.getByText('Delete Recipe')).toBeInTheDocument();
+      expect(
+        screen.getByText('Are you sure you want to delete recipe?')
+      ).toBeInTheDocument();
 
       // Clean up
       consoleErrorSpy.mockRestore();
