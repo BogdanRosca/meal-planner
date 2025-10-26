@@ -4,7 +4,6 @@ import TopBar from './TopBar';
 
 describe('TopBar Component', () => {
   const mockOnNavigate = jest.fn();
-  const mockOnSearch = jest.fn();
   const mockOnMenuToggle = jest.fn();
   const mockUser = { name: 'John Doe', avatar: 'avatar.jpg' };
 

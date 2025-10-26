@@ -60,7 +60,9 @@ describe('recipeService', () => {
       const result = await recipeService.getAllRecipes();
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/recipes');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes'
+      );
       expect(result).toEqual(mockRecipesResponse.recipes);
       expect(result.length).toBe(2);
     });
@@ -164,7 +166,10 @@ describe('recipeService', () => {
 
       await expect(recipeService.getAllRecipes()).rejects.toThrow('Test error');
 
-      expect(console.error).toHaveBeenCalledWith('Error fetching recipes:', error);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching recipes:',
+        error
+      );
     });
   });
 
@@ -332,7 +337,9 @@ describe('recipeService', () => {
 
       await recipeService.getAllRecipes();
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/recipes');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes'
+      );
     });
 
     it('should use correct API endpoint for getRecipeById', async () => {
@@ -344,7 +351,9 @@ describe('recipeService', () => {
 
       await recipeService.getRecipeById(1);
 
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/recipes/1');
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes/1'
+      );
     });
   });
 
@@ -352,30 +361,36 @@ describe('recipeService', () => {
     it('should always log errors to console when they occur', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error');
       const error = new Error('Something went wrong');
-      
+
       (global.fetch as jest.Mock).mockRejectedValueOnce(error);
 
       await expect(recipeService.getAllRecipes()).rejects.toThrow();
-      
+
       expect(consoleErrorSpy).toHaveBeenCalled();
-      
+
       consoleErrorSpy.mockRestore();
     });
 
     it('should log different messages for getAllRecipes and getRecipeById', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error');
       const error = new Error('Test error');
-      
+
       (global.fetch as jest.Mock).mockRejectedValueOnce(error);
       await expect(recipeService.getAllRecipes()).rejects.toThrow();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching recipes:', error);
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error fetching recipes:',
+        error
+      );
+
       consoleErrorSpy.mockClear();
-      
+
       (global.fetch as jest.Mock).mockRejectedValueOnce(error);
       await expect(recipeService.getRecipeById(1)).rejects.toThrow();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching recipe 1:', error);
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error fetching recipe 1:',
+        error
+      );
+
       consoleErrorSpy.mockRestore();
     });
   });
@@ -390,9 +405,12 @@ describe('recipeService', () => {
       await recipeService.deleteRecipe(1);
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost:8000/recipes/1', {
-        method: 'DELETE',
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes/1',
+        {
+          method: 'DELETE',
+        }
+      );
     });
 
     it('should handle errors when deleting a recipe', async () => {
@@ -414,7 +432,9 @@ describe('recipeService', () => {
       const networkError = new Error('Network error');
       (global.fetch as jest.Mock).mockRejectedValueOnce(networkError);
 
-      await expect(recipeService.deleteRecipe(1)).rejects.toThrow('Network error');
+      await expect(recipeService.deleteRecipe(1)).rejects.toThrow(
+        'Network error'
+      );
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error deleting recipe 1:',
         networkError

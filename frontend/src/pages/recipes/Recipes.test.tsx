@@ -128,7 +128,7 @@ describe('Recipes Component', () => {
 
       const placeholders = container.querySelectorAll('.recipe-placeholder');
       expect(placeholders.length).toBe(4);
-      
+
       // Check that placeholders contain emojis
       expect(placeholders[0].textContent).toMatch(/[🍳🥗🍽️🍿🍴]/);
     });
@@ -139,7 +139,10 @@ describe('Recipes Component', () => {
         portions: 1,
       };
 
-      mockGetAllRecipes.mockResolvedValue([singlePortionRecipe, mockRecipes[1]]);
+      mockGetAllRecipes.mockResolvedValue([
+        singlePortionRecipe,
+        mockRecipes[1],
+      ]);
 
       render(<Recipes />);
 
@@ -226,11 +229,11 @@ describe('Recipes Component', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('Search recipes...');
-      
+
       // Test uppercase
       fireEvent.change(searchInput, { target: { value: 'PASTA' } });
       expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument();
-      
+
       // Test mixed case
       fireEvent.change(searchInput, { target: { value: 'PaNcAkEs' } });
       expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -274,13 +277,13 @@ describe('Recipes Component', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('Search recipes...');
-      
+
       // Search for "a" should return multiple results
       fireEvent.change(searchInput, { target: { value: 'a' } });
       expect(
         screen.getByText(/Showing \d+ recipe\(s\) for: "a"/)
       ).toBeInTheDocument();
-      
+
       // Search for "pasta" should return 1 result
       fireEvent.change(searchInput, { target: { value: 'pasta' } });
       expect(
@@ -314,14 +317,14 @@ describe('Recipes Component', () => {
       });
 
       const searchInput = screen.getByPlaceholderText('Search recipes...');
-      
+
       // Search for something
       fireEvent.change(searchInput, { target: { value: 'pasta' } });
       expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
-      
+
       // Clear search
       fireEvent.change(searchInput, { target: { value: '' } });
-      
+
       // All recipes should be visible again
       expect(screen.getByText('Pancakes')).toBeInTheDocument();
       expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
@@ -370,7 +373,7 @@ describe('Recipes Component', () => {
 
       const grid = container.querySelector('.recipes-grid');
       expect(grid).toBeInTheDocument();
-      
+
       const recipeCards = container.querySelectorAll('.recipe-card');
       expect(recipeCards.length).toBe(4);
     });
@@ -386,19 +389,19 @@ describe('Recipes Component', () => {
 
       const recipeCard = container.querySelector('.recipe-card');
       expect(recipeCard).toBeInTheDocument();
-      
+
       const cardImage = recipeCard?.querySelector('.recipe-card-image');
       expect(cardImage).toBeInTheDocument();
-      
+
       const cardContent = recipeCard?.querySelector('.recipe-card-content');
       expect(cardContent).toBeInTheDocument();
-      
+
       const cardTitle = recipeCard?.querySelector('.recipe-card-title');
       expect(cardTitle).toBeInTheDocument();
-      
+
       const categoryBadge = recipeCard?.querySelector('.recipe-category-badge');
       expect(categoryBadge).toBeInTheDocument();
-      
+
       const cardFooter = recipeCard?.querySelector('.recipe-card-footer');
       expect(cardFooter).toBeInTheDocument();
     });
@@ -455,103 +458,115 @@ describe('Recipes Component', () => {
 
     it('should show delete confirmation popup when delete button is clicked', async () => {
       render(<Recipes />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
-      
+
       // Find the first recipe card delete button and click it
       const deleteButtons = screen.getAllByAltText('Delete');
       fireEvent.click(deleteButtons[0]);
-      
+
       // Check if confirmation popup appears with the correct recipe name
       expect(screen.getByText('Delete Recipe')).toBeInTheDocument();
-      expect(screen.getByText(/Are you sure you want to delete "Pancakes"/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete "Pancakes"/)
+      ).toBeInTheDocument();
     });
-    
+
     it('should close confirmation popup when cancel button is clicked', async () => {
       render(<Recipes />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
-      
+
       // Open the delete confirmation
       const deleteButtons = screen.getAllByAltText('Delete');
       fireEvent.click(deleteButtons[0]);
-      
+
       // Click the cancel button
       const cancelButton = screen.getByText('Cancel');
       fireEvent.click(cancelButton);
-      
+
       // Check if confirmation popup has disappeared
       expect(screen.queryByText('Delete Recipe')).not.toBeInTheDocument();
     });
-    
+
     it('should delete the recipe when confirm button is clicked', async () => {
       mockDeleteRecipe.mockResolvedValue();
-      
+
       render(<Recipes />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
-      
+
       // Check that we have 4 recipes initially
-      expect(screen.getAllByText(/Pancakes|Caesar Salad|Pasta Carbonara|Popcorn/).length).toBe(4);
-      
+      expect(
+        screen.getAllByText(/Pancakes|Caesar Salad|Pasta Carbonara|Popcorn/)
+          .length
+      ).toBe(4);
+
       // Open the delete confirmation for the first recipe
       const deleteButtons = screen.getAllByAltText('Delete');
       fireEvent.click(deleteButtons[0]);
-      
+
       // Click the delete/confirm button
       const confirmButton = screen.getByText('Delete');
       fireEvent.click(confirmButton);
-      
+
       // Check if the recipe service deleteRecipe method was called
       expect(mockDeleteRecipe).toHaveBeenCalledWith(1);
-      
+
       // Check if the recipe was removed from the UI
       await waitFor(() => {
         expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
       });
-      
+
       // Check that we now have 3 recipes
-      expect(screen.getAllByText(/Caesar Salad|Pasta Carbonara|Popcorn/).length).toBe(3);
+      expect(
+        screen.getAllByText(/Caesar Salad|Pasta Carbonara|Popcorn/).length
+      ).toBe(3);
     });
-    
+
     it('should handle API errors when deleting a recipe', async () => {
       // Mock console.error to prevent error messages in test output
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
       // Mock the deleteRecipe to throw an error
       mockDeleteRecipe.mockRejectedValue(new Error('API Error'));
-      
+
       render(<Recipes />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
-      
+
       // Open the delete confirmation
       const deleteButtons = screen.getAllByAltText('Delete');
       fireEvent.click(deleteButtons[0]);
-      
+
       // Click the delete/confirm button
       const confirmButton = screen.getByText('Delete');
       fireEvent.click(confirmButton);
-      
+
       // Check if the recipe service deleteRecipe method was called
       expect(mockDeleteRecipe).toHaveBeenCalledWith(1);
-      
+
       // Check that the console.error was called with the error
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting recipe:', expect.any(Error));
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error deleting recipe:',
+          expect.any(Error)
+        );
       });
-      
+
       // Check that the recipe is still in the DOM (deletion failed)
       expect(screen.getByText('Pancakes')).toBeInTheDocument();
-      
+
       // Clean up
       consoleErrorSpy.mockRestore();
     });
