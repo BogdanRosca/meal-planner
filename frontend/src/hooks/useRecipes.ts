@@ -16,6 +16,7 @@ export const useRecipes = () => {
         setRecipes(data);
       } catch (err) {
         setError('Failed to load recipes. Please try again later.');
+        // eslint-disable-next-line no-console
         console.error('Error loading recipes:', err);
       } finally {
         setLoading(false);
@@ -31,6 +32,7 @@ export const useRecipes = () => {
       setRecipes([...recipes, addedRecipe]);
       return true;
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Error adding recipe:', err);
       return false;
     }
@@ -42,6 +44,7 @@ export const useRecipes = () => {
       setRecipes(recipes.filter(recipe => recipe.id !== recipeId));
       return true;
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Error deleting recipe:', err);
       return false;
     }

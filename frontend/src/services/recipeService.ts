@@ -22,6 +22,7 @@ export const recipeService = {
       const data: Recipe = await response.json();
       return data;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error adding recipe:', error);
       throw error;
     }
@@ -41,6 +42,7 @@ export const recipeService = {
       const data: RecipesResponse = await response.json();
       return data.recipes;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching recipes:', error);
       throw error;
     }
@@ -60,6 +62,7 @@ export const recipeService = {
       const data: Recipe = await response.json();
       return data;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error fetching recipe ${id}:`, error);
       throw error;
     }
@@ -78,6 +81,7 @@ export const recipeService = {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error deleting recipe ${id}:`, error);
       throw error;
     }
