@@ -11,9 +11,6 @@ import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 
 
-
-
-
 const Recipes: React.FC = () => {
   const { recipes, loading, error, addRecipe, deleteRecipe } = useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
