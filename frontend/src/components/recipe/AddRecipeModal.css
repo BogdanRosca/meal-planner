@@ -232,17 +232,18 @@
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .add-recipe-modal {
     width: 95%;
     max-height: 95vh;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
   }
-  
-  .submit-btn, .cancel-btn {
+
+  .submit-btn,
+  .cancel-btn {
     width: 100%;
   }
 }
