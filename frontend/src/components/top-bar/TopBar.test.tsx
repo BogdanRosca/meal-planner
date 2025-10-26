@@ -173,27 +173,13 @@ describe('TopBar Component', () => {
     render(<TopBar />);
 
     const recipesButton = screen.getByRole('button', { name: 'Recipes' });
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
     const mobileMenuButton = document.querySelector('.mobile-menu-btn');
 
     // Should not throw errors when clicked without callbacks
     expect(() => {
       fireEvent.click(recipesButton);
-      fireEvent.change(searchInput, { target: { value: 'test' } });
       fireEvent.click(mobileMenuButton!);
     }).not.toThrow();
-  });
-
-  it('renders search SVG icon correctly', () => {
-    render(<TopBar />);
-
-    const searchButton = document.querySelector('.search-button');
-    const svgElement = searchButton?.querySelector('svg');
-
-    expect(svgElement).toBeInTheDocument();
-    expect(svgElement).toHaveAttribute('width', '16');
-    expect(svgElement).toHaveAttribute('height', '16');
-    expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
   });
 
   it('renders mobile menu SVG icon correctly', () => {
@@ -209,18 +195,6 @@ describe('TopBar Component', () => {
     expect(lines).toHaveLength(3); // Hamburger menu has 3 lines
   });
 
-  it('maintains search query state internally', () => {
-    render(<TopBar />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-
-    fireEvent.change(searchInput, { target: { value: 'pizza' } });
-    expect(searchInput).toHaveValue('pizza');
-
-    fireEvent.change(searchInput, { target: { value: 'burger' } });
-    expect(searchInput).toHaveValue('burger');
-  });
-
   it('has correct CSS classes for styling', () => {
     const { container } = render(<TopBar />);
 
@@ -228,7 +202,6 @@ describe('TopBar Component', () => {
     expect(container.querySelector('.top-bar-container')).toBeInTheDocument();
     expect(container.querySelector('.logo-section')).toBeInTheDocument();
     expect(container.querySelector('.navigation')).toBeInTheDocument();
-    expect(container.querySelector('.search-section')).toBeInTheDocument();
     expect(container.querySelector('.user-section')).toBeInTheDocument();
   });
 

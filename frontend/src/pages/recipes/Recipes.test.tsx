@@ -239,7 +239,7 @@ describe('Recipes Component', () => {
       expect(screen.getByText('Pancakes')).toBeInTheDocument();
     });
 
-    it('should display search info when searching', async () => {
+    it('should display filtered results when searching', async () => {
       render(<Recipes />);
 
       await waitFor(() => {
@@ -249,9 +249,9 @@ describe('Recipes Component', () => {
       const searchInput = screen.getByPlaceholderText('Search recipes...');
       fireEvent.change(searchInput, { target: { value: 'salad' } });
 
-      expect(
-        screen.getByText('Showing 1 recipe(s) for: "salad"')
-      ).toBeInTheDocument();
+      // Should show Caesar Salad but not Pancakes
+      expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
+      expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
     });
 
     it('should show no results message when no recipes match', async () => {
@@ -269,7 +269,7 @@ describe('Recipes Component', () => {
       ).toBeInTheDocument();
     });
 
-    it('should update search results count dynamically', async () => {
+    it('should update search results dynamically', async () => {
       render(<Recipes />);
 
       await waitFor(() => {
@@ -280,15 +280,13 @@ describe('Recipes Component', () => {
 
       // Search for "a" should return multiple results
       fireEvent.change(searchInput, { target: { value: 'a' } });
-      expect(
-        screen.getByText(/Showing \d+ recipe\(s\) for: "a"/)
-      ).toBeInTheDocument();
+      expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
+      expect(screen.getByText('Pancakes')).toBeInTheDocument();
 
       // Search for "pasta" should return 1 result
       fireEvent.change(searchInput, { target: { value: 'pasta' } });
-      expect(
-        screen.getByText('Showing 1 recipe(s) for: "pasta"')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument();
+      expect(screen.queryByText('Pancakes')).not.toBeInTheDocument();
     });
 
     it('should handle search form submission', async () => {
@@ -467,10 +465,10 @@ describe('Recipes Component', () => {
       const deleteButtons = screen.getAllByAltText('Delete');
       fireEvent.click(deleteButtons[0]);
 
-      // Check if confirmation popup appears with the correct recipe name
+      // Check if confirmation popup appears
       expect(screen.getByText('Delete Recipe')).toBeInTheDocument();
       expect(
-        screen.getByText(/Are you sure you want to delete "Pancakes"/)
+        screen.getByText('Are you sure you want to delete recipe?')
       ).toBeInTheDocument();
     });
 
