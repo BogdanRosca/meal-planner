@@ -43,7 +43,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["salt", "pepper"],
             instructions="Cook the pasta",
             prep_time=20,
-            portions=4
+            portions=4,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']
@@ -82,7 +83,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["salt"],
             instructions="Cook it",
             prep_time=15,
-            portions=2
+            portions=2,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']
@@ -133,7 +135,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["salt"],
             instructions="Cook it",
             prep_time=20,
-            portions=2
+            portions=2,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']
@@ -159,7 +162,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["salt"],
             instructions="Cook it",
             prep_time=20,
-            portions=2
+            portions=2,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']
@@ -188,7 +192,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["milk"],
             instructions="Mix and serve",
             prep_time=5,
-            portions=1
+            portions=1,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']
@@ -222,7 +227,8 @@ class TestUpdateRecipeEndpointIntegration:
             common_ingredients=["salt"],
             instructions="Cook it",
             prep_time=20,
-            portions=2
+            portions=2,
+            foto_url="www.my-foto-url.net"
         )
         
         recipe_id = original_recipe['id']

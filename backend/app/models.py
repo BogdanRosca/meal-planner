@@ -27,11 +27,11 @@ class RecipeResponse(BaseModel):
     name: str
     category: str
     main_ingredients: List[Ingredient]
-    common_ingredients: List[str]
+    common_ingredients: Optional[List[str]] = []
     instructions: str
     prep_time: int
     portions: int
-    foto_url: str
+    foto_url: Optional[str] = None
 
 
 class NewRecipeResponse(BaseModel):
