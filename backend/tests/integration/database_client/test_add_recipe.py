@@ -39,7 +39,8 @@ class TestAddRecipe:
             common_ingredients=TEST_RECIPE_DATA["common_ingredients"],
             instructions=TEST_RECIPE_DATA["instructions"],
             prep_time=TEST_RECIPE_DATA["prep_time"],
-            portions=TEST_RECIPE_DATA["portions"]
+            portions=TEST_RECIPE_DATA["portions"],
+            foto_url="www.my-foto-url.net"
         )
         
         # Track the created recipe ID for cleanup

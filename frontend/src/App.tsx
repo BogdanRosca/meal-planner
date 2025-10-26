@@ -3,18 +3,14 @@ import './App.css';
 import TopBar from './components/top-bar/TopBar';
 import QuickActions from './components/quick-actions/QuickActions';
 import Home from './pages/home/Home';
+import Recipes from './pages/recipes/Recipes';
 
 function App() {
   const [currentSection, setCurrentSection] = useState('Meal Planner');
-  const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleNavigation = (section: string) => {
     setCurrentSection(section);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
   };
 
   const handleQuickAction = (action: string) => {
@@ -41,7 +37,6 @@ function App() {
       <TopBar
         currentUser={{ name: 'John Doe' }}
         onNavigate={handleNavigation}
-        onSearch={handleSearch}
         onMenuToggle={handleMobileMenuToggle}
       />
       <QuickActions
@@ -51,11 +46,7 @@ function App() {
         isMobileOpen={isMobileMenuOpen}
       />
       <main className="App-main">
-        <div className="content-header">
-          <h1>{currentSection}</h1>
-        </div>
-
-        <Home searchQuery={searchQuery} />
+        {currentSection === 'Recipes' ? <Recipes /> : <Home />}
       </main>
     </div>
   );

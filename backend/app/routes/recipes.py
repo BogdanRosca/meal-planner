@@ -84,22 +84,26 @@ def create_recipe(recipe: RecipeCreate):
         # Convert Pydantic Ingredient objects to dictionaries
         main_ingredients_dicts = [ingredient.model_dump() for ingredient in recipe.main_ingredients]
         
-        new_recipe = db_client.add_recipe(
+        db_client.add_recipe(
             name=recipe.name,
             category=recipe.category,
             main_ingredients=main_ingredients_dicts,
             common_ingredients=recipe.common_ingredients,
             instructions=recipe.instructions,
             prep_time=recipe.prep_time,
-            portions=recipe.portions
+            portions=recipe.portions,
+            foto_url=recipe.foto_url
         )
         
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
             content={
-                "id": new_recipe["id"],
                 "status": "success",
-                "message": "Recipe created successfully"
+                "message": "Recipe created successfully",
+                "name": recipe.name,
+                "category": recipe.category,
+                "prep_time": recipe.prep_time,
+                "portions": recipe.portions
             }
         )
     

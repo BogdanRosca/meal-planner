@@ -15,10 +15,11 @@ class RecipeCreate(BaseModel):
     name: str
     category: str
     main_ingredients: List[Ingredient]
-    common_ingredients: List[str]
+    common_ingredients: Optional[List[str]] = []
     instructions: str
     prep_time: int
     portions: int
+    foto_url: Optional[str] = None
 
 
 class RecipeResponse(BaseModel):
@@ -26,18 +27,20 @@ class RecipeResponse(BaseModel):
     name: str
     category: str
     main_ingredients: List[Ingredient]
-    common_ingredients: List[str]
+    common_ingredients: Optional[List[str]] = []
     instructions: str
+    prep_time: int
+    portions: int
+    foto_url: Optional[str] = None
+
+
+class NewRecipeResponse(BaseModel):
+    name: str
+    category: str
     prep_time: int
     portions: int
 
 
-class NewRecipeResponse(BaseModel):
-    id: int
-    status: str
-    message: str
-
-    
 class RecipeUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
@@ -46,3 +49,4 @@ class RecipeUpdate(BaseModel):
     instructions: Optional[str] = None
     prep_time: Optional[int] = None
     portions: Optional[int] = None
+    foto_url: Optional[str] = None   

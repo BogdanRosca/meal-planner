@@ -7,18 +7,15 @@ interface TopBarProps {
     avatar?: string;
   };
   onNavigate?: (_section: string) => void;
-  onSearch?: (_query: string) => void;
   onMenuToggle?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   currentUser = { name: 'John Doe' },
   onNavigate,
-  onSearch,
   onMenuToggle,
 }) => {
   const [activeTab, setActiveTab] = useState('Meal Planner');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const navigationItems = [
     'Meal Planner',
@@ -30,17 +27,6 @@ const TopBar: React.FC<TopBarProps> = ({
   const handleNavClick = (item: string) => {
     setActiveTab(item);
     onNavigate?.(item);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    onSearch?.(query);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch?.(searchQuery);
   };
 
   return (
@@ -80,34 +66,6 @@ const TopBar: React.FC<TopBarProps> = ({
             </button>
           ))}
         </nav>
-
-        {/* Search Section */}
-        <div className="search-section">
-          <form onSubmit={handleSearchSubmit} className="search-form">
-            <div className="search-input-container">
-              <input
-                type="text"
-                placeholder="Search recipes..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="search-input"
-              />
-              <button type="submit" className="search-button">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="21 21l-4.35-4.35" />
-                </svg>
-              </button>
-            </div>
-          </form>
-        </div>
 
         {/* User Section */}
         <div className="user-section">

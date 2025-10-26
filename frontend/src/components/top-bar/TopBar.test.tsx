@@ -4,7 +4,6 @@ import TopBar from './TopBar';
 
 describe('TopBar Component', () => {
   const mockOnNavigate = jest.fn();
-  const mockOnSearch = jest.fn();
   const mockOnMenuToggle = jest.fn();
   const mockUser = { name: 'John Doe', avatar: 'avatar.jpg' };
 
@@ -17,9 +16,6 @@ describe('TopBar Component', () => {
 
     expect(screen.getByText('MealCraft')).toBeInTheDocument();
     expect(screen.getByText('🍴')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('Search recipes...')
-    ).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument(); // Default user
   });
 
@@ -85,54 +81,6 @@ describe('TopBar Component', () => {
 
     expect(recipesButton).toHaveClass('active');
     expect(mealPlannerButton).not.toHaveClass('active');
-  });
-
-  it('renders search input and button', () => {
-    const { container } = render(<TopBar />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-    const searchButton = container.querySelector('.search-button');
-
-    expect(searchInput).toBeInTheDocument();
-    expect(searchButton).toBeInTheDocument();
-    expect(searchInput).toHaveAttribute('type', 'text');
-  });
-
-  it('calls onSearch when typing in search input', () => {
-    render(<TopBar onSearch={mockOnSearch} />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-    fireEvent.change(searchInput, { target: { value: 'pasta' } });
-
-    expect(mockOnSearch).toHaveBeenCalledWith('pasta');
-    expect(searchInput).toHaveValue('pasta');
-  });
-
-  it('calls onSearch when search form is submitted', () => {
-    render(<TopBar onSearch={mockOnSearch} />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-    const searchForm = searchInput.closest('form');
-
-    fireEvent.change(searchInput, { target: { value: 'chicken' } });
-    fireEvent.submit(searchForm!);
-
-    // Should be called twice: once for onChange, once for onSubmit
-    expect(mockOnSearch).toHaveBeenCalledWith('chicken');
-    expect(mockOnSearch).toHaveBeenCalledTimes(2);
-  });
-
-  it('prevents default form submission', () => {
-    render(<TopBar onSearch={mockOnSearch} />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-    const searchForm = searchInput.closest('form');
-
-    fireEvent.change(searchInput, { target: { value: 'test' } });
-    fireEvent.submit(searchForm!);
-
-    // Test passes if no page reload occurs (which would happen without preventDefault)
-    expect(mockOnSearch).toHaveBeenCalledWith('test');
   });
 
   it('renders mobile menu button', () => {
@@ -225,27 +173,13 @@ describe('TopBar Component', () => {
     render(<TopBar />);
 
     const recipesButton = screen.getByRole('button', { name: 'Recipes' });
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
     const mobileMenuButton = document.querySelector('.mobile-menu-btn');
 
     // Should not throw errors when clicked without callbacks
     expect(() => {
       fireEvent.click(recipesButton);
-      fireEvent.change(searchInput, { target: { value: 'test' } });
       fireEvent.click(mobileMenuButton!);
     }).not.toThrow();
-  });
-
-  it('renders search SVG icon correctly', () => {
-    render(<TopBar />);
-
-    const searchButton = document.querySelector('.search-button');
-    const svgElement = searchButton?.querySelector('svg');
-
-    expect(svgElement).toBeInTheDocument();
-    expect(svgElement).toHaveAttribute('width', '16');
-    expect(svgElement).toHaveAttribute('height', '16');
-    expect(svgElement).toHaveAttribute('viewBox', '0 0 24 24');
   });
 
   it('renders mobile menu SVG icon correctly', () => {
@@ -261,18 +195,6 @@ describe('TopBar Component', () => {
     expect(lines).toHaveLength(3); // Hamburger menu has 3 lines
   });
 
-  it('maintains search query state internally', () => {
-    render(<TopBar />);
-
-    const searchInput = screen.getByPlaceholderText('Search recipes...');
-
-    fireEvent.change(searchInput, { target: { value: 'pizza' } });
-    expect(searchInput).toHaveValue('pizza');
-
-    fireEvent.change(searchInput, { target: { value: 'burger' } });
-    expect(searchInput).toHaveValue('burger');
-  });
-
   it('has correct CSS classes for styling', () => {
     const { container } = render(<TopBar />);
 
@@ -280,7 +202,6 @@ describe('TopBar Component', () => {
     expect(container.querySelector('.top-bar-container')).toBeInTheDocument();
     expect(container.querySelector('.logo-section')).toBeInTheDocument();
     expect(container.querySelector('.navigation')).toBeInTheDocument();
-    expect(container.querySelector('.search-section')).toBeInTheDocument();
     expect(container.querySelector('.user-section')).toBeInTheDocument();
   });
 

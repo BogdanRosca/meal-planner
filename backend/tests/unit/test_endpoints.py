@@ -106,7 +106,10 @@ class TestCreateRecipeEndpoint:
         json_response = response.json()
         assert json_response["status"] == "success"
         assert json_response["message"] == "Recipe created successfully"
-        assert json_response["id"] == 123
+        assert json_response["name"] == SAMPLE_RECIPE_2["name"]
+        assert json_response["category"] == SAMPLE_RECIPE_2["category"]
+        assert json_response["prep_time"] == SAMPLE_RECIPE_2["prep_time"]
+        assert json_response["portions"] == SAMPLE_RECIPE_2["portions"]
         
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
@@ -286,6 +289,7 @@ class TestGetRecipeByIdEndpoint:
         assert json_response["instructions"] == "Cook it"
         assert json_response["prep_time"] == 30
         assert json_response["portions"] == 4
+        assert json_response["foto_url"] == "https://example.com/recipe1.jpg"
         
         # Verify mock calls
         mock_db_client.connect.assert_called_once()

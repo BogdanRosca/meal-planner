@@ -51,13 +51,14 @@ runs:
           common_ingredients TEXT[] DEFAULT '{}',
           instructions TEXT NOT NULL,
           prep_time INTEGER,
-          portions INTEGER
+          portions INTEGER,
+          foto_url VARCHAR(255)
         );"
 
         # Insert sample recipe
         echo "Inserting sample recipe data..."
         PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$PGDATABASE" -c "
-        INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions) 
+        INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url) 
         VALUES (
           'Test Pasta', 
           'dinner', 
@@ -70,7 +71,8 @@ runs:
           ARRAY['salt', 'pepper', 'basil', 'olive', 'garlic'],
           'Cook pasta and add oil',
           15,
-          2
+          2,
+          'www.my-foto-url.net'
         ) ON CONFLICT DO NOTHING;"
         
         echo "Database setup completed successfully!"
