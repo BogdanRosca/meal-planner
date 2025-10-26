@@ -22,6 +22,7 @@ describe('useRecipes hook', () => {
         { name: 'Milk', quantity: 300, unit: 'ml' },
       ],
       common_ingredients: ['Salt', 'Sugar'],
+      foto_url: 'https://example.com/pancakes.jpg',
     },
     {
       id: 2,
@@ -35,6 +36,7 @@ describe('useRecipes hook', () => {
         { name: 'Chicken', quantity: 150, unit: 'g' },
       ],
       common_ingredients: ['Pepper', 'Dressing'],
+      foto_url: null,
     },
   ];
 
@@ -119,6 +121,7 @@ describe('useRecipes hook', () => {
           { name: 'Bacon', quantity: 100, unit: 'g' },
         ],
         common_ingredients: ['Salt', 'Pepper'],
+        foto_url: 'https://example.com/carbonara.jpg',
       };
 
       const addedRecipe: Recipe = { ...newRecipe, id: 3 };
@@ -162,6 +165,7 @@ describe('useRecipes hook', () => {
         portions: 1,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
 
       let addResult: boolean = true;
@@ -187,6 +191,7 @@ describe('useRecipes hook', () => {
         portions: 1,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
       const addedRecipe: Recipe = { ...newRecipe, id: 1 };
       mockRecipeService.addRecipe.mockResolvedValue(addedRecipe);
@@ -314,6 +319,7 @@ describe('useRecipes hook', () => {
         portions: 2,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
 
       const recipe2: Omit<Recipe, 'id'> = {
@@ -324,6 +330,7 @@ describe('useRecipes hook', () => {
         portions: 3,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
 
       mockRecipeService.addRecipe
@@ -385,6 +392,7 @@ describe('useRecipes hook', () => {
         portions: 1,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
 
       mockRecipeService.addRecipe.mockResolvedValue({ ...newRecipe, id: 3 });
@@ -438,6 +446,7 @@ describe('useRecipes hook', () => {
         portions: 1,
         main_ingredients: [],
         common_ingredients: [],
+        foto_url: null,
       };
 
       await waitFor(async () => {

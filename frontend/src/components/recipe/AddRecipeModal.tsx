@@ -18,6 +18,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   const [instructions, setInstructions] = useState<string>('');
   const [prepTime, setPrepTime] = useState<number>(15);
   const [portions, setPortions] = useState<number>(2);
+  const [fotoUrl, setFotoUrl] = useState<string>('');
   const [mainIngredients, setMainIngredients] = useState<Ingredient[]>([
     { name: '', unit: 'g', quantity: 0 },
   ]);
@@ -88,6 +89,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
       portions,
       main_ingredients: filteredMainIngredients,
       common_ingredients: commonIngredients,
+      foto_url: fotoUrl.trim() || null,
     };
 
     onAddRecipe(newRecipe);
@@ -132,6 +134,18 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               <option value="dinner">Dinner</option>
               <option value="snack">Snack</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="recipe-foto-url">Photo URL (optional)</label>
+            <input
+              id="recipe-foto-url"
+              type="url"
+              value={fotoUrl}
+              onChange={e => setFotoUrl(e.target.value)}
+              placeholder="https://example.com/recipe-photo.jpg"
+              className="form-input"
+            />
           </div>
 
           <div className="form-group">

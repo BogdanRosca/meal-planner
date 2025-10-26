@@ -13,6 +13,7 @@ export interface Recipe {
   instructions: string;
   prep_time: number;
   portions: number;
+  foto_url?: string | null;
 }
 
 export interface RecipesResponse {

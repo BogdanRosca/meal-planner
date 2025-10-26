@@ -99,6 +99,21 @@ describe('AddRecipeModal Component', () => {
     expect(instructionsTextarea).toHaveValue('Cook pasta and add sauce');
   });
 
+  it('should update foto url input', () => {
+    render(
+      <AddRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onAddRecipe={mockOnAddRecipe}
+      />
+    );
+    const fotoUrlInput = screen.getByLabelText('Photo URL (optional)');
+    fireEvent.change(fotoUrlInput, {
+      target: { value: 'https://example.com/recipe.jpg' },
+    });
+    expect(fotoUrlInput).toHaveValue('https://example.com/recipe.jpg');
+  });
+
   it('should update prep time input', () => {
     render(
       <AddRecipeModal
@@ -358,6 +373,7 @@ describe('AddRecipeModal Component', () => {
           },
         ],
         common_ingredients: [],
+        foto_url: null,
       })
     );
   });
@@ -481,6 +497,87 @@ describe('AddRecipeModal Component', () => {
       fireEvent.change(categorySelect, { target: { value: category } });
       expect(categorySelect).toHaveValue(category);
     });
+  });
+
+  it('should include foto_url when provided', async () => {
+    render(
+      <AddRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onAddRecipe={mockOnAddRecipe}
+      />
+    );
+
+    // Fill in required fields
+    fireEvent.change(screen.getByLabelText('Recipe Name'), {
+      target: { value: 'Test Recipe' },
+    });
+    fireEvent.change(screen.getByLabelText('Instructions'), {
+      target: { value: 'Test instructions' },
+    });
+    fireEvent.change(screen.getByLabelText('Photo URL (optional)'), {
+      target: { value: 'https://example.com/recipe.jpg' },
+    });
+
+    // Fill ingredient
+    const ingredientNameInput =
+      screen.getAllByPlaceholderText('Ingredient name')[0];
+    const ingredientQtyInput = screen.getAllByPlaceholderText('Qty')[0];
+    fireEvent.change(ingredientNameInput, { target: { value: 'Flour' } });
+    fireEvent.change(ingredientQtyInput, { target: { value: '500' } });
+
+    // Submit
+    const submitButton = screen.getByText('Add Recipe');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnAddRecipe).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnAddRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        foto_url: 'https://example.com/recipe.jpg',
+      })
+    );
+  });
+
+  it('should set foto_url to null when empty', async () => {
+    render(
+      <AddRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onAddRecipe={mockOnAddRecipe}
+      />
+    );
+
+    // Fill in required fields (leave foto_url empty)
+    fireEvent.change(screen.getByLabelText('Recipe Name'), {
+      target: { value: 'Test Recipe' },
+    });
+    fireEvent.change(screen.getByLabelText('Instructions'), {
+      target: { value: 'Test instructions' },
+    });
+
+    // Fill ingredient
+    const ingredientNameInput =
+      screen.getAllByPlaceholderText('Ingredient name')[0];
+    const ingredientQtyInput = screen.getAllByPlaceholderText('Qty')[0];
+    fireEvent.change(ingredientNameInput, { target: { value: 'Flour' } });
+    fireEvent.change(ingredientQtyInput, { target: { value: '500' } });
+
+    // Submit
+    const submitButton = screen.getByText('Add Recipe');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnAddRecipe).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockOnAddRecipe).toHaveBeenCalledWith(
+      expect.objectContaining({
+        foto_url: null,
+      })
+    );
   });
 
   it('should handle all unit options', () => {

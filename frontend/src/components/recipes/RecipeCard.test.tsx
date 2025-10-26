@@ -16,6 +16,7 @@ describe('RecipeCard', () => {
       { name: 'Eggs', quantity: 2, unit: 'pcs' },
     ],
     common_ingredients: ['Salt', 'Sugar'],
+    foto_url: null,
   };
 
   const mockOnRecipeClick = jest.fn();
@@ -295,6 +296,59 @@ describe('RecipeCard', () => {
       );
 
       expect(screen.getByText(/999 min/)).toBeInTheDocument();
+    });
+
+    it('should display foto_url when provided', () => {
+      const recipeWithFoto = {
+        ...mockRecipe,
+        foto_url: 'https://example.com/recipe.jpg',
+      };
+      const { container } = render(
+        <RecipeCard
+          _recipe={recipeWithFoto}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+        />
+      );
+
+      const img = container.querySelector('.recipe-image');
+      expect(img).toBeInTheDocument();
+      expect(img).toHaveAttribute('src', 'https://example.com/recipe.jpg');
+      expect(img).toHaveAttribute('alt', 'Test Recipe');
+      expect(
+        container.querySelector('.recipe-placeholder')
+      ).not.toBeInTheDocument();
+    });
+
+    it('should display emoji placeholder when foto_url is null', () => {
+      const { container } = render(
+        <RecipeCard
+          _recipe={mockRecipe}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+        />
+      );
+
+      expect(
+        container.querySelector('.recipe-placeholder')
+      ).toBeInTheDocument();
+      expect(container.querySelector('.recipe-image')).not.toBeInTheDocument();
+    });
+
+    it('should display emoji placeholder when foto_url is undefined', () => {
+      const recipeWithoutFoto = { ...mockRecipe, foto_url: undefined };
+      const { container } = render(
+        <RecipeCard
+          _recipe={recipeWithoutFoto}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+        />
+      );
+
+      expect(
+        container.querySelector('.recipe-placeholder')
+      ).toBeInTheDocument();
+      expect(container.querySelector('.recipe-image')).not.toBeInTheDocument();
     });
 
     it('should handle recipe with very long name', () => {

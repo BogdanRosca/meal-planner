@@ -27,9 +27,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
     <div className="recipe-card">
       <div className="recipe-card-main" onClick={() => onRecipeClick(_recipe)}>
         <div className="recipe-card-image">
-          <div className="recipe-placeholder">
-            {getCategoryEmoji(_recipe.category)}
-          </div>
+          {_recipe.foto_url ? (
+            <img
+              src={_recipe.foto_url}
+              alt={_recipe.name}
+              className="recipe-image"
+            />
+          ) : (
+            <div className="recipe-placeholder">
+              {getCategoryEmoji(_recipe.category)}
+            </div>
+          )}
         </div>
         <div className="recipe-card-content">
           <div className="recipe-title-container">

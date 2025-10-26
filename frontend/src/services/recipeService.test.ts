@@ -17,6 +17,7 @@ describe('recipeService', () => {
     instructions: 'Test instructions',
     prep_time: 30,
     portions: 4,
+    foto_url: 'https://example.com/recipe.jpg',
   };
 
   const mockRecipesResponse: RecipesResponse = {
@@ -33,6 +34,7 @@ describe('recipeService', () => {
         instructions: 'Cook pasta',
         prep_time: 20,
         portions: 2,
+        foto_url: null,
       },
     ],
   };
@@ -84,6 +86,7 @@ describe('recipeService', () => {
       expect(result[0]).toHaveProperty('instructions');
       expect(result[0]).toHaveProperty('prep_time');
       expect(result[0]).toHaveProperty('portions');
+      expect(result[0]).toHaveProperty('foto_url');
     });
 
     it('should throw error when response is not ok', async () => {
@@ -223,6 +226,7 @@ describe('recipeService', () => {
       expect(result).toHaveProperty('instructions');
       expect(result).toHaveProperty('prep_time');
       expect(result).toHaveProperty('portions');
+      expect(result).toHaveProperty('foto_url');
     });
 
     it('should throw error when recipe is not found (404)', async () => {

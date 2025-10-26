@@ -156,6 +156,12 @@
   z-index: 1;
 }
 
+.recipe-card-image img.recipe-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .recipe-placeholder {
   font-size: 64px;
   opacity: 0.3;
