@@ -10,9 +10,7 @@ describe('useRecipeModals hook', () => {
     instructions: 'Test instructions',
     prep_time: 30,
     portions: 4,
-    main_ingredients: [
-      { name: 'Ingredient 1', quantity: 100, unit: 'g' },
-    ],
+    main_ingredients: [{ name: 'Ingredient 1', quantity: 100, unit: 'g' }],
     common_ingredients: ['Salt', 'Pepper'],
   };
 
@@ -213,7 +211,9 @@ describe('useRecipeModals hook', () => {
         result.current.openDeleteConfirmation(mockRecipe);
       });
       expect(result.current.deleteConfirmation.recipeId).toBe(mockRecipe.id);
-      expect(result.current.deleteConfirmation.recipeName).toBe(mockRecipe.name);
+      expect(result.current.deleteConfirmation.recipeName).toBe(
+        mockRecipe.name
+      );
 
       // Open delete confirmation for second recipe
       act(() => {
@@ -279,7 +279,9 @@ describe('useRecipeModals hook', () => {
         result.current.openDeleteConfirmation(longNameRecipe);
       });
 
-      expect(result.current.deleteConfirmation.recipeName).toBe('A'.repeat(200));
+      expect(result.current.deleteConfirmation.recipeName).toBe(
+        'A'.repeat(200)
+      );
     });
   });
 

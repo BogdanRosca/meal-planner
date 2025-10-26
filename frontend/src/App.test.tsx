@@ -194,7 +194,7 @@ describe('App Component', () => {
     // Test multiple state changes - click Recipes nav
     const recipesNavButton = screen.getByText('Recipes');
     fireEvent.click(recipesNavButton);
-    
+
     // Wait for recipes page to render - should see loading or search input
     const loadingOrSearch = screen.queryByText(/Loading recipes.../i);
     expect(loadingOrSearch).toBeInTheDocument();

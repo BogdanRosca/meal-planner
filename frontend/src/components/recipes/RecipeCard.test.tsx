@@ -243,7 +243,7 @@ describe('RecipeCard', () => {
 
       const deleteButton = container.querySelector('.recipe-delete-button');
       const mockEvent = { stopPropagation: jest.fn() } as any;
-      
+
       fireEvent.click(deleteButton!, mockEvent);
 
       expect(mockOnDeleteClick).toHaveBeenCalledTimes(1);

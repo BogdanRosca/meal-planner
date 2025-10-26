@@ -525,12 +525,17 @@ describe('AddRecipeModal Component', () => {
       target: { value: 'Test instructions' },
     });
 
-    const form = screen.getByRole('button', { name: 'Add Recipe' }).closest('form');
-    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-    
+    const form = screen
+      .getByRole('button', { name: 'Add Recipe' })
+      .closest('form');
+    const submitEvent = new Event('submit', {
+      bubbles: true,
+      cancelable: true,
+    });
+
     // Mock preventDefault to verify it's called
     const preventDefaultSpy = jest.spyOn(submitEvent, 'preventDefault');
-    
+
     form?.dispatchEvent(submitEvent);
 
     expect(preventDefaultSpy).toHaveBeenCalled();

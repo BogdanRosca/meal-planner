@@ -200,7 +200,7 @@ describe('RecipeDetailModal Component', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should call onClose when backdrop is clicked', () => {
+  it('should call onClose when clicking backdrop', () => {
     render(
       <RecipeDetailModal
         recipe={mockRecipe}
@@ -209,10 +209,9 @@ describe('RecipeDetailModal Component', () => {
       />
     );
     const backdrop = document.querySelector('.recipe-modal-backdrop');
-    if (backdrop) {
-      fireEvent.click(backdrop);
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    }
+    expect(backdrop).toBeInTheDocument();
+    fireEvent.click(backdrop!);
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it('should not call onClose when clicking inside modal content', () => {
@@ -224,10 +223,9 @@ describe('RecipeDetailModal Component', () => {
       />
     );
     const modalContent = document.querySelector('.recipe-modal-content');
-    if (modalContent) {
-      fireEvent.click(modalContent);
-      expect(mockOnClose).not.toHaveBeenCalled();
-    }
+    expect(modalContent).toBeInTheDocument();
+    fireEvent.click(modalContent!);
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it('should display breakfast emoji for breakfast category', () => {
