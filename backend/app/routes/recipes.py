@@ -92,7 +92,8 @@ def create_recipe(recipe: RecipeCreate):
             instructions=recipe.instructions,
             prep_time=recipe.prep_time,
             portions=recipe.portions,
-            foto_url=recipe.foto_url
+            foto_url=recipe.foto_url,
+            video_url=recipe.video_url
         )
         
         return JSONResponse(

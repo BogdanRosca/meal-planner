@@ -20,6 +20,7 @@ class RecipeCreate(BaseModel):
     prep_time: int
     portions: int
     foto_url: Optional[str] = None
+    video_url: Optional[str] = None
 
 
 class RecipeResponse(BaseModel):
@@ -32,6 +33,7 @@ class RecipeResponse(BaseModel):
     prep_time: int
     portions: int
     foto_url: Optional[str] = None
+    video_url: Optional[str] = None
 
 
 class NewRecipeResponse(BaseModel):
@@ -50,3 +52,4 @@ class RecipeUpdate(BaseModel):
     prep_time: Optional[int] = None
     portions: Optional[int] = None
     foto_url: Optional[str] = None   
+    video_url: Optional[str] = None   
