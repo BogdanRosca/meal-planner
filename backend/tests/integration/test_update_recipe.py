@@ -44,7 +44,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Cook the pasta",
             prep_time=20,
             portions=4,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']
@@ -84,7 +85,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Cook it",
             prep_time=15,
             portions=2,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']
@@ -136,7 +138,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Cook it",
             prep_time=20,
             portions=2,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']
@@ -163,7 +166,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Cook it",
             prep_time=20,
             portions=2,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']
@@ -193,7 +197,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Mix and serve",
             prep_time=5,
             portions=1,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']
@@ -228,7 +233,8 @@ class TestUpdateRecipeEndpointIntegration:
             instructions="Cook it",
             prep_time=20,
             portions=2,
-            foto_url="www.my-foto-url.net"
+            foto_url="www.my-foto-url.net",
+            video_url=None
         )
         
         recipe_id = original_recipe['id']

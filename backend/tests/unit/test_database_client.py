@@ -305,7 +305,8 @@ class TestDatabaseClientAddRecipe:
                     instructions='Test',
                     prep_time=10,
                     portions=1,
-                    foto_url="www.my-foto-url.net"
+                    foto_url="www.my-foto-url.net",
+                    video_url=None
                 )
         
         assert "Not connected to database" in str(exc_info.value)

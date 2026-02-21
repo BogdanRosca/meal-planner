@@ -20,7 +20,8 @@ SAMPLE_RECIPE_1 = {
     'instructions': 'Cook it',
     'prep_time': 30,
     'portions': 4,
-    'foto_url': 'https://example.com/recipe1.jpg'
+    'foto_url': 'https://example.com/recipe1.jpg',
+    'video_url': None
 }
 
 SAMPLE_RECIPE_2 = {
@@ -32,7 +33,8 @@ SAMPLE_RECIPE_2 = {
     'instructions': 'Cook rice',
     'prep_time': 20,
     'portions': 2,
-    'foto_url': None
+    'foto_url': None,
+    'video_url': None
 }
 
 # Test data for creating recipes (without ID)
@@ -46,7 +48,8 @@ CREATE_RECIPE_DATA = {
     "instructions": "Cook rice",
     "prep_time": 20,
     "portions": 2,
-    "foto_url": None
+    "foto_url": None,
+    "video_url": None
 }
 
 # Test data for updating recipes
@@ -73,7 +76,8 @@ UPDATED_RECIPE_RESPONSE = {
     'instructions': 'Updated instructions',
     'prep_time': 35,
     'portions': 4,
-    'foto_url': 'https://example.com/recipe1.jpg'
+    'foto_url': 'https://example.com/recipe1.jpg',
+    'video_url': None
 }
 
 # Updated recipe response after ingredient update
@@ -86,7 +90,8 @@ UPDATED_RECIPE_WITH_INGREDIENTS_RESPONSE = {
     'instructions': 'Cook rice',
     'prep_time': 25,
     'portions': 2,
-    'foto_url': 'https://example.com/recipe1.jpg'
+    'foto_url': 'https://example.com/recipe1.jpg',
+    'video_url': None
 }
 
 # Invalid test data
@@ -117,14 +122,14 @@ SAMPLE_RECIPE_1_DB_ROW = (
     1, 'Test Recipe', 'dinner',
     [{'quantity': 250, 'unit': 'g', 'name': 'pasta'}],
     ['salt', 'pepper'],
-    'Cook it', 30, 4, 'https://example.com/recipe1.jpg'
+    'Cook it', 30, 4, 'https://example.com/recipe1.jpg', None
 )
 
 SAMPLE_RECIPE_2_DB_ROW = (
     123, 'New Recipe', 'lunch',
     [{'quantity': 200, 'unit': 'g', 'name': 'rice'}],
     ['salt'],
-    'Cook rice', 20, 2, None
+    'Cook rice', 20, 2, None, None
 )
 
 # Database test data for add_recipe method
@@ -136,7 +141,8 @@ ADD_RECIPE_PARAMS = {
     'instructions': 'Cook rice',
     'prep_time': 20,
     'portions': 2,
-    'foto_url': None
+    'foto_url': None,
+    'video_url': None
 }
 
 # Update recipe test data
@@ -151,7 +157,7 @@ UPDATED_RECIPE_DB_ROW = (
     1, 'Test Recipe', 'dinner',
     [{'quantity': 200, 'unit': 'g', 'name': 'rice'}],
     ['garlic', 'onion'],
-    'Cook rice', 25, 2, 'https://example.com/recipe1.jpg'
+    'Cook rice', 25, 2, 'https://example.com/recipe1.jpg', None
 )
 
 # Edge case test data
@@ -166,7 +172,8 @@ EDGE_CASE_RECIPE_DATA = {
     "instructions": "X",  # Minimal instructions
     "prep_time": 0,  # Zero prep time
     "portions": 1,  # Minimum portions
-    "foto_url": None
+    "foto_url": None,
+    "video_url": None
 }
 
 UNICODE_RECIPE_DATA = {
@@ -180,7 +187,8 @@ UNICODE_RECIPE_DATA = {
     "instructions": "Mélanger délicatement les ingrédients...",
     "prep_time": 45,
     "portions": 6,
-    "foto_url": "https://example.com/crème-brûlée.jpg"
+    "foto_url": "https://example.com/crème-brûlée.jpg",
+    "video_url": None
 }
 
 
@@ -217,7 +225,8 @@ COMPLEX_RECIPE_DATA = {
     "instructions": "Mix everything together",
     "prep_time": 120,
     "portions": 8,
-    "foto_url": None
+    "foto_url": None,
+    "video_url": None
 }
 
 # Empty recipe data for edge case testing
@@ -229,12 +238,13 @@ EMPTY_RECIPE_DATA = {
     "instructions": "No cooking",
     "prep_time": 0,
     "portions": 1,
-    "foto_url": None
+    "foto_url": None,
+    "video_url": None
 }
 
 # Database row for empty recipe
 EMPTY_RECIPE_DB_ROW = (
-    1, 'Empty Recipe', 'snack', [], [], 'No cooking', 0, 1, None
+    1, 'Empty Recipe', 'snack', [], [], 'No cooking', 0, 1, None, None
 )
 
 
