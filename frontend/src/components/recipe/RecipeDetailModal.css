@@ -88,6 +88,12 @@
   overflow: hidden;
 }
 
+.recipe-modal-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .recipe-modal-placeholder {
   font-size: 100px;
   opacity: 0.3;
@@ -225,6 +231,26 @@
   font-size: 15px;
   white-space: pre-line;
   text-align: left;
+}
+
+/* Video */
+.recipe-video-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.recipe-video-iframe,
+.recipe-video-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 /* Responsive Design */
