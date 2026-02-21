@@ -97,7 +97,7 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
             WHERE id = %s
         """, (recipe_id,))
@@ -117,7 +117,8 @@ class DatabaseClient:
             'instructions': row[5],
             'prep_time': row[6],
             'portions': row[7],
-            'foto_url': row[8]
+            'foto_url': row[8],
+            'video_url': row[9]
         }
         
         return recipe
