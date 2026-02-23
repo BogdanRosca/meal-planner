@@ -51,7 +51,8 @@
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/index.tsx",
       "!src/serviceWorker.ts",
-      "!src/reportWebVitals.ts"
+      "!src/reportWebVitals.ts",
+      "!src/types/**"
     ],
     "coverageThreshold": {
       "global": {

@@ -399,6 +399,70 @@ describe('recipeService', () => {
     });
   });
 
+  describe('addRecipe', () => {
+    const newRecipe: Omit<Recipe, 'id'> = {
+      name: 'New Recipe',
+      category: 'dinner',
+      main_ingredients: [{ name: 'pasta', quantity: 200, unit: 'g' }],
+      common_ingredients: ['salt'],
+      instructions: 'Cook it',
+      prep_time: 15,
+      portions: 2,
+      foto_url: null,
+    };
+
+    it('should add a recipe successfully', async () => {
+      const addedRecipe: Recipe = { ...newRecipe, id: 5 };
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => addedRecipe,
+      });
+
+      const result = await recipeService.addRecipe(newRecipe);
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newRecipe),
+        }
+      );
+      expect(result).toEqual(addedRecipe);
+    });
+
+    it('should throw error when response is not ok', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({}),
+      });
+
+      await expect(recipeService.addRecipe(newRecipe)).rejects.toThrow(
+        'HTTP error! status: 400'
+      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error adding recipe:',
+        expect.any(Error)
+      );
+    });
+
+    it('should handle network errors', async () => {
+      const networkError = new Error('Network failure');
+      (global.fetch as jest.Mock).mockRejectedValueOnce(networkError);
+
+      await expect(recipeService.addRecipe(newRecipe)).rejects.toThrow(
+        'Network failure'
+      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error adding recipe:',
+        networkError
+      );
+    });
+  });
+
   describe('deleteRecipe', () => {
     it('should delete a recipe successfully', async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
