@@ -527,10 +527,7 @@ describe('Recipes Component', () => {
         screen.getByPlaceholderText('Enter recipe name'),
         'New Test Recipe'
       );
-      await user.type(
-        screen.getByPlaceholderText('Ingredient name'),
-        'rice'
-      );
+      await user.type(screen.getByPlaceholderText('Ingredient name'), 'rice');
       await user.type(screen.getByPlaceholderText('Qty'), '200');
       await user.type(
         screen.getByPlaceholderText('Enter cooking instructions'),
@@ -564,10 +561,7 @@ describe('Recipes Component', () => {
         screen.getByPlaceholderText('Enter recipe name'),
         'Failing Recipe'
       );
-      await user.type(
-        screen.getByPlaceholderText('Ingredient name'),
-        'flour'
-      );
+      await user.type(screen.getByPlaceholderText('Ingredient name'), 'flour');
       await user.type(screen.getByPlaceholderText('Qty'), '100');
       await user.type(
         screen.getByPlaceholderText('Enter cooking instructions'),

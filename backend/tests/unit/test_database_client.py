@@ -224,7 +224,7 @@ class TestDatabaseClientGetRecipeById:
         # Verify SQL query
         mock_cursor.execute.assert_called_once_with(
             """
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
             WHERE id = %s
         """, (999,)
@@ -476,7 +476,7 @@ class TestUpdateRecipeMethod:
              [{'quantity': 300, 'unit': 'g', 'name': 'pasta'}],
              ['salt', 'pepper'],
              'Updated instructions',
-             35, 4, 'https://example.com/recipe1.jpg')  # Updated recipe data with foto_url
+             35, 4, 'https://example.com/recipe1.jpg', None)  # Updated recipe data with foto_url and video_url
         ]
         
         # Call method

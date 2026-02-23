@@ -52,13 +52,14 @@ runs:
           instructions TEXT NOT NULL,
           prep_time INTEGER,
           portions INTEGER,
-          foto_url VARCHAR(255)
+          foto_url VARCHAR(255),
+          video_url VARCHAR(255)
         );"
 
         # Insert sample recipe
         echo "Inserting sample recipe data..."
         PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$PGDATABASE" -c "
-        INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url) 
+        INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url) 
         VALUES (
           'Test Pasta', 
           'dinner', 
@@ -72,7 +73,8 @@ runs:
           'Cook pasta and add oil',
           15,
           2,
-          'www.my-foto-url.net'
+          'www.my-foto-url.net',
+          'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         ) ON CONFLICT DO NOTHING;"
         
         echo "Database setup completed successfully!"
