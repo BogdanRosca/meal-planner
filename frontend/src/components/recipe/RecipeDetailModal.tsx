@@ -8,6 +8,20 @@ interface RecipeDetailModalProps {
   onClose: () => void;
 }
 
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return null;
+};
+
 const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   recipe,
   isOpen,
@@ -43,9 +57,17 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
         {/* Hero Image */}
         <div className="recipe-modal-image">
-          <div className="recipe-modal-placeholder">
-            {getCategoryEmoji(recipe.category)}
-          </div>
+          {recipe.foto_url ? (
+            <img
+              src={recipe.foto_url}
+              alt={recipe.name}
+              className="recipe-modal-hero-img"
+            />
+          ) : (
+            <div className="recipe-modal-placeholder">
+              {getCategoryEmoji(recipe.category)}
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -130,6 +152,28 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             <h3 className="recipe-section-title">Instructions</h3>
             <div className="recipe-instructions">{recipe.instructions}</div>
           </div>
+
+          {/* Video Section */}
+          {recipe.video_url && (
+            <div className="recipe-section">
+              <h3 className="recipe-section-title">Video</h3>
+              <div className="recipe-video-container">
+                {getYouTubeEmbedUrl(recipe.video_url) ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(recipe.video_url)!}
+                    title={`${recipe.name} video`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="recipe-video-iframe"
+                  />
+                ) : (
+                  <video controls className="recipe-video-player">
+                    <source src={recipe.video_url} />
+                  </video>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

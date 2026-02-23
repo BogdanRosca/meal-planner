@@ -14,6 +14,7 @@ export interface Recipe {
   prep_time: number;
   portions: number;
   foto_url?: string | null;
+  video_url?: string | null;
 }
 
 export interface RecipesResponse {

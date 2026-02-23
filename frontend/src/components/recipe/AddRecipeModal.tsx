@@ -19,6 +19,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   const [prepTime, setPrepTime] = useState<number>(15);
   const [portions, setPortions] = useState<number>(2);
   const [fotoUrl, setFotoUrl] = useState<string>('');
+  const [videoUrl, setVideoUrl] = useState<string>('');
   const [mainIngredients, setMainIngredients] = useState<Ingredient[]>([
     { name: '', unit: 'g', quantity: 0 },
   ]);
@@ -90,6 +91,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
       main_ingredients: filteredMainIngredients,
       common_ingredients: commonIngredients,
       foto_url: fotoUrl.trim() || null,
+      video_url: videoUrl.trim() || null,
     };
 
     onAddRecipe(newRecipe);
@@ -256,6 +258,18 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               placeholder="Enter cooking instructions"
               className="form-textarea"
               rows={4}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="recipe-video-url">Video URL (optional)</label>
+            <input
+              id="recipe-video-url"
+              type="url"
+              value={videoUrl}
+              onChange={e => setVideoUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+              className="form-input"
             />
           </div>
 

@@ -471,6 +471,115 @@ describe('Recipes Component', () => {
     });
   });
 
+  describe('Recipe Detail Modal', () => {
+    beforeEach(() => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+    });
+
+    it('should open detail modal when a recipe card is clicked', async () => {
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('Pancakes'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Ingredients')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Add Recipe Functionality', () => {
+    const mockAddRecipe = recipeService.addRecipe as jest.MockedFunction<
+      typeof recipeService.addRecipe
+    >;
+
+    beforeEach(() => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+    });
+
+    it('should close the add recipe modal after successful submission', async () => {
+      const user = userEvent.setup();
+      const addedRecipe: Recipe = {
+        id: 10,
+        name: 'New Test Recipe',
+        category: 'dinner',
+        main_ingredients: [{ name: 'rice', quantity: 200, unit: 'g' }],
+        common_ingredients: [],
+        instructions: 'Cook rice',
+        prep_time: 15,
+        portions: 2,
+      };
+      mockAddRecipe.mockResolvedValue(addedRecipe);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('+ Add recipe'));
+      expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
+
+      await user.type(
+        screen.getByPlaceholderText('Enter recipe name'),
+        'New Test Recipe'
+      );
+      await user.type(screen.getByPlaceholderText('Ingredient name'), 'rice');
+      await user.type(screen.getByPlaceholderText('Qty'), '200');
+      await user.type(
+        screen.getByPlaceholderText('Enter cooking instructions'),
+        'Cook rice'
+      );
+
+      await user.click(screen.getByText('Add Recipe'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Add New Recipe')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should keep the add recipe modal open when submission fails', async () => {
+      const user = userEvent.setup();
+      const consoleErrorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      mockAddRecipe.mockRejectedValue(new Error('Failed to add'));
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('+ Add recipe'));
+      expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
+
+      await user.type(
+        screen.getByPlaceholderText('Enter recipe name'),
+        'Failing Recipe'
+      );
+      await user.type(screen.getByPlaceholderText('Ingredient name'), 'flour');
+      await user.type(screen.getByPlaceholderText('Qty'), '100');
+      await user.type(
+        screen.getByPlaceholderText('Enter cooking instructions'),
+        'Mix it'
+      );
+
+      await user.click(screen.getByText('Add Recipe'));
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalled();
+      });
+
+      expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
+
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
   describe('Delete Recipe Functionality', () => {
     const mockDeleteRecipe = recipeService.deleteRecipe as jest.MockedFunction<
       typeof recipeService.deleteRecipe

@@ -156,7 +156,8 @@ class TestDatabaseClientEdgeCases:
             1, EMPTY_RECIPE_DATA["name"], EMPTY_RECIPE_DATA["category"], 
             EMPTY_RECIPE_DATA["main_ingredients"], EMPTY_RECIPE_DATA["common_ingredients"], 
             EMPTY_RECIPE_DATA["instructions"], EMPTY_RECIPE_DATA["prep_time"], 
-            EMPTY_RECIPE_DATA["portions"]
+            EMPTY_RECIPE_DATA["portions"], EMPTY_RECIPE_DATA["foto_url"],
+            EMPTY_RECIPE_DATA["video_url"]
         )
         
         mock_connection.cursor.return_value = mock_cursor

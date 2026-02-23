@@ -66,7 +66,7 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
             ORDER BY id
         """)
@@ -82,7 +82,8 @@ class DatabaseClient:
                 'instructions': row[5],
                 'prep_time': row[6],
                 'portions': row[7],
-                'foto_url': row[8]
+                'foto_url': row[8],
+                'video_url': row[9]
             }
             recipes.append(recipe)
         
@@ -96,7 +97,7 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
             WHERE id = %s
         """, (recipe_id,))
@@ -116,13 +117,14 @@ class DatabaseClient:
             'instructions': row[5],
             'prep_time': row[6],
             'portions': row[7],
-            'foto_url': row[8]
+            'foto_url': row[8],
+            'video_url': row[9]
         }
         
         return recipe
     
     def add_recipe(self, name: str, category: str, main_ingredients: List[Dict[str, Any]], 
-                   common_ingredients: List[str], instructions: str, prep_time: int, portions: int, foto_url: str) -> Dict[str, Any]:
+                   common_ingredients: List[str], instructions: str, prep_time: int, portions: int, foto_url: str, video_url) -> Dict[str, Any]:
         """Add a new recipe to the database"""
         if not self.is_connected():
             raise Exception("Not connected to database")
@@ -132,10 +134,10 @@ class DatabaseClient:
         
         cursor = self._connection.cursor()
         cursor.execute("""
-            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url
-        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url))
+            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
+        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url, video_url))
         
         # Fetch the inserted recipe
         row = cursor.fetchone()
@@ -147,7 +149,9 @@ class DatabaseClient:
             'common_ingredients': row[4],
             'instructions': row[5],
             'prep_time': row[6],
-            'portions': row[7]
+            'portions': row[7],
+            'foto_url': row[8],
+            'video_url': row[9]
         }
         
         # Commit the transaction
@@ -222,7 +226,7 @@ class DatabaseClient:
         # Get the updated recipe
         cursor.execute("""
             SELECT id, name, category, main_ingredients, common_ingredients, 
-                   instructions, prep_time, portions, foto_url 
+                   instructions, prep_time, portions, foto_url, video_url 
             FROM recipes WHERE id = %s
         """, (recipe_id,))
         
@@ -240,7 +244,8 @@ class DatabaseClient:
             'instructions': row[5],
             'prep_time': row[6],
             'portions': row[7],
-            'foto_url': row[8]
+            'foto_url': row[8],
+            'video_url': row[9]
         }
         
         # Commit the transaction
