@@ -570,7 +570,9 @@ describe('RecipeDetailModal Component', () => {
     expect(video).toBeInTheDocument();
     const source = container.querySelector('video source');
     expect(source).toHaveAttribute('src', 'https://example.com/video.mp4');
-    expect(container.querySelector('.recipe-video-iframe')).not.toBeInTheDocument();
+    expect(
+      container.querySelector('.recipe-video-iframe')
+    ).not.toBeInTheDocument();
   });
 
   it('should not display Video section when video_url is not set', () => {
@@ -582,6 +584,8 @@ describe('RecipeDetailModal Component', () => {
       />
     );
     expect(screen.queryByText('Video')).not.toBeInTheDocument();
-    expect(container.querySelector('.recipe-video-container')).not.toBeInTheDocument();
+    expect(
+      container.querySelector('.recipe-video-container')
+    ).not.toBeInTheDocument();
   });
 });

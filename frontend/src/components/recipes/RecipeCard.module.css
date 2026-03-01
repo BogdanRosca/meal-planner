@@ -93,14 +93,6 @@
   flex: 1;
 }
 
-.recipe-card-description {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0 0 16px 0;
-  flex: 1;
-}
-
 /* Recipe Card Footer */
 .recipe-card-footer {
   display: flex;
@@ -111,7 +103,6 @@
 }
 
 .recipe-time,
-.recipe-difficulty,
 .recipe-portions {
   font-size: 13px;
   color: #3e6259;
@@ -171,10 +162,6 @@
 
   .recipe-card-title {
     font-size: 18px;
-  }
-
-  .recipe-card-description {
-    font-size: 13px;
   }
 }
 
