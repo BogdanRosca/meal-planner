@@ -158,6 +158,21 @@ describe('RecipeDetailModal Component', () => {
     expect(screen.queryByText('Spices and Others')).not.toBeInTheDocument();
   });
 
+  it('should not display common ingredients section when undefined', () => {
+    const recipeWithoutCommonIngredients = {
+      ...mockRecipe,
+      common_ingredients: undefined as unknown as string[],
+    };
+    render(
+      <RecipeDetailModal
+        recipe={recipeWithoutCommonIngredients}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    expect(screen.queryByText('Spices and Others')).not.toBeInTheDocument();
+  });
+
   it('should handle recipe with single main ingredient', () => {
     const singleIngredientRecipe = {
       ...mockRecipe,
@@ -435,5 +450,138 @@ describe('RecipeDetailModal Component', () => {
       '.recipe-common-ingredient-item'
     );
     expect(commonIngredientsList).toHaveLength(3);
+  });
+
+  it('should display recipe image when foto_url is provided', () => {
+    const recipeWithPhoto = {
+      ...mockRecipe,
+      foto_url: 'https://example.com/photo.jpg',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithPhoto}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const img = container.querySelector('.recipe-modal-hero-img');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'https://example.com/photo.jpg');
+    expect(img).toHaveAttribute('alt', 'Spaghetti Carbonara');
+    expect(
+      container.querySelector('.recipe-modal-placeholder')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should display YouTube iframe for youtube.com/watch URL', () => {
+    const recipeWithYoutube = {
+      ...mockRecipe,
+      video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithYoutube}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const iframe = container.querySelector('.recipe-video-iframe');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    );
+    expect(container.querySelector('video')).not.toBeInTheDocument();
+  });
+
+  it('should display YouTube iframe for youtu.be short URL', () => {
+    const recipeWithYoutuBe = {
+      ...mockRecipe,
+      video_url: 'https://youtu.be/dQw4w9WgXcQ',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithYoutuBe}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const iframe = container.querySelector('.recipe-video-iframe');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    );
+  });
+
+  it('should display YouTube iframe for youtube.com/embed URL', () => {
+    const recipeWithEmbed = {
+      ...mockRecipe,
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithEmbed}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const iframe = container.querySelector('.recipe-video-iframe');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    );
+  });
+
+  it('should display YouTube iframe for youtube.com/shorts URL', () => {
+    const recipeWithShorts = {
+      ...mockRecipe,
+      video_url: 'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithShorts}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const iframe = container.querySelector('.recipe-video-iframe');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute(
+      'src',
+      'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    );
+  });
+
+  it('should display video element for non-YouTube video URL', () => {
+    const recipeWithNonYoutube = {
+      ...mockRecipe,
+      video_url: 'https://example.com/video.mp4',
+    };
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={recipeWithNonYoutube}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    const video = container.querySelector('.recipe-video-player');
+    expect(video).toBeInTheDocument();
+    const source = container.querySelector('video source');
+    expect(source).toHaveAttribute('src', 'https://example.com/video.mp4');
+    expect(container.querySelector('.recipe-video-iframe')).not.toBeInTheDocument();
+  });
+
+  it('should not display Video section when video_url is not set', () => {
+    const { container } = render(
+      <RecipeDetailModal
+        recipe={mockRecipe}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    expect(screen.queryByText('Video')).not.toBeInTheDocument();
+    expect(container.querySelector('.recipe-video-container')).not.toBeInTheDocument();
   });
 });
