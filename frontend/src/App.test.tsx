@@ -1,6 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
+import { mealPlanService } from './services/mealPlanService';
+import { recipeService } from './services/recipeService';
+
+jest.mock('./services/mealPlanService');
+jest.mock('./services/recipeService');
 
 // Mock console.log to avoid noise in tests
 const originalConsoleLog = console.log;
@@ -15,6 +20,8 @@ afterAll(() => {
 describe('App Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (mealPlanService.getMealPlan as jest.Mock).mockResolvedValue([]);
+    (recipeService.getAllRecipes as jest.Mock).mockResolvedValue([]);
   });
 
   it('renders without crashing', () => {
@@ -173,8 +180,8 @@ describe('App Component', () => {
     const mainElement = screen.getByRole('main');
     expect(mainElement).toHaveClass('App-main');
 
-    // Verify the main content area exists
-    const contentArea = mainElement.querySelector('.home-content');
+    // Default section is "Meal Planner", so meal planner content renders
+    const contentArea = mainElement.querySelector('.meal-planner');
     expect(contentArea).toBeInTheDocument();
   });
 

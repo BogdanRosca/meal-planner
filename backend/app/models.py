@@ -53,3 +53,21 @@ class RecipeUpdate(BaseModel):
     portions: Optional[int] = None
     foto_url: Optional[str] = None   
     video_url: Optional[str] = None   
+
+
+class MealPlanCreate(BaseModel):
+    week_start: str
+    day_of_week: int
+    meal_slot: str
+    recipe_id: int
+
+
+class MealPlanEntryResponse(BaseModel):
+    id: int
+    week_start: str
+    day_of_week: int
+    meal_slot: str
+    recipe_id: int
+    recipe_name: str
+    recipe_category: str
+    recipe_foto_url: Optional[str] = None

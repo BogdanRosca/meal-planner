@@ -252,3 +252,89 @@ class DatabaseClient:
         self._connection.commit()
         cursor.close()
         return recipe
+
+    # ── Meal Plan operations ──
+
+    def get_meal_plan_by_week(self, week_start: str) -> List[Dict[str, Any]]:
+        """Get all meal plan entries for a given week, joined with recipe info"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute("""
+            SELECT mp.id, mp.week_start, mp.day_of_week, mp.meal_slot,
+                   mp.recipe_id, r.name, r.category, r.foto_url
+            FROM meal_plans mp
+            JOIN recipes r ON mp.recipe_id = r.id
+            WHERE mp.week_start = %s
+            ORDER BY mp.day_of_week, mp.meal_slot
+        """, (week_start,))
+
+        entries = []
+        for row in cursor.fetchall():
+            entries.append({
+                'id': row[0],
+                'week_start': str(row[1]),
+                'day_of_week': row[2],
+                'meal_slot': row[3],
+                'recipe_id': row[4],
+                'recipe_name': row[5],
+                'recipe_category': row[6],
+                'recipe_foto_url': row[7],
+            })
+
+        cursor.close()
+        return entries
+
+    def add_meal_plan_entry(self, week_start: str, day_of_week: int,
+                            meal_slot: str, recipe_id: int) -> Dict[str, Any]:
+        """Add or replace a meal plan entry (upsert)"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute("""
+            INSERT INTO meal_plans (week_start, day_of_week, meal_slot, recipe_id)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (week_start, day_of_week, meal_slot)
+            DO UPDATE SET recipe_id = EXCLUDED.recipe_id
+            RETURNING id
+        """, (week_start, day_of_week, meal_slot, recipe_id))
+
+        entry_id = cursor.fetchone()[0]
+        self._connection.commit()
+
+        cursor.execute("""
+            SELECT mp.id, mp.week_start, mp.day_of_week, mp.meal_slot,
+                   mp.recipe_id, r.name, r.category, r.foto_url
+            FROM meal_plans mp
+            JOIN recipes r ON mp.recipe_id = r.id
+            WHERE mp.id = %s
+        """, (entry_id,))
+
+        row = cursor.fetchone()
+        cursor.close()
+
+        return {
+            'id': row[0],
+            'week_start': str(row[1]),
+            'day_of_week': row[2],
+            'meal_slot': row[3],
+            'recipe_id': row[4],
+            'recipe_name': row[5],
+            'recipe_category': row[6],
+            'recipe_foto_url': row[7],
+        }
+
+    def delete_meal_plan_entry(self, entry_id: int) -> bool:
+        """Delete a meal plan entry by ID"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute("DELETE FROM meal_plans WHERE id = %s", (entry_id,))
+        self._connection.commit()
+        rows_affected = cursor.rowcount
+        cursor.close()
+
+        return rows_affected > 0

@@ -22,3 +22,14 @@ export interface RecipesResponse {
   count: number;
   recipes: Recipe[];
 }
+
+export interface MealPlanEntry {
+  id: number;
+  week_start: string;
+  day_of_week: number;
+  meal_slot: string;
+  recipe_id: number;
+  recipe_name: string;
+  recipe_category: string;
+  recipe_foto_url?: string | null;
+}

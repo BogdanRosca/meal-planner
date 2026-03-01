@@ -4,6 +4,7 @@ import TopBar from './components/top-bar/TopBar';
 import QuickActions from './components/quick-actions/QuickActions';
 import Home from './pages/home/Home';
 import Recipes from './pages/recipes/Recipes';
+import MealPlanner from './pages/meal-planner/MealPlanner';
 
 function App() {
   const [currentSection, setCurrentSection] = useState('Meal Planner');
@@ -14,8 +15,9 @@ function App() {
   };
 
   const handleQuickAction = (action: string) => {
-    setCurrentSection(action);
-    setIsMobileMenuOpen(false); // Close mobile menu when action is selected
+    const target = action === 'Plan Meals' ? 'Meal Planner' : action;
+    setCurrentSection(target);
+    setIsMobileMenuOpen(false);
   };
 
   const handleMobileMenuToggle = () => {
@@ -46,7 +48,13 @@ function App() {
         isMobileOpen={isMobileMenuOpen}
       />
       <main className={styles['App-main']}>
-        {currentSection === 'Recipes' ? <Recipes /> : <Home />}
+        {currentSection === 'Recipes' ? (
+          <Recipes />
+        ) : currentSection === 'Meal Planner' ? (
+          <MealPlanner />
+        ) : (
+          <Home />
+        )}
       </main>
     </div>
   );

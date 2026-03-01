@@ -56,6 +56,18 @@ runs:
           video_url VARCHAR(255)
         );"
 
+        # Create meal_plans table
+        echo "Creating meal_plans table..."
+        PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$PGDATABASE" -c "
+        CREATE TABLE IF NOT EXISTS meal_plans (
+          id SERIAL PRIMARY KEY,
+          week_start DATE NOT NULL,
+          day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+          meal_slot VARCHAR(20) NOT NULL CHECK (meal_slot IN ('breakfast', 'morning_snack', 'lunch', 'afternoon_snack', 'dinner')),
+          recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+          UNIQUE(week_start, day_of_week, meal_slot)
+        );"
+
         # Insert sample recipe
         echo "Inserting sample recipe data..."
         PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$PGDATABASE" -c "
