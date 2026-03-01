@@ -199,9 +199,9 @@ def generate_many_ingredients_recipe_data():
         {"quantity": i, "unit": "g", "name": f"ingredient_{i}"}
         for i in range(1, 21)  # 20 ingredients
     ]
-    
+
     common_ingredients = [f"common_{i}" for i in range(1, 11)]  # 10 common ingredients
-    
+
     return {
         "name": "Complex Recipe",
         "category": "dinner",
