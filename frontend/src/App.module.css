@@ -1,0 +1,30 @@
+.App {
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #d4e4e0 0%, #cce2d5 100%);
+}
+
+.App-main {
+  padding-top: 64px; /* Account for fixed top bar */
+  padding-left: 300px; /* Account for quick actions sidebar */
+  min-height: calc(100vh - 64px);
+  padding-right: 20px;
+  padding-bottom: 20px;
+  transition: padding-left 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .App-main {
+    padding-left: 260px; /* Adjust for smaller sidebar */
+  }
+}
+
+@media (max-width: 768px) {
+  .App-main {
+    padding-left: 20px; /* Remove sidebar padding on mobile */
+  }
+}

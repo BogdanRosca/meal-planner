@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './TopBar.css';
+import styles from './TopBar.module.css';
 
 interface TopBarProps {
   currentUser?: {
@@ -30,10 +30,10 @@ const TopBar: React.FC<TopBarProps> = ({
   };
 
   return (
-    <header className="top-bar">
-      <div className="top-bar-container">
+    <header className={styles['top-bar']}>
+      <div className={styles['top-bar-container']}>
         {/* Mobile Menu Button */}
-        <button className="mobile-menu-btn" onClick={onMenuToggle}>
+        <button className={styles['mobile-menu-btn']} onClick={onMenuToggle}>
           <svg
             width="24"
             height="24"
@@ -49,17 +49,22 @@ const TopBar: React.FC<TopBarProps> = ({
         </button>
 
         {/* Logo Section */}
-        <div className="logo-section">
-          <div className="logo-icon">🍴</div>
-          <span className="logo-text">MealCraft</span>
+        <div className={styles['logo-section']}>
+          <div className={styles['logo-icon']}>🍴</div>
+          <span className={styles['logo-text']}>MealCraft</span>
         </div>
 
         {/* Navigation Section */}
-        <nav className="navigation">
+        <nav className={styles.navigation}>
           {navigationItems.map(item => (
             <button
               key={item}
-              className={`nav-item ${activeTab === item ? 'active' : ''}`}
+              className={[
+                styles['nav-item'],
+                activeTab === item ? styles.active : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               onClick={() => handleNavClick(item)}
             >
               {item}
@@ -68,16 +73,16 @@ const TopBar: React.FC<TopBarProps> = ({
         </nav>
 
         {/* User Section */}
-        <div className="user-section">
-          <div className="language-selector">
-            <span className="flag">🇺🇸</span>
+        <div className={styles['user-section']}>
+          <div className={styles['language-selector']}>
+            <span className={styles.flag}>🇺🇸</span>
           </div>
-          <div className="user-profile">
-            <div className="user-avatar">
+          <div className={styles['user-profile']}>
+            <div className={styles['user-avatar']}>
               {currentUser.avatar ? (
                 <img src={currentUser.avatar} alt={currentUser.name} />
               ) : (
-                <div className="avatar-placeholder">
+                <div className={styles['avatar-placeholder']}>
                   {currentUser.name
                     .split(' ')
                     .map(n => n[0])
@@ -85,7 +90,7 @@ const TopBar: React.FC<TopBarProps> = ({
                 </div>
               )}
             </div>
-            <span className="user-name">{currentUser.name}</span>
+            <span className={styles['user-name']}>{currentUser.name}</span>
           </div>
         </div>
       </div>

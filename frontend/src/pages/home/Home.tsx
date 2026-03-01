@@ -1,8 +1,10 @@
 import React from 'react';
-import './Home.css';
+import styles from './Home.module.css';
 
 const Home: React.FC = () => {
-  return <div className="home-content">{/* Home page content */}</div>;
+  return (
+    <div className={styles['home-content']}>{/* Home page content */}</div>
+  );
 };
 
 export default Home;

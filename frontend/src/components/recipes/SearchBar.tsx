@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
   searchQuery: string;
@@ -12,23 +13,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onSearchSubmit,
 }) => {
   return (
-    <div className="recipes-search-section">
-      <form onSubmit={onSearchSubmit} className="search-form">
-        <div className="search-input-container">
+    <div className={styles['recipes-search-section']}>
+      <form onSubmit={onSearchSubmit} className={styles['search-form']}>
+        <div className={styles['search-input-container']}>
           <input
             type="text"
             placeholder="Search recipes..."
             value={searchQuery}
             onChange={onSearchChange}
-            className="search-input"
+            className={styles['search-input']}
           />
-          <button type="submit" className="search-button">
-            <img
-              width="16px"
-              src="assets/search.png"
-              alt="Search"
-              className="search-icon"
-            />
+          <button type="submit" className={styles['search-button']}>
+            <img width="16px" src="assets/search.png" alt="Search" />
           </button>
         </div>
       </form>

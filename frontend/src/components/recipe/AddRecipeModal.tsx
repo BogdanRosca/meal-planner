@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Recipe, Ingredient } from '../../types/recipe';
-import './AddRecipeModal.css';
+import styles from './AddRecipeModal.module.css';
 
 interface AddRecipeModalProps {
   isOpen: boolean;
@@ -100,17 +100,17 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="add-recipe-modal">
-        <div className="modal-header">
+    <div className={styles['modal-overlay']}>
+      <div className={styles['add-recipe-modal']}>
+        <div className={styles['modal-header']}>
           <h2>Add New Recipe</h2>
-          <button className="close-button" onClick={onClose}>
+          <button className={styles['close-button']} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="add-recipe-form">
-          <div className="form-group">
+        <form onSubmit={handleSubmit} className={styles['add-recipe-form']}>
+          <div className={styles['form-group']}>
             <label htmlFor="recipe-name">Recipe Name</label>
             <input
               id="recipe-name"
@@ -119,17 +119,17 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               onChange={e => setName(e.target.value)}
               required
               placeholder="Enter recipe name"
-              className="form-input"
+              className={styles['form-input']}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label htmlFor="recipe-category">Category</label>
             <select
               id="recipe-category"
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="form-select"
+              className={styles['form-select']}
             >
               <option value="breakfast">Breakfast</option>
               <option value="lunch">Lunch</option>
@@ -138,7 +138,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             </select>
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label htmlFor="recipe-foto-url">Photo URL (optional)</label>
             <input
               id="recipe-foto-url"
@@ -146,14 +146,14 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               value={fotoUrl}
               onChange={e => setFotoUrl(e.target.value)}
               placeholder="https://example.com/recipe-photo.jpg"
-              className="form-input"
+              className={styles['form-input']}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label>Main Ingredients</label>
             {mainIngredients.map((ingredient, index) => (
-              <div key={index} className="ingredient-row">
+              <div key={index} className={styles['ingredient-row']}>
                 <input
                   type="text"
                   value={ingredient.name}
@@ -161,7 +161,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                     handleMainIngredientChange(index, 'name', e.target.value)
                   }
                   placeholder="Ingredient name"
-                  className="ingredient-name"
+                  className={styles['ingredient-name']}
                   required={index === 0}
                 />
                 <input
@@ -175,7 +175,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                     )
                   }
                   placeholder="Qty"
-                  className="ingredient-quantity"
+                  className={styles['ingredient-quantity']}
                   min="0"
                   step="0.1"
                   required={index === 0}
@@ -185,7 +185,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                   onChange={e =>
                     handleMainIngredientChange(index, 'unit', e.target.value)
                   }
-                  className="ingredient-unit"
+                  className={styles['ingredient-unit']}
                 >
                   <option value="g">g</option>
                   <option value="ml">ml</option>
@@ -196,7 +196,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleRemoveMainIngredient(index)}
-                    className="remove-btn"
+                    className={styles['remove-btn']}
                   >
                     ×
                   </button>
@@ -206,39 +206,39 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             <button
               type="button"
               onClick={handleAddMainIngredient}
-              className="add-btn"
+              className={styles['add-btn']}
             >
               + Add Ingredient
             </button>
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label>Common Ingredients</label>
-            <div className="common-ingredients-container">
-              <div className="common-ingredient-input">
+            <div className={styles['common-ingredients-container']}>
+              <div className={styles['common-ingredient-input']}>
                 <input
                   type="text"
                   value={commonIngredient}
                   onChange={e => setCommonIngredient(e.target.value)}
                   placeholder="Add common ingredient (salt, pepper, etc.)"
-                  className="form-input"
+                  className={styles['form-input']}
                 />
                 <button
                   type="button"
                   onClick={handleAddCommonIngredient}
-                  className="add-common-btn"
+                  className={styles['add-common-btn']}
                 >
                   Add
                 </button>
               </div>
-              <div className="common-ingredients-list">
+              <div className={styles['common-ingredients-list']}>
                 {commonIngredients.map((ingredient, index) => (
-                  <div key={index} className="common-ingredient-tag">
+                  <div key={index} className={styles['common-ingredient-tag']}>
                     <span>{ingredient}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveCommonIngredient(index)}
-                      className="remove-tag-btn"
+                      className={styles['remove-tag-btn']}
                     >
                       ×
                     </button>
@@ -248,7 +248,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             </div>
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label htmlFor="recipe-instructions">Instructions</label>
             <textarea
               id="recipe-instructions"
@@ -256,12 +256,12 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               onChange={e => setInstructions(e.target.value)}
               required
               placeholder="Enter cooking instructions"
-              className="form-textarea"
+              className={styles['form-textarea']}
               rows={4}
             />
           </div>
 
-          <div className="form-group">
+          <div className={styles['form-group']}>
             <label htmlFor="recipe-video-url">Video URL (optional)</label>
             <input
               id="recipe-video-url"
@@ -269,12 +269,12 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               value={videoUrl}
               onChange={e => setVideoUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
-              className="form-input"
+              className={styles['form-input']}
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group half">
+          <div className={styles['form-row']}>
+            <div className={`${styles['form-group']} ${styles.half}`}>
               <label htmlFor="recipe-preptime">Prep Time (minutes)</label>
               <input
                 id="recipe-preptime"
@@ -283,11 +283,11 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                 onChange={e => setPrepTime(Number(e.target.value))}
                 min="1"
                 required
-                className="form-input"
+                className={styles['form-input']}
               />
             </div>
 
-            <div className="form-group half">
+            <div className={`${styles['form-group']} ${styles.half}`}>
               <label htmlFor="recipe-portions">Portions</label>
               <input
                 id="recipe-portions"
@@ -296,16 +296,20 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                 onChange={e => setPortions(Number(e.target.value))}
                 min="1"
                 required
-                className="form-input"
+                className={styles['form-input']}
               />
             </div>
           </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={onClose} className="cancel-btn">
+          <div className={styles['form-actions']}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles['cancel-btn']}
+            >
               Cancel
             </button>
-            <button type="submit" className="submit-btn">
+            <button type="submit" className={styles['submit-btn']}>
               Add Recipe
             </button>
           </div>

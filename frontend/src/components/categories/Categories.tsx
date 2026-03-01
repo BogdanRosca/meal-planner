@@ -1,5 +1,5 @@
 import React from 'react';
-import './Categories.css';
+import styles from './Categories.module.css';
 
 interface Category {
   id: string;
@@ -46,25 +46,25 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
   ];
 
   return (
-    <div className="categories-section">
-      <div className="categories-header">
+    <div className={styles['categories-section']}>
+      <div className={styles['categories-header']}>
         <h3>Categories</h3>
       </div>
-      <div className="categories-list">
+      <div className={styles['categories-list']}>
         {categories.map(category => (
           <button
             key={category.id}
-            className="category-item"
+            className={styles['category-item']}
             onClick={() => onCategoryClick?.(category.name)}
             style={
               { '--category-color': category.color } as React.CSSProperties
             }
           >
-            <div className="category-content">
-              <div className="category-icon">{category.icon}</div>
-              <span className="category-name">{category.name}</span>
+            <div className={styles['category-content']}>
+              <div className={styles['category-icon']}>{category.icon}</div>
+              <span className={styles['category-name']}>{category.name}</span>
             </div>
-            <div className="category-count">{category.count}</div>
+            <div className={styles['category-count']}>{category.count}</div>
           </button>
         ))}
       </div>
