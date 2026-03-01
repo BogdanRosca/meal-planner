@@ -5,13 +5,14 @@
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: 100px repeat(7, 1fr);
+  grid-template-columns: 100px repeat(7, minmax(90px, 1fr));
   gap: 2px;
   min-width: 760px;
   background: #e8ede8;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  table-layout: fixed;
 }
 
 .calendar-cell {
@@ -113,11 +114,11 @@
   font-size: 12px;
   font-weight: 500;
   color: #212922;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   flex: 1;
   text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .cell-remove {
@@ -144,7 +145,7 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .calendar-grid {
-    grid-template-columns: 80px repeat(7, 1fr);
+    grid-template-columns: 80px repeat(7, minmax(80px, 1fr));
     min-width: 680px;
   }
 
