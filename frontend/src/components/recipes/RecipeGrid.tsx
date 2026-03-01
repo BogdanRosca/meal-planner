@@ -1,6 +1,7 @@
 import React from 'react';
 import { Recipe } from '../../types/recipe';
 import RecipeCard from './RecipeCard';
+import styles from './RecipeGrid.module.css';
 
 interface RecipeGridProps {
   recipes: Recipe[];
@@ -24,7 +25,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
 
   if (filteredRecipes.length === 0) {
     return (
-      <div className="no-recipes-message">
+      <div className={styles['no-recipes-message']}>
         {searchQuery
           ? 'No recipes found matching your search.'
           : 'No recipes available yet.'}
@@ -33,7 +34,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
   }
 
   return (
-    <div className="recipes-grid">
+    <div className={styles['recipes-grid']}>
       {filteredRecipes.map(recipe => (
         <RecipeCard
           key={recipe.id}

@@ -1,5 +1,5 @@
 import React from 'react';
-import './RecipeDetailModal.css';
+import styles from './RecipeDetailModal.module.css';
 import { Recipe } from '../../types/recipe';
 
 interface RecipeDetailModalProps {
@@ -47,44 +47,51 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     }
   };
 
+  const categoryClass = styles[`category-${recipe.category.toLowerCase()}`];
+
   return (
-    <div className="recipe-modal-backdrop" onClick={handleBackdropClick}>
-      <div className="recipe-modal-content">
+    <div
+      className={styles['recipe-modal-backdrop']}
+      onClick={handleBackdropClick}
+    >
+      <div className={styles['recipe-modal-content']}>
         {/* Close Button */}
-        <button className="recipe-modal-close" onClick={onClose}>
+        <button className={styles['recipe-modal-close']} onClick={onClose}>
           ×
         </button>
 
         {/* Hero Image */}
-        <div className="recipe-modal-image">
+        <div className={styles['recipe-modal-image']}>
           {recipe.foto_url ? (
             <img
               src={recipe.foto_url}
               alt={recipe.name}
-              className="recipe-modal-hero-img"
+              className={styles['recipe-modal-hero-img']}
             />
           ) : (
-            <div className="recipe-modal-placeholder">
+            <div className={styles['recipe-modal-placeholder']}>
               {getCategoryEmoji(recipe.category)}
             </div>
           )}
         </div>
 
         {/* Content */}
-        <div className="recipe-modal-body">
+        <div className={styles['recipe-modal-body']}>
           {/* Title and Badge */}
-          <div className="recipe-header">
-            <h2 className="recipe-modal-title">{recipe.name}</h2>
+          <div className={styles['recipe-header']}>
+            <h2 className={styles['recipe-modal-title']}>{recipe.name}</h2>
             <div
-              className={`recipe-category-badge category-${recipe.category.toLowerCase()}`}
+              className={[styles['recipe-category-badge'], categoryClass ?? '']
+                .filter(Boolean)
+                .join(' ')}
             >
               {recipe.category}
             </div>
           </div>
 
           {/* Meta Information */}
-          <div className="recipe-modal-meta">
-            <span className="recipe-meta-item">
+          <div className={styles['recipe-modal-meta']}>
+            <span className={styles['recipe-meta-item']}>
               <svg
                 width="16"
                 height="16"
@@ -98,7 +105,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
               </svg>
               {recipe.prep_time}
             </span>
-            <span className="recipe-meta-item">
+            <span className={styles['recipe-meta-item']}>
               <svg
                 width="16"
                 height="16"
@@ -117,16 +124,18 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           </div>
 
           {/* Ingredients Section */}
-          <div className="recipe-section">
-            <h3 className="recipe-section-title">Ingredients</h3>
-            <ul className="recipe-ingredients-list">
+          <div className={styles['recipe-section']}>
+            <h3 className={styles['recipe-section-title']}>Ingredients</h3>
+            <ul className={styles['recipe-ingredients-list']}>
               {recipe.main_ingredients.map((ingredient, index) => (
-                <li key={index} className="recipe-ingredient-item">
-                  <span className="ingredient-bullet">●</span>
-                  <span className="ingredient-quantity">
+                <li key={index} className={styles['recipe-ingredient-item']}>
+                  <span className={styles['ingredient-bullet']}>●</span>
+                  <span className={styles['ingredient-quantity']}>
                     {ingredient.quantity} {ingredient.unit}
                   </span>
-                  <span className="ingredient-name">{ingredient.name}</span>
+                  <span className={styles['ingredient-name']}>
+                    {ingredient.name}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -135,11 +144,16 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           {/* Common Ingredients Section */}
           {recipe.common_ingredients &&
             recipe.common_ingredients.length > 0 && (
-              <div className="recipe-section">
-                <h3 className="recipe-section-title">Spices and Others</h3>
-                <ul className="recipe-common-ingredients-list">
+              <div className={styles['recipe-section']}>
+                <h3 className={styles['recipe-section-title']}>
+                  Spices and Others
+                </h3>
+                <ul className={styles['recipe-common-ingredients-list']}>
                   {recipe.common_ingredients.map((ingredient, index) => (
-                    <li key={index} className="recipe-common-ingredient-item">
+                    <li
+                      key={index}
+                      className={styles['recipe-common-ingredient-item']}
+                    >
                       {ingredient}
                     </li>
                   ))}
@@ -148,26 +162,28 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             )}
 
           {/* Instructions Section */}
-          <div className="recipe-section">
-            <h3 className="recipe-section-title">Instructions</h3>
-            <div className="recipe-instructions">{recipe.instructions}</div>
+          <div className={styles['recipe-section']}>
+            <h3 className={styles['recipe-section-title']}>Instructions</h3>
+            <div className={styles['recipe-instructions']}>
+              {recipe.instructions}
+            </div>
           </div>
 
           {/* Video Section */}
           {recipe.video_url && (
-            <div className="recipe-section">
-              <h3 className="recipe-section-title">Video</h3>
-              <div className="recipe-video-container">
+            <div className={styles['recipe-section']}>
+              <h3 className={styles['recipe-section-title']}>Video</h3>
+              <div className={styles['recipe-video-container']}>
                 {getYouTubeEmbedUrl(recipe.video_url) ? (
                   <iframe
                     src={getYouTubeEmbedUrl(recipe.video_url)!}
                     title={`${recipe.name} video`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    className="recipe-video-iframe"
+                    className={styles['recipe-video-iframe']}
                   />
                 ) : (
-                  <video controls className="recipe-video-player">
+                  <video controls className={styles['recipe-video-player']}>
                     <source src={recipe.video_url} />
                   </video>
                 )}

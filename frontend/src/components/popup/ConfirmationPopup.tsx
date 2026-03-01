@@ -1,5 +1,5 @@
 import React from 'react';
-import './ConfirmationPopup.css';
+import styles from './ConfirmationPopup.module.css';
 
 interface ConfirmationPopupProps {
   isOpen: boolean;
@@ -25,26 +25,26 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
 
   return (
     <div
-      className="confirmation-popup-overlay"
+      className={styles['confirmation-popup-overlay']}
       onClick={onCancel}
       role="presentation"
     >
-      <div className="confirmation-popup" onClick={handlePopupClick}>
-        <div className="confirmation-popup-header">
-          <h3 className="confirmation-popup-title">{title}</h3>
+      <div className={styles['confirmation-popup']} onClick={handlePopupClick}>
+        <div className={styles['confirmation-popup-header']}>
+          <h3 className={styles['confirmation-popup-title']}>{title}</h3>
         </div>
-        <div className="confirmation-popup-content">
+        <div className={styles['confirmation-popup-content']}>
           <p>{message}</p>
         </div>
-        <div className="confirmation-popup-actions">
+        <div className={styles['confirmation-popup-actions']}>
           <button
-            className="confirmation-popup-btn confirmation-popup-btn-cancel"
+            className={`${styles['confirmation-popup-btn']} ${styles['confirmation-popup-btn-cancel']}`}
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className="confirmation-popup-btn confirmation-popup-btn-confirm"
+            className={`${styles['confirmation-popup-btn']} ${styles['confirmation-popup-btn-confirm']}`}
             onClick={onConfirm}
           >
             Delete

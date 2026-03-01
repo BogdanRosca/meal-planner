@@ -129,7 +129,7 @@
     transition: transform 0.3s ease;
   }
 
-  .quick-actions.mobile-open {
+  .mobile-open {
     transform: translateX(0);
   }
 }

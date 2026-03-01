@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Recipes.css';
+import styles from './Recipes.module.css';
 import { Recipe } from '../../types/recipe';
 import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
 import AddRecipeModal from '../../components/recipe/AddRecipeModal';
@@ -61,18 +61,21 @@ const Recipes: React.FC = () => {
   };
 
   return (
-    <div className="recipes-content">
+    <div className={styles['recipes-content']}>
       <StatusMessage loading={loading} error={error} />
 
       {!loading && !error && (
         <>
-          <div className="recipes-action-bar">
+          <div className={styles['recipes-action-bar']}>
             <SearchBar
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
               onSearchSubmit={handleSearchSubmit}
             />
-            <button className="add-recipe-button" onClick={openAddRecipeModal}>
+            <button
+              className={styles['add-recipe-button']}
+              onClick={openAddRecipeModal}
+            >
               + Add recipe
             </button>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import './RecentRecipes.css';
+import styles from './RecentRecipes.module.css';
 
 interface Recipe {
   id: string;
@@ -45,21 +45,21 @@ const RecentRecipes: React.FC<RecentRecipesProps> = ({ onRecipeClick }) => {
   };
 
   return (
-    <div className="recent-recipes-section">
-      <div className="recent-recipes-header">
+    <div className={styles['recent-recipes-section']}>
+      <div className={styles['recent-recipes-header']}>
         <h3>Recent Recipes</h3>
       </div>
-      <div className="recent-recipes-list">
+      <div className={styles['recent-recipes-list']}>
         {recentRecipes.map(recipe => (
           <button
             key={recipe.id}
-            className="recent-recipe-item"
+            className={styles['recent-recipe-item']}
             onClick={() => handleRecipeClick(recipe)}
           >
-            <div className="recipe-image">{recipe.image}</div>
-            <div className="recipe-info">
-              <h4 className="recipe-name">{recipe.name}</h4>
-              <p className="recipe-category">{recipe.category}</p>
+            <div className={styles['recipe-image']}>{recipe.image}</div>
+            <div className={styles['recipe-info']}>
+              <h4 className={styles['recipe-name']}>{recipe.name}</h4>
+              <p className={styles['recipe-category']}>{recipe.category}</p>
             </div>
           </button>
         ))}

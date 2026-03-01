@@ -83,12 +83,12 @@
   transform: translateY(-1px);
 }
 
-.nav-item.active {
+.active {
   background: rgba(91, 130, 102, 0.4);
   font-weight: 600;
 }
 
-.nav-item.active::after {
+.active::after {
   content: '';
   position: absolute;
   bottom: -2px;
