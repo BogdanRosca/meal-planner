@@ -21,7 +21,7 @@ load_dotenv()
 
 class TestDatabaseInfrastructure:
     """Test database infrastructure setup and connectivity"""
-    
+
     @pytest.fixture
     def db_connection(self):
         """Create a database connection for testing"""
@@ -34,23 +34,23 @@ class TestDatabaseInfrastructure:
         )
         yield connection
         connection.close()
-    
+
     def test_database_connection(self, db_connection):
         """Test that we can connect to the database"""
         assert db_connection is not None
-        
+
         # Test that the connection is working
         cursor = db_connection.cursor()
         cursor.execute("SELECT 1")
         result = cursor.fetchone()
         cursor.close()
-        
+
         assert result[0] == 1
-    
+
     def test_recipes_table_exists(self, db_connection):
         """Test that the recipes table exists"""
         cursor = db_connection.cursor()
-        
+
         # Check if recipes table exists
         cursor.execute("""
             SELECT EXISTS (
@@ -58,16 +58,16 @@ class TestDatabaseInfrastructure:
                 WHERE table_name = 'recipes'
             );
         """)
-        
+
         table_exists = cursor.fetchone()[0]
         cursor.close()
-        
+
         assert table_exists is True
-    
+
     def test_recipes_table_schema(self, db_connection):
         """Test that the recipes table has the correct schema"""
         cursor = db_connection.cursor()
-        
+
         # Get table schema
         cursor.execute("""
             SELECT column_name, data_type, is_nullable, column_default
@@ -76,10 +76,10 @@ class TestDatabaseInfrastructure:
             AND table_schema = 'public'
             ORDER BY ordinal_position;
         """)
-        
+
         columns = cursor.fetchall()
         cursor.close()
-        
+
         # Expected schema after our migrations
         expected_columns = {
             'id': ('integer', 'NO'),
@@ -91,10 +91,10 @@ class TestDatabaseInfrastructure:
             'common_ingredients': ('ARRAY', 'YES'),
             'main_ingredients': ('jsonb', 'YES')
         }
-        
+
         # Convert to dict for easier checking
         actual_columns = {col[0]: (col[1], col[2]) for col in columns}
-        
+
         # Verify all expected columns exist with correct types
         for col_name, (expected_type, expected_nullable) in expected_columns.items():
             assert col_name in actual_columns, f"Column {col_name} missing from recipes table"

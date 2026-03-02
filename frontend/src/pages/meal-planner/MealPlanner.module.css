@@ -1,0 +1,40 @@
+.meal-planner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.meal-planner-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212922;
+  text-align: center;
+  margin: 0 0 24px 0;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error-message {
+  text-align: center;
+  font-size: 18px;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 12px;
+  margin: 20px;
+  padding: 40px 20px;
+}
+
+@media (max-width: 768px) {
+  .meal-planner {
+    padding: 16px;
+  }
+
+  .meal-planner-title {
+    font-size: 22px;
+  }
+}

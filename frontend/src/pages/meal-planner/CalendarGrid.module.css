@@ -1,0 +1,179 @@
+.calendar-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 100px repeat(7, minmax(90px, 1fr));
+  gap: 2px;
+  min-width: 760px;
+  background: #e8ede8;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  table-layout: fixed;
+}
+
+.calendar-cell {
+  background: white;
+  padding: 10px 8px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-corner {
+  background: #294936;
+  min-height: 50px;
+}
+
+.calendar-day-header {
+  background: #294936;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 8px;
+  min-height: 50px;
+}
+
+.day-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.day-date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.calendar-row-label {
+  background: #f5f9f6;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 8px;
+}
+
+.slot-emoji {
+  font-size: 18px;
+}
+
+.slot-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3e6259;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-meal-cell {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cell-empty {
+  cursor: pointer;
+}
+
+.cell-empty:hover {
+  background: #f5f9f6;
+}
+
+.cell-empty:focus-visible {
+  outline: 2px solid #5b8266;
+  outline-offset: -2px;
+}
+
+.cell-add {
+  font-size: 24px;
+  color: #ccc;
+  font-weight: 300;
+  transition: color 0.2s ease;
+}
+
+.cell-empty:hover .cell-add {
+  color: #5b8266;
+}
+
+.cell-filled {
+  background: #f5f9f6;
+}
+
+.cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.cell-recipe-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #212922;
+  flex: 1;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.cell-remove {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.cell-remove:hover {
+  color: #e74c3c;
+}
+
+.cell-remove:focus-visible {
+  outline: 2px solid #e74c3c;
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .calendar-grid {
+    grid-template-columns: 80px repeat(7, minmax(80px, 1fr));
+    min-width: 680px;
+  }
+
+  .cell-recipe-name {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-grid {
+    min-width: 600px;
+    gap: 1px;
+  }
+
+  .calendar-cell {
+    padding: 8px 6px;
+    min-height: 50px;
+  }
+
+  .day-name {
+    font-size: 12px;
+  }
+
+  .slot-label {
+    font-size: 10px;
+  }
+
+  .slot-emoji {
+    font-size: 16px;
+  }
+}
