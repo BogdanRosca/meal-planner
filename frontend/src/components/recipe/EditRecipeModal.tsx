@@ -219,6 +219,8 @@ const EditRecipeModal: React.FC<EditRecipeModalProps> = ({
                   <option value="ml">ml</option>
                   <option value="pcs">pcs</option>
                   <option value="tbsp">tbsp</option>
+                  <option value="cup">cup</option>
+                  <option value="slice">slice</option>
                 </select>
                 {index > 0 && (
                   <button
