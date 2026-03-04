@@ -4,6 +4,7 @@ import { useMealPlanner } from '../../hooks/useMealPlanner';
 import WeekNavigator from './WeekNavigator';
 import CalendarGrid from './CalendarGrid';
 import RecipeSelectorModal from './RecipeSelectorModal';
+import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
 import styles from './MealPlanner.module.css';
 
 const SLOT_TO_CATEGORY: Record<string, string> = {
@@ -27,6 +28,8 @@ const MealPlanner: React.FC = () => {
   } = useMealPlanner();
 
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{
     dayOfWeek: number;
     mealSlot: string;
@@ -35,6 +38,19 @@ const MealPlanner: React.FC = () => {
   const handleCellClick = (dayOfWeek: number, mealSlot: string) => {
     setSelectedSlot({ dayOfWeek, mealSlot });
     setSelectorOpen(true);
+  };
+
+  const handleMealClick = (recipeId: number) => {
+    const recipe = recipes.find(r => r.id === recipeId);
+    if (recipe) {
+      setSelectedRecipe(recipe);
+      setDetailModalOpen(true);
+    }
+  };
+
+  const handleCloseDetailModal = () => {
+    setDetailModalOpen(false);
+    setSelectedRecipe(null);
   };
 
   const handleRecipeSelect = async (recipe: Recipe) => {
@@ -78,6 +94,7 @@ const MealPlanner: React.FC = () => {
         getEntry={getEntry}
         onCellClick={handleCellClick}
         onRemoveEntry={removeEntry}
+        onMealClick={handleMealClick}
       />
       <RecipeSelectorModal
         isOpen={selectorOpen}
@@ -86,6 +103,13 @@ const MealPlanner: React.FC = () => {
         onSelect={handleRecipeSelect}
         onClose={handleCloseSelector}
       />
+      {selectedRecipe && (
+        <RecipeDetailModal
+          recipe={selectedRecipe}
+          isOpen={detailModalOpen}
+          onClose={handleCloseDetailModal}
+        />
+      )}
     </div>
   );
 };

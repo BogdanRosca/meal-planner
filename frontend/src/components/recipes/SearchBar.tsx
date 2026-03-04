@@ -1,4 +1,5 @@
 import React from 'react';
+import { Search } from 'lucide-react';
 import styles from './SearchBar.module.css';
 
 interface SearchBarProps {
@@ -24,7 +25,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className={styles['search-input']}
           />
           <button type="submit" className={styles['search-button']}>
-            <img width="16px" src="assets/search.png" alt="Search" />
+            <Search size={18} />
           </button>
         </div>
       </form>

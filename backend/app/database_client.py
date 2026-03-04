@@ -210,7 +210,7 @@ class DatabaseClient:
         values = []
 
         for field, value in updates.items():
-            if field in ['name', 'category', 'instructions', 'prep_time', 'portions', 'foto_url']:
+            if field in ['name', 'category', 'instructions', 'prep_time', 'portions', 'foto_url', 'video_url']:
                 set_clauses.append(f"{field} = %s")
                 values.append(value)
             elif field == 'main_ingredients':

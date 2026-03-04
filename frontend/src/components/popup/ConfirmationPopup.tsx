@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trash2, X } from 'lucide-react';
 import styles from './ConfirmationPopup.module.css';
 
 interface ConfirmationPopupProps {
@@ -31,6 +32,7 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
     >
       <div className={styles['confirmation-popup']} onClick={handlePopupClick}>
         <div className={styles['confirmation-popup-header']}>
+          <Trash2 size={28} className={styles['confirmation-popup-icon']} />
           <h3 className={styles['confirmation-popup-title']}>{title}</h3>
         </div>
         <div className={styles['confirmation-popup-content']}>
@@ -41,12 +43,14 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
             className={`${styles['confirmation-popup-btn']} ${styles['confirmation-popup-btn-cancel']}`}
             onClick={onCancel}
           >
+            <X size={18} />
             Cancel
           </button>
           <button
             className={`${styles['confirmation-popup-btn']} ${styles['confirmation-popup-btn-confirm']}`}
             onClick={onConfirm}
           >
+            <Trash2 size={18} />
             Delete
           </button>
         </div>

@@ -69,6 +69,32 @@ export const recipeService = {
   },
 
   /**
+   * Update an existing recipe
+   */
+  async updateRecipe(id: number, recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recipe),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: Recipe = await response.json();
+      return data;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Error updating recipe ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
    * Delete a recipe by ID
    */
   async deleteRecipe(id: number): Promise<void> {

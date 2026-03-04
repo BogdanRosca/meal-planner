@@ -14,4 +14,12 @@ module.exports = {
     'testing-library/no-container': 'warn',
     'testing-library/no-node-access': 'warn',
   },
+  overrides: [
+    {
+      files: ['**/*.test.ts', '**/*.test.tsx'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+  ],
 };

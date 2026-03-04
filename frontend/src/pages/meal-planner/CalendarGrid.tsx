@@ -10,6 +10,7 @@ interface CalendarGridProps {
   ) => MealPlanEntry | undefined;
   onCellClick: (_dayOfWeek: number, _mealSlot: string) => void;
   onRemoveEntry: (_entryId: number) => void;
+  onMealClick: (_recipeId: number) => void;
 }
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -34,6 +35,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   getEntry,
   onCellClick,
   onRemoveEntry,
+  onMealClick,
 }) => {
   const getDayDate = (dayIndex: number): string => {
     const d = new Date(weekStart);
@@ -94,9 +96,16 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                 >
                   {entry ? (
                     <div className={styles['cell-content']}>
-                      <span className={styles['cell-recipe-name']}>
+                      <button
+                        className={styles['cell-recipe-name']}
+                        onClick={e => {
+                          e.stopPropagation();
+                          onMealClick(entry.recipe_id);
+                        }}
+                        aria-label={`View ${entry.recipe_name} details`}
+                      >
                         {entry.recipe_name}
-                      </span>
+                      </button>
                       <button
                         className={styles['cell-remove']}
                         onClick={e => {

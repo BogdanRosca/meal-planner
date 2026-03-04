@@ -119,6 +119,22 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  transition: color 0.2s ease;
+}
+
+.cell-recipe-name:hover {
+  color: #5b8266;
+  text-decoration: underline;
+}
+
+.cell-recipe-name:focus-visible {
+  outline: 2px solid #5b8266;
+  outline-offset: -2px;
 }
 
 .cell-remove {
