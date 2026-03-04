@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { X, Plus, Trash2, BookOpen } from 'lucide-react';
 import { Recipe, Ingredient } from '../../types/recipe';
 import styles from './AddRecipeModal.module.css';
 
@@ -103,9 +104,16 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
     <div className={styles['modal-overlay']}>
       <div className={styles['add-recipe-modal']}>
         <div className={styles['modal-header']}>
-          <h2>Add New Recipe</h2>
-          <button className={styles['close-button']} onClick={onClose}>
-            ×
+          <h2>
+            <BookOpen size={24} />
+            Add New Recipe
+          </h2>
+          <button
+            className={styles['close-button']}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={24} />
           </button>
         </div>
 
@@ -197,8 +205,9 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                     type="button"
                     onClick={() => handleRemoveMainIngredient(index)}
                     className={styles['remove-btn']}
+                    aria-label="Remove ingredient"
                   >
-                    ×
+                    <Trash2 size={16} />
                   </button>
                 )}
               </div>
@@ -208,7 +217,8 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               onClick={handleAddMainIngredient}
               className={styles['add-btn']}
             >
-              + Add Ingredient
+              <Plus size={18} />
+              Add Ingredient
             </button>
           </div>
 
@@ -228,6 +238,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                   onClick={handleAddCommonIngredient}
                   className={styles['add-common-btn']}
                 >
+                  <Plus size={16} />
                   Add
                 </button>
               </div>
@@ -239,8 +250,9 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                       type="button"
                       onClick={() => handleRemoveCommonIngredient(index)}
                       className={styles['remove-tag-btn']}
+                      aria-label={`Remove ${ingredient}`}
                     >
-                      ×
+                      <X size={14} />
                     </button>
                   </div>
                 ))}
@@ -310,6 +322,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               Cancel
             </button>
             <button type="submit" className={styles['submit-btn']}>
+              <Plus size={18} />
               Add Recipe
             </button>
           </div>

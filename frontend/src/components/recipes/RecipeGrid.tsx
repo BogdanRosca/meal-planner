@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen } from 'lucide-react';
 import { Recipe } from '../../types/recipe';
 import RecipeCard from './RecipeCard';
 import styles from './RecipeGrid.module.css';
@@ -26,9 +27,12 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
   if (filteredRecipes.length === 0) {
     return (
       <div className={styles['no-recipes-message']}>
-        {searchQuery
-          ? 'No recipes found matching your search.'
-          : 'No recipes available yet.'}
+        <BookOpen size={48} className={styles['no-recipes-icon']} />
+        <p>
+          {searchQuery
+            ? 'No recipes found matching your search.'
+            : 'No recipes available yet.'}
+        </p>
       </div>
     );
   }

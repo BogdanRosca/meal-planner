@@ -1,4 +1,14 @@
 import React from 'react';
+import {
+  X,
+  Clock,
+  Users,
+  List,
+  Circle,
+  UtensilsCrossed,
+  FileText,
+  Video,
+} from 'lucide-react';
 import styles from './RecipeDetailModal.module.css';
 import { Recipe } from '../../types/recipe';
 
@@ -56,8 +66,12 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
     >
       <div className={styles['recipe-modal-content']}>
         {/* Close Button */}
-        <button className={styles['recipe-modal-close']} onClick={onClose}>
-          ×
+        <button
+          className={styles['recipe-modal-close']}
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X size={24} />
         </button>
 
         {/* Hero Image */}
@@ -92,44 +106,25 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           {/* Meta Information */}
           <div className={styles['recipe-modal-meta']}>
             <span className={styles['recipe-meta-item']}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              {recipe.prep_time}
+              <Clock size={18} />
+              {recipe.prep_time} min
             </span>
             <span className={styles['recipe-meta-item']}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+              <Users size={18} />
               {recipe.portions} {recipe.portions === 1 ? 'portion' : 'portions'}
             </span>
           </div>
 
           {/* Ingredients Section */}
           <div className={styles['recipe-section']}>
-            <h3 className={styles['recipe-section-title']}>Ingredients</h3>
+            <h3 className={styles['recipe-section-title']}>
+              <List size={18} />
+              Ingredients
+            </h3>
             <ul className={styles['recipe-ingredients-list']}>
               {recipe.main_ingredients.map((ingredient, index) => (
                 <li key={index} className={styles['recipe-ingredient-item']}>
-                  <span className={styles['ingredient-bullet']}>●</span>
+                  <Circle size={6} className={styles['ingredient-bullet']} />
                   <span className={styles['ingredient-quantity']}>
                     {ingredient.quantity} {ingredient.unit}
                   </span>
@@ -146,6 +141,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             recipe.common_ingredients.length > 0 && (
               <div className={styles['recipe-section']}>
                 <h3 className={styles['recipe-section-title']}>
+                  <UtensilsCrossed size={18} />
                   Spices and Others
                 </h3>
                 <ul className={styles['recipe-common-ingredients-list']}>
@@ -163,7 +159,10 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
           {/* Instructions Section */}
           <div className={styles['recipe-section']}>
-            <h3 className={styles['recipe-section-title']}>Instructions</h3>
+            <h3 className={styles['recipe-section-title']}>
+              <FileText size={18} />
+              Instructions
+            </h3>
             <div className={styles['recipe-instructions']}>
               {recipe.instructions}
             </div>
@@ -172,7 +171,10 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
           {/* Video Section */}
           {recipe.video_url && (
             <div className={styles['recipe-section']}>
-              <h3 className={styles['recipe-section-title']}>Video</h3>
+              <h3 className={styles['recipe-section-title']}>
+                <Video size={18} />
+                Video
+              </h3>
               <div className={styles['recipe-video-container']}>
                 {getYouTubeEmbedUrl(recipe.video_url) ? (
                   <iframe

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 import styles from './Recipes.module.css';
 import { Recipe } from '../../types/recipe';
 import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
@@ -76,7 +77,8 @@ const Recipes: React.FC = () => {
               className={styles['add-recipe-button']}
               onClick={openAddRecipeModal}
             >
-              + Add recipe
+              <Plus size={18} />
+              Add recipe
             </button>
           </div>
 

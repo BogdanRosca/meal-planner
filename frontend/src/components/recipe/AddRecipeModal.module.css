@@ -31,17 +31,33 @@
 }
 
 .modal-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: #5b8266;
   font-weight: 600;
 }
 
+.modal-header h2 svg {
+  flex-shrink: 0;
+}
+
 .close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  font-size: 24px;
   cursor: pointer;
   color: #666;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.close-button:hover {
+  color: #333;
+  background: #f5f5f5;
 }
 
 .close-button:hover {
@@ -50,6 +66,7 @@
 
 .add-recipe-form {
   padding: 20px;
+  text-align: left;
 }
 
 .form-group {
@@ -61,6 +78,7 @@
   margin-bottom: 8px;
   font-weight: 500;
   color: #444;
+  text-align: left;
 }
 
 .form-input,
@@ -116,15 +134,25 @@
 }
 
 .remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  color: #ff6b6b;
-  font-size: 18px;
+  color: #e74c3c;
   cursor: pointer;
-  padding: 5px;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.remove-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
 }
 
 .add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: none;
   border: 1px solid #5b8266;
   color: #5b8266;
@@ -159,6 +187,9 @@
 }
 
 .add-common-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background-color: #5b8266;
   color: white;
   border: none;
@@ -185,12 +216,21 @@
 }
 
 .remove-tag-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: #666;
-  font-size: 16px;
   cursor: pointer;
   margin-left: 6px;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.remove-tag-btn:hover {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
 }
 
 .form-actions {
@@ -211,6 +251,9 @@
 }
 
 .submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background-color: #5b8266;
   color: white;
   border: none;

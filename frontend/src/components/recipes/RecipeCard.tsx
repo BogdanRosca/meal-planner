@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trash2, Clock, Users } from 'lucide-react';
 import { Recipe } from '../../types/recipe';
 import styles from './RecipeCard.module.css';
 
@@ -48,16 +49,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         <div className={styles['recipe-card-content']}>
           <div className={styles['recipe-title-container']}>
             <h3 className={styles['recipe-card-title']}>{_recipe.name}</h3>
-            <div
+            <button
+              type="button"
               className={styles['recipe-delete-button']}
-              onClick={_e => onDeleteClick(_e, _recipe)}
+              onClick={e => onDeleteClick(e, _recipe)}
+              aria-label={`Delete ${_recipe.name}`}
             >
-              <img
-                src="assets/delete.png"
-                alt="Delete"
-                className={styles['delete-icon']}
-              />
-            </div>
+              <Trash2 size={16} />
+            </button>
           </div>
           <div
             className={[styles['recipe-category-badge'], categoryClass ?? '']
@@ -68,10 +67,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
           <div className={styles['recipe-card-footer']}>
             <span className={styles['recipe-time']}>
-              ⏱️ {_recipe.prep_time} min
+              <Clock size={14} />
+              {_recipe.prep_time} min
             </span>
             <span className={styles['recipe-portions']}>
-              👥 {_recipe.portions}{' '}
+              <Users size={14} />
+              {_recipe.portions}{' '}
               {_recipe.portions === 1 ? 'portion' : 'portions'}
             </span>
           </div>
