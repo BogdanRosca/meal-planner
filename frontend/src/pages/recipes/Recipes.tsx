@@ -4,6 +4,7 @@ import styles from './Recipes.module.css';
 import { Recipe } from '../../types/recipe';
 import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
 import AddRecipeModal from '../../components/recipe/AddRecipeModal';
+import EditRecipeModal from '../../components/recipe/EditRecipeModal';
 import ConfirmationPopup from '../../components/popup/ConfirmationPopup';
 import SearchBar from '../../components/recipes/SearchBar';
 import RecipeGrid from '../../components/recipes/RecipeGrid';
@@ -12,18 +13,23 @@ import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 
 const Recipes: React.FC = () => {
-  const { recipes, loading, error, addRecipe, deleteRecipe } = useRecipes();
+  const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } =
+    useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const {
     selectedRecipe,
     isDetailModalOpen,
     isAddRecipeModalOpen,
+    isEditRecipeModalOpen,
+    recipeToEdit,
     deleteConfirmation,
     openDetailModal,
     closeDetailModal,
     openAddRecipeModal,
     closeAddRecipeModal,
+    openEditRecipeModal,
+    closeEditRecipeModal,
     openDeleteConfirmation,
     closeDeleteConfirmation,
   } = useRecipeModals();
@@ -61,6 +67,20 @@ const Recipes: React.FC = () => {
     }
   };
 
+  const handleEditRecipe = (recipe: Recipe) => {
+    closeDetailModal();
+    openEditRecipeModal(recipe);
+  };
+
+  const handleUpdateRecipe = async (updatedRecipe: Omit<Recipe, 'id'>) => {
+    if (recipeToEdit) {
+      const success = await updateRecipe(recipeToEdit.id, updatedRecipe);
+      if (success) {
+        closeEditRecipeModal();
+      }
+    }
+  };
+
   return (
     <div className={styles['recipes-content']}>
       <StatusMessage loading={loading} error={error} />
@@ -94,6 +114,7 @@ const Recipes: React.FC = () => {
               recipe={selectedRecipe}
               isOpen={isDetailModalOpen}
               onClose={closeDetailModal}
+              onEdit={() => handleEditRecipe(selectedRecipe)}
             />
           )}
 
@@ -102,6 +123,15 @@ const Recipes: React.FC = () => {
             onClose={closeAddRecipeModal}
             onAddRecipe={handleAddRecipe}
           />
+
+          {recipeToEdit && (
+            <EditRecipeModal
+              recipe={recipeToEdit}
+              isOpen={isEditRecipeModalOpen}
+              onClose={closeEditRecipeModal}
+              onEditRecipe={handleUpdateRecipe}
+            />
+          )}
 
           <ConfirmationPopup
             isOpen={deleteConfirmation.isOpen}

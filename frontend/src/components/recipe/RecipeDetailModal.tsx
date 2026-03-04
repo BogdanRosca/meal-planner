@@ -8,6 +8,7 @@ import {
   UtensilsCrossed,
   FileText,
   Video,
+  Edit,
 } from 'lucide-react';
 import styles from './RecipeDetailModal.module.css';
 import { Recipe } from '../../types/recipe';
@@ -16,6 +17,7 @@ interface RecipeDetailModalProps {
   recipe: Recipe;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: () => void;
 }
 
 const getYouTubeEmbedUrl = (url: string): string | null => {
@@ -36,6 +38,7 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   recipe,
   isOpen,
   onClose,
+  onEdit,
 }) => {
   if (!isOpen) return null;
 
@@ -65,14 +68,26 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
       onClick={handleBackdropClick}
     >
       <div className={styles['recipe-modal-content']}>
-        {/* Close Button */}
-        <button
-          className={styles['recipe-modal-close']}
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <X size={24} />
-        </button>
+        {/* Action Buttons */}
+        <div className={styles['recipe-modal-actions']}>
+          {onEdit && (
+            <button
+              className={styles['recipe-modal-edit']}
+              onClick={onEdit}
+              aria-label="Edit recipe"
+              title="Edit recipe"
+            >
+              <Edit size={20} />
+            </button>
+          )}
+          <button
+            className={styles['recipe-modal-close']}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={24} />
+          </button>
+        </div>
 
         {/* Hero Image */}
         <div className={styles['recipe-modal-image']}>
