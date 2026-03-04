@@ -7,6 +7,7 @@ import * as useShoppingListModule from '../../hooks/useShoppingList';
 const mockNavigateWeek = jest.fn();
 const mockRemoveItem = jest.fn();
 const mockUpdateItem = jest.fn();
+const mockRegenerate = jest.fn().mockResolvedValue(undefined);
 
 const mockUseShoppingList = {
   weekStart: new Date('2024-01-01'),
@@ -31,6 +32,7 @@ const mockUseShoppingList = {
   navigateWeek: mockNavigateWeek,
   removeItem: mockRemoveItem,
   updateItem: mockUpdateItem,
+  regenerate: mockRegenerate,
 };
 
 describe('ShoppingList Component', () => {
