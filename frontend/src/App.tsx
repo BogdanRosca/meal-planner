@@ -5,6 +5,7 @@ import QuickActions from './components/quick-actions/QuickActions';
 import Home from './pages/home/Home';
 import Recipes from './pages/recipes/Recipes';
 import MealPlanner from './pages/meal-planner/MealPlanner';
+import ShoppingList from './pages/shopping-list/ShoppingList';
 
 function App() {
   const [currentSection, setCurrentSection] = useState('Meal Planner');
@@ -52,6 +53,8 @@ function App() {
           <Recipes />
         ) : currentSection === 'Meal Planner' ? (
           <MealPlanner />
+        ) : currentSection === 'Shopping List' ? (
+          <ShoppingList />
         ) : (
           <Home />
         )}
