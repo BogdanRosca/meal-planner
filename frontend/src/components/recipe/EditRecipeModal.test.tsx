@@ -228,7 +228,9 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const categorySelect = container.querySelector('[id="recipe-category"]') as HTMLSelectElement;
+    const categorySelect = container.querySelector(
+      '[id="recipe-category"]'
+    ) as HTMLSelectElement;
     expect(categorySelect).toBeInTheDocument();
 
     const options = categorySelect.querySelectorAll('option');

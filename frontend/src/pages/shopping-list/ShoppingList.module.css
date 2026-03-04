@@ -164,11 +164,7 @@
   color: #212922;
   margin: 0;
   padding: 16px 20px;
-  background: linear-gradient(
-    135deg,
-    #f5f9f6 0%,
-    #ecf3ee 100%
-  );
+  background: linear-gradient(135deg, #f5f9f6 0%, #ecf3ee 100%);
   border-bottom: 1px solid #e8ede8;
 }
 
@@ -444,7 +440,6 @@
     padding: 12px 16px;
     font-size: 14px;
   }
-
 
   .recipe-tag {
     padding: 3px 8px;
