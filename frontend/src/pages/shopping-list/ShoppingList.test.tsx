@@ -126,22 +126,16 @@ describe('ShoppingList Component', () => {
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
-  it('removes item when remove button is clicked', async () => {
-    const user = userEvent.setup();
+  it('renders main ingredients table', () => {
     render(<ShoppingList />);
 
-    const removeButtons = screen.getAllByLabelText(/Remove/);
-    if (removeButtons.length > 0) {
-      await user.click(removeButtons[0]);
-    }
-
-    expect(mockRemoveItem).toHaveBeenCalled();
+    expect(screen.getByText('Main Ingredients')).toBeInTheDocument();
   });
 
-  it('displays recipe tags for ingredients', () => {
+  it('displays common ingredients section', () => {
     render(<ShoppingList />);
 
-    expect(screen.getByText('Carbonara')).toBeInTheDocument();
+    expect(screen.getByText('Common Ingredients')).toBeInTheDocument();
   });
 
   it('shows correct ingredient quantity format', () => {

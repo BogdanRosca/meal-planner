@@ -124,7 +124,7 @@ describe('RecipeGrid Component', () => {
   });
 
   it('passes correct props to RecipeCard', () => {
-    const { container } = render(
+    render(
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery=""
@@ -133,8 +133,8 @@ describe('RecipeGrid Component', () => {
       />
     );
 
-    const recipeCards = container.querySelectorAll('[class*="recipe-card"]');
-    expect(recipeCards.length).toBe(2);
+    expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument();
+    expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
   });
 
   it('handles partial search matches', () => {

@@ -21,7 +21,7 @@ describe('StatusMessage Component', () => {
       <StatusMessage loading={false} error={null} />
     );
 
-    expect(container.firstChild).toBeEmptyDOMNode();
+    expect(container.firstChild).toBeNull();
   });
 
   it('shows loading message even if error is present (loading takes precedence)', () => {
@@ -35,7 +35,7 @@ describe('StatusMessage Component', () => {
   it('does not render when loading is false and error is empty string', () => {
     const { container } = render(<StatusMessage loading={false} error="" />);
 
-    expect(container.firstChild).toBeEmptyDOMNode();
+    expect(container.firstChild).toBeNull();
   });
 
   it('renders error message with icon when error occurs', () => {

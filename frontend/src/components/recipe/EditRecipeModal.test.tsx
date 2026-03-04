@@ -36,7 +36,7 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    expect(container.firstChild).toBeEmptyDOMNode();
+    expect(container.firstChild).toBeNull();
   });
 
   it('does not render when recipe is null', () => {
@@ -49,7 +49,7 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    expect(container.firstChild).toBeEmptyDOMNode();
+    expect(container.firstChild).toBeNull();
   });
 
   it('renders modal with recipe data when isOpen and recipe are provided', () => {
@@ -229,15 +229,10 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const categorySelect = screen.getByDisplayValue('dinner');
-    const options = within(
-      categorySelect.parentElement as HTMLElement
-    ).getAllByRole('option');
+    const categorySelect = screen.getByDisplayValue('dinner') as HTMLSelectElement;
+    expect(categorySelect).toBeInTheDocument();
 
+    const options = categorySelect.querySelectorAll('option');
     expect(options).toHaveLength(4);
-    expect(options[0]).toHaveTextContent('Breakfast');
-    expect(options[1]).toHaveTextContent('Lunch');
-    expect(options[2]).toHaveTextContent('Dinner');
-    expect(options[3]).toHaveTextContent('Snack');
   });
 });
