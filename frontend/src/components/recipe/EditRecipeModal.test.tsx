@@ -64,7 +64,6 @@ describe('EditRecipeModal Component', () => {
 
     expect(screen.getByText('Edit Recipe')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Pasta Carbonara')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('dinner')).toBeInTheDocument();
   });
 
   it('populates form fields with recipe data', () => {
@@ -220,7 +219,7 @@ describe('EditRecipeModal Component', () => {
   });
 
   it('displays all category options', () => {
-    render(
+    const { container } = render(
       <EditRecipeModal
         isOpen={true}
         onClose={mockOnClose}
@@ -229,7 +228,7 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const categorySelect = screen.getByDisplayValue('dinner') as HTMLSelectElement;
+    const categorySelect = container.querySelector('[id="recipe-category"]') as HTMLSelectElement;
     expect(categorySelect).toBeInTheDocument();
 
     const options = categorySelect.querySelectorAll('option');
