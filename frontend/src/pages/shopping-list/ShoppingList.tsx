@@ -1,5 +1,18 @@
 import React, { useState, useCallback } from 'react';
 import {
+  ShoppingCart,
+  CalendarRange,
+  CalendarDays,
+  ListChecks,
+  Carrot,
+  UtensilsCrossed,
+  Trash2,
+  Pencil,
+  Loader2,
+  ShoppingBag,
+  AlertCircle,
+} from 'lucide-react';
+import {
   useShoppingList,
   ShoppingListRange,
 } from '../../hooks/useShoppingList';
@@ -11,25 +24,25 @@ const RANGE_OPTIONS: {
   value: ShoppingListRange;
   label: string;
   shortLabel: string;
-  description: string;
+  icon: React.ReactNode;
 }[] = [
   {
     value: 'first-half',
     label: 'First Half',
     shortLabel: 'Mon–Thu',
-    description: 'Monday to Thursday',
+    icon: <CalendarRange size={18} />,
   },
   {
     value: 'second-half',
     label: 'Second Half',
     shortLabel: 'Fri–Sun',
-    description: 'Friday to Sunday',
+    icon: <CalendarDays size={18} />,
   },
   {
     value: 'entire',
     label: 'Entire Week',
     shortLabel: 'Mon–Sun',
-    description: 'Full week',
+    icon: <ListChecks size={18} />,
   },
 ];
 
@@ -90,6 +103,7 @@ function EditableQuantity({
       {item.quantity != null
         ? `${item.quantity}${item.unit ? ` ${item.unit}` : ''}`
         : '—'}
+      <Pencil size={12} className={styles['quantity-edit-icon']} />
     </button>
   );
 }
@@ -112,14 +126,20 @@ const ShoppingList: React.FC = () => {
   if (error) {
     return (
       <div className={styles['shopping-list']}>
-        <div className={styles['error-message']}>{error}</div>
+        <div className={styles['error-message']}>
+          <AlertCircle size={24} />
+          {error}
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles['shopping-list']}>
-      <h2 className={styles['shopping-list-title']}>Shopping List</h2>
+      <h2 className={styles['shopping-list-title']}>
+        <ShoppingCart size={28} strokeWidth={2} />
+        Shopping List
+      </h2>
       <WeekNavigator weekStart={weekStart} onNavigate={navigateWeek} />
       <div className={styles['range-selector']}>
         {RANGE_OPTIONS.map(opt => (
@@ -131,6 +151,7 @@ const ShoppingList: React.FC = () => {
             }`}
             onClick={() => setRange(opt.value)}
           >
+            <span className={styles['range-icon']}>{opt.icon}</span>
             <span className={styles['range-label']}>{opt.label}</span>
             <span className={styles['range-dates']}>{opt.shortLabel}</span>
           </button>
@@ -138,17 +159,25 @@ const ShoppingList: React.FC = () => {
       </div>
       {loading ? (
         <div className={styles['loading-message']}>
+          <Loader2 size={32} className={styles['loading-spinner']} />
           Generating shopping list...
         </div>
       ) : items.length === 0 ? (
         <div className={styles['empty-state']}>
-          No recipes planned for this range. Add meals to your calendar first.
+          <ShoppingBag size={48} strokeWidth={1.5} />
+          <p>No recipes planned for this range.</p>
+          <p className={styles['empty-state-hint']}>
+            Add meals to your calendar first.
+          </p>
         </div>
       ) : (
         <div className={styles['tables-container']}>
           {mainItems.length > 0 && (
             <section className={styles['list-section']}>
-              <h3 className={styles['section-title']}>Main Ingredients</h3>
+              <h3 className={styles['section-title']}>
+                <Carrot size={20} />
+                Main Ingredients
+              </h3>
               <div className={styles['table-container']}>
                 <table className={styles['ingredients-table']}>
                   <colgroup>
@@ -159,8 +188,18 @@ const ShoppingList: React.FC = () => {
                   </colgroup>
                   <thead>
                     <tr>
-                      <th>Ingredient</th>
-                      <th className={styles['col-recipes']}>Recipes</th>
+                      <th>
+                        <span className={styles['th-content']}>
+                          <Carrot size={14} />
+                          Ingredient
+                        </span>
+                      </th>
+                      <th className={styles['col-recipes']}>
+                        <span className={styles['th-content']}>
+                          <UtensilsCrossed size={14} />
+                          Recipes
+                        </span>
+                      </th>
                       <th className={styles['col-quantity']}>Quantity</th>
                       <th
                         className={styles['col-remove']}
@@ -198,7 +237,7 @@ const ShoppingList: React.FC = () => {
                             onClick={() => removeItem(item.id)}
                             aria-label={`Remove ${item.name}`}
                           >
-                            ×
+                            <Trash2 size={16} />
                           </button>
                         </td>
                       </tr>
@@ -212,7 +251,10 @@ const ShoppingList: React.FC = () => {
             <section
               className={`${styles['list-section']} ${styles['common-ingredients']}`}
             >
-              <h3 className={styles['section-title']}>Common Ingredients</h3>
+              <h3 className={styles['section-title']}>
+                <UtensilsCrossed size={20} />
+                Common Ingredients
+              </h3>
               <div className={styles['table-container']}>
                 <table
                   className={`${styles['ingredients-table']} ${styles['ingredients-table-common']}`}
@@ -224,8 +266,18 @@ const ShoppingList: React.FC = () => {
                   </colgroup>
                   <thead>
                     <tr>
-                      <th>Ingredient</th>
-                      <th className={styles['col-recipes']}>Recipes</th>
+                      <th>
+                        <span className={styles['th-content']}>
+                          <Carrot size={14} />
+                          Ingredient
+                        </span>
+                      </th>
+                      <th className={styles['col-recipes']}>
+                        <span className={styles['th-content']}>
+                          <UtensilsCrossed size={14} />
+                          Recipes
+                        </span>
+                      </th>
                       <th
                         className={styles['col-remove']}
                         aria-label="Remove"
@@ -259,7 +311,7 @@ const ShoppingList: React.FC = () => {
                             onClick={() => removeItem(item.id)}
                             aria-label={`Remove ${item.name}`}
                           >
-                            ×
+                            <Trash2 size={16} />
                           </button>
                         </td>
                       </tr>

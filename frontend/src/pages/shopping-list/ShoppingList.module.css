@@ -5,6 +5,10 @@
 }
 
 .shopping-list-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   font-size: 28px;
   font-weight: 700;
   color: #212922;
@@ -12,21 +16,51 @@
   margin: 0 0 24px 0;
 }
 
+.shopping-list-title svg {
+  color: #5b8266;
+  flex-shrink: 0;
+}
+
 .loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   text-align: center;
   padding: 60px 20px;
   font-size: 18px;
   color: #666;
 }
 
+.loading-spinner {
+  animation: spin 1s linear infinite;
+  color: #5b8266;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .error-message {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   font-size: 18px;
   color: #d32f2f;
   background: #ffebee;
   border-radius: 12px;
   margin: 20px;
   padding: 40px 20px;
+}
+
+.error-message svg {
+  flex-shrink: 0;
 }
 
 /* Range selector – segmented control */
@@ -49,7 +83,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   padding: 14px 16px;
   background: transparent;
   border: none;
@@ -79,6 +113,17 @@
 .range-option:focus-visible {
   outline: 2px solid #5b8266;
   outline-offset: 2px;
+}
+
+.range-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.range-option.range-active .range-icon {
+  opacity: 1;
 }
 
 .range-label {
@@ -111,6 +156,9 @@
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 18px;
   font-weight: 700;
   color: #212922;
@@ -122,6 +170,11 @@
     #ecf3ee 100%
   );
   border-bottom: 1px solid #e8ede8;
+}
+
+.section-title svg {
+  color: #5b8266;
+  flex-shrink: 0;
 }
 
 .table-container {
@@ -144,6 +197,16 @@
   padding: 14px 20px;
   background: #fafbfa;
   border-bottom: 2px solid #e8ede8;
+}
+
+.th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.th-content svg {
+  flex-shrink: 0;
 }
 
 .ingredients-table td {
@@ -244,7 +307,9 @@
 
 /* Editable quantity */
 .quantity-display {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 12px;
   background: #f5f9f6;
   border: 1px solid #e8ede8;
@@ -255,6 +320,17 @@
   text-align: right;
   min-width: 60px;
   transition: all 0.2s ease;
+}
+
+.quantity-edit-icon {
+  color: #999;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.quantity-display:hover .quantity-edit-icon {
+  color: #5b8266;
+  opacity: 1;
 }
 
 .quantity-display:hover {
@@ -282,18 +358,21 @@
 }
 
 .item-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  font-size: 18px;
   color: #ccc;
   cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
-  transition: color 0.2s ease;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .item-remove:hover {
   color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
 }
 
 .item-remove:focus-visible {
@@ -302,6 +381,10 @@
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   text-align: center;
   padding: 60px 20px;
   font-size: 18px;
@@ -309,6 +392,17 @@
   background: #f5f9f6;
   border-radius: 12px;
   margin: 20px 0;
+}
+
+.empty-state svg {
+  color: #5b8266;
+  opacity: 0.6;
+}
+
+.empty-state-hint {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
