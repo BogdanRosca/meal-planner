@@ -132,7 +132,7 @@ describe('ShoppingList Component', () => {
     expect(screen.getByText('Main Ingredients')).toBeInTheDocument();
   });
 
-  it('displays common ingredients section', () => {
+  it('displays common ingredients in separate section', () => {
     render(<ShoppingList />);
 
     expect(screen.getByText('Common Ingredients')).toBeInTheDocument();
