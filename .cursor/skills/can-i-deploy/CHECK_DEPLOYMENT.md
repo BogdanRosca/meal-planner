@@ -25,7 +25,7 @@ When there are changes in `/backend`:
 
 2. **Run Linting with Flake8**
    ```bash
-   flake8 app/
+   flake8
    ```
    - ✅ Should exit with code 0 (no errors)
 
