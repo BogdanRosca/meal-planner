@@ -122,7 +122,7 @@ npm run format:check
 - [ ] **No console errors**: Check browser console for errors
 
 ### Backend ✅
-- [ ] **No linting errors**: `flake8 app/` exits with code 0
+- [ ] **No linting errors**: `flake8` exits with code 0
 - [ ] **All unit tests pass**: `pytest tests/unit -v` all passing
 - [ ] **All integration tests pass**: `pytest tests/integration -v` all passing
 - [ ] **Database connects**: Integration tests can reach database
