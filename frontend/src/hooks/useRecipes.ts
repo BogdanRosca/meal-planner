@@ -61,7 +61,9 @@ export const useRecipes = () => {
   const deleteRecipe = async (recipeId: number) => {
     try {
       await recipeService.deleteRecipe(recipeId);
-      setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));
+      setRecipes(prevRecipes =>
+        prevRecipes.filter(recipe => recipe.id !== recipeId)
+      );
       return true;
     } catch (err) {
       // eslint-disable-next-line no-console
