@@ -29,7 +29,7 @@ export const useRecipes = () => {
   const addRecipe = async (newRecipe: Omit<Recipe, 'id'>) => {
     try {
       const addedRecipe = await recipeService.addRecipe(newRecipe);
-      setRecipes([...recipes, addedRecipe]);
+      setRecipes(prevRecipes => [...prevRecipes, addedRecipe]);
       return true;
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -47,8 +47,8 @@ export const useRecipes = () => {
         recipeId,
         updatedRecipe
       );
-      setRecipes(
-        recipes.map(recipe => (recipe.id === recipeId ? newRecipe : recipe))
+      setRecipes(prevRecipes =>
+        prevRecipes.map(recipe => (recipe.id === recipeId ? newRecipe : recipe))
       );
       return true;
     } catch (err) {
@@ -61,7 +61,7 @@ export const useRecipes = () => {
   const deleteRecipe = async (recipeId: number) => {
     try {
       await recipeService.deleteRecipe(recipeId);
-      setRecipes(recipes.filter(recipe => recipe.id !== recipeId));
+      setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));
       return true;
     } catch (err) {
       // eslint-disable-next-line no-console
