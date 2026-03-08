@@ -133,10 +133,12 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const categorySelects = screen.queryAllByDisplayValue('dinner');
-    expect(categorySelects.length).toBeGreaterThan(0);
-    await user.selectOptions(categorySelects[0], 'breakfast');
-    expect(categorySelects[0]).toHaveValue('breakfast');
+    const categorySelect = screen.getByDisplayValue(
+      'Dinner'
+    ) as HTMLSelectElement;
+    expect(categorySelect).toBeInTheDocument();
+    await user.selectOptions(categorySelect, 'breakfast');
+    expect(categorySelect).toHaveValue('breakfast');
   });
 
   it('allows editing instructions', async () => {
