@@ -1,6 +1,5 @@
 import { recipeService } from './recipeService';
 import { Recipe, RecipesResponse } from '../types/recipe';
-import * as apiConfig from '../config/api';
 
 // Mock fetch globally
 global.fetch = jest.fn();
