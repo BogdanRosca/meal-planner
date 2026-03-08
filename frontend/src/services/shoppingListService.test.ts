@@ -6,7 +6,7 @@ describe('shoppingListService', () => {
     it('aggregates main ingredients with same name and unit', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Pasta Carbonara',
           category: 'Italian',
           main_ingredients: [
@@ -14,9 +14,12 @@ describe('shoppingListService', () => {
             { name: 'Eggs', unit: 'count', quantity: 2 },
           ],
           common_ingredients: [],
+          instructions: 'Cook and mix',
+          prep_time: 20,
+          portions: 4,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Pasta Bolognese',
           category: 'Italian',
           main_ingredients: [
@@ -24,6 +27,9 @@ describe('shoppingListService', () => {
             { name: 'Ground Beef', unit: 'kg', quantity: 0.5 },
           ],
           common_ingredients: [],
+          instructions: 'Cook and serve',
+          prep_time: 30,
+          portions: 4,
         },
       ];
 
@@ -41,7 +47,7 @@ describe('shoppingListService', () => {
     it('handles ingredients without unit', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Simple Recipe',
           category: 'Simple',
           main_ingredients: [
@@ -52,6 +58,9 @@ describe('shoppingListService', () => {
             },
           ],
           common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 2,
         },
       ];
 
@@ -66,7 +75,7 @@ describe('shoppingListService', () => {
     it('normalizes ingredient names and units', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe 1',
           category: 'Test',
           main_ingredients: [
@@ -77,9 +86,12 @@ describe('shoppingListService', () => {
             },
           ],
           common_ingredients: [],
+          instructions: 'Test',
+          prep_time: 15,
+          portions: 1,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Recipe 2',
           category: 'Test',
           main_ingredients: [
@@ -90,6 +102,9 @@ describe('shoppingListService', () => {
             },
           ],
           common_ingredients: [],
+          instructions: 'Test',
+          prep_time: 15,
+          portions: 1,
         },
       ];
 
@@ -104,18 +119,24 @@ describe('shoppingListService', () => {
     it('aggregates common ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe 1',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: ['Salt', 'Pepper'],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 2,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Recipe 2',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: ['Salt', 'Garlic'],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 2,
         },
       ];
 
@@ -132,18 +153,24 @@ describe('shoppingListService', () => {
     it('deduplicates common ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe 1',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: ['Salt'],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 2,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Recipe 2',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: ['  SALT  '],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 2,
         },
       ];
 
@@ -162,11 +189,14 @@ describe('shoppingListService', () => {
     it('handles recipes with no ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Empty Recipe',
           category: 'Test',
-          main_ingredients: undefined,
-          common_ingredients: undefined,
+          main_ingredients: [],
+          common_ingredients: [],
+          instructions: 'None',
+          prep_time: 0,
+          portions: 1,
         },
       ];
 
@@ -177,11 +207,14 @@ describe('shoppingListService', () => {
     it('handles recipes with empty ingredient arrays', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Empty Recipe',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: [],
+          instructions: 'None',
+          prep_time: 0,
+          portions: 1,
         },
       ];
 
@@ -192,11 +225,14 @@ describe('shoppingListService', () => {
     it('assigns correct IDs to items', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe 1',
           category: 'Test',
           main_ingredients: [{ name: 'Flour', unit: 'g', quantity: 500 }],
           common_ingredients: ['Salt'],
+          instructions: 'Mix',
+          prep_time: 20,
+          portions: 4,
         },
       ];
 
@@ -212,7 +248,7 @@ describe('shoppingListService', () => {
     it('separates main and common ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Complex Recipe',
           category: 'Test',
           main_ingredients: [
@@ -220,6 +256,9 @@ describe('shoppingListService', () => {
             { name: 'Butter', unit: 'g', quantity: 200 },
           ],
           common_ingredients: ['Salt', 'Pepper'],
+          instructions: 'Mix',
+          prep_time: 30,
+          portions: 6,
         },
       ];
 
@@ -235,25 +274,34 @@ describe('shoppingListService', () => {
     it('handles multiple recipes with different quantities', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Small Batch',
           category: 'Test',
           main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 100 }],
           common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 15,
+          portions: 2,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Large Batch',
           category: 'Test',
           main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 500 }],
           common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 15,
+          portions: 2,
         },
         {
-          id: '3',
+          id: 3,
           name: 'Medium Batch',
           category: 'Test',
           main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 250 }],
           common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 15,
+          portions: 2,
         },
       ];
 
@@ -271,7 +319,7 @@ describe('shoppingListService', () => {
     it('preserves trimmed names for main ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe',
           category: 'Test',
           main_ingredients: [
@@ -282,6 +330,9 @@ describe('shoppingListService', () => {
             },
           ],
           common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
         },
       ];
 
@@ -294,11 +345,14 @@ describe('shoppingListService', () => {
     it('preserves trimmed names for common ingredients', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Recipe',
           category: 'Test',
           main_ingredients: [],
           common_ingredients: ['  Black Pepper  '],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
         },
       ];
 
@@ -310,7 +364,7 @@ describe('shoppingListService', () => {
     it('handles complex multi-recipe scenario', () => {
       const recipes: Recipe[] = [
         {
-          id: '1',
+          id: 1,
           name: 'Pasta Carbonara',
           category: 'Italian',
           main_ingredients: [
@@ -319,9 +373,12 @@ describe('shoppingListService', () => {
             { name: 'Bacon', unit: 'g', quantity: 200 },
           ],
           common_ingredients: ['Salt', 'Black Pepper'],
+          instructions: 'Cook pasta and mix',
+          prep_time: 25,
+          portions: 4,
         },
         {
-          id: '2',
+          id: 2,
           name: 'Caesar Salad',
           category: 'Salad',
           main_ingredients: [
@@ -329,6 +386,9 @@ describe('shoppingListService', () => {
             { name: 'Parmesan', unit: 'g', quantity: 100 },
           ],
           common_ingredients: ['Salt', 'Black Pepper'],
+          instructions: 'Mix ingredients',
+          prep_time: 15,
+          portions: 4,
         },
       ];
 
