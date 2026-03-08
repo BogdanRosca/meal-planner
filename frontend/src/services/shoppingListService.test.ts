@@ -402,5 +402,90 @@ describe('shoppingListService', () => {
       const mainItemsCount = result.filter(item => !item.isCommon).length;
       expect(mainItemsCount).toBe(5);
     });
+
+    it('handles recipes with undefined main_ingredients array', () => {
+      const recipes: Recipe[] = [
+        {
+          id: 1,
+          name: 'Recipe',
+          category: 'Test',
+          main_ingredients: undefined as any,
+          common_ingredients: ['Salt'],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
+        },
+      ];
+
+      const result = aggregateIngredients(recipes);
+
+      const salt = result.find(item => item.name === 'Salt');
+      expect(salt).toBeDefined();
+      expect(salt!.isCommon).toBe(true);
+    });
+
+    it('handles recipes with undefined common_ingredients array', () => {
+      const recipes: Recipe[] = [
+        {
+          id: 1,
+          name: 'Recipe',
+          category: 'Test',
+          main_ingredients: [{ name: 'Flour', unit: 'g', quantity: 500 }],
+          common_ingredients: undefined as any,
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
+        },
+      ];
+
+      const result = aggregateIngredients(recipes);
+
+      const flour = result.find(item => item.name === 'Flour');
+      expect(flour).toBeDefined();
+      expect(flour!.isCommon).toBe(false);
+    });
+
+    it('correctly updates existing main ingredient recipe set', () => {
+      const recipes: Recipe[] = [
+        {
+          id: 1,
+          name: 'Recipe A',
+          category: 'Test',
+          main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 100 }],
+          common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
+        },
+        {
+          id: 2,
+          name: 'Recipe B',
+          category: 'Test',
+          main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 50 }],
+          common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
+        },
+        {
+          id: 3,
+          name: 'Recipe C',
+          category: 'Test',
+          main_ingredients: [{ name: 'Sugar', unit: 'g', quantity: 75 }],
+          common_ingredients: [],
+          instructions: 'Mix',
+          prep_time: 10,
+          portions: 1,
+        },
+      ];
+
+      const result = aggregateIngredients(recipes);
+
+      const sugar = result.find(item => item.name === 'Sugar');
+      expect(sugar).toBeDefined();
+      expect(sugar!.quantity).toBe(225);
+      expect(sugar!.recipes).toHaveLength(3);
+      expect(sugar!.recipes).toEqual(['Recipe A', 'Recipe B', 'Recipe C']);
+    });
   });
 });

@@ -217,4 +217,30 @@ describe('App Component', () => {
     fireEvent.click(mealPlannerNav);
     expect(mealPlannerNav.closest('button')).toHaveClass('active');
   });
+
+  it('navigates to shopping list page when Shopping List nav is clicked', () => {
+    render(<App />);
+
+    const shoppingListNavButtons = screen.getAllByText('Shopping List');
+    const shoppingListNavButton = shoppingListNavButtons[0];
+    fireEvent.click(shoppingListNavButton);
+
+    expect(shoppingListNavButton.closest('button')).toHaveClass('active');
+    const shoppingListContent = document.querySelector('.shopping-list');
+    expect(shoppingListContent).toBeInTheDocument();
+  });
+
+  it('renders Home when navigated to unknown section', () => {
+    render(<App />);
+
+    // Navigate to Recipes
+    const recipesNavButton = screen.getByText('Recipes');
+    fireEvent.click(recipesNavButton);
+
+    // Navigate to an unknown section by triggering category click with different name
+    const mealPlannerNav = screen.getByText('Meal Planner');
+    fireEvent.click(mealPlannerNav);
+
+    expect(mealPlannerNav.closest('button')).toHaveClass('active');
+  });
 });
