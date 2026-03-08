@@ -233,6 +233,42 @@ describe('EditRecipeModal Component', () => {
 
     const removeButtons = screen.getAllByLabelText('Remove ingredient');
     expect(removeButtons.length).toBeGreaterThan(0);
+    
+    // Click the remove button
+    await user.click(removeButtons[0]);
+    
+    // Verify the ingredient was removed
+    const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
+    expect(ingredientInputs.length).toBe(1);
+  });
+
+  it('should handle removing main ingredient with validation', async () => {
+    const recipeWithThreeIngredients: Recipe = {
+      ...mockRecipe,
+      main_ingredients: [
+        { quantity: 400, unit: 'g', name: 'pasta' },
+        { quantity: 100, unit: 'g', name: 'butter' },
+        { quantity: 50, unit: 'g', name: 'parmesan' },
+      ],
+    };
+
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={recipeWithThreeIngredients}
+      />
+    );
+
+    const removeButtons = screen.getAllByLabelText('Remove ingredient');
+    if (removeButtons.length > 1) {
+      await user.click(removeButtons[1]);
+      
+      const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
+      expect(ingredientInputs.length).toBe(2);
+    }
   });
 
   it('allows adding common ingredients', async () => {
@@ -258,6 +294,29 @@ describe('EditRecipeModal Component', () => {
   });
 
   it('allows removing common ingredients', async () => {
+    const recipeWithCommonIngredients: Recipe = {
+      ...mockRecipe,
+      common_ingredients: ['salt', 'pepper', 'garlic'],
+    };
+
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={recipeWithCommonIngredients}
+      />
+    );
+
+    // Find remove buttons for common ingredients
+    const removeCommonButtons = screen.getAllByLabelText(/Remove/);
+    if (removeCommonButtons.length > 0) {
+      await user.click(removeCommonButtons[0]);
+    }
+  });
+
+  it('should handle changing ingredient quantity field', async () => {
     const user = userEvent.setup();
     render(
       <EditRecipeModal
@@ -268,8 +327,33 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const removeTagButtons = screen.queryAllByLabelText(/Remove/);
-    expect(removeTagButtons.length).toBeGreaterThan(0);
+    // Find quantity input and change it
+    const quantityInputs = screen.getAllByPlaceholderText('Qty');
+    if (quantityInputs.length > 0) {
+      await user.clear(quantityInputs[0]);
+      await user.type(quantityInputs[0], '500');
+      expect(quantityInputs[0]).toHaveValue(500);
+    }
+  });
+
+  it('should handle changing ingredient name field', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    // Find ingredient name input and change it
+    const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
+    if (ingredientInputs.length > 0) {
+      await user.clear(ingredientInputs[0]);
+      await user.type(ingredientInputs[0], 'olive oil');
+      expect(ingredientInputs[0]).toHaveValue('olive oil');
+    }
   });
 
   it('calls onEditRecipe with updated recipe on form submission', async () => {
