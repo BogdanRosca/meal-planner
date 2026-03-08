@@ -135,7 +135,7 @@ npm run format:check
 - Run coverage report: `npm test -- --coverage --watchAll=false`
 - Identify uncovered branches in the report
 - Add tests for missing branches
-- Check `src/hooks/useMealPlanner.test.ts` and `src/config/api.test.ts` for branch coverage
+- Check `src/hooks/useMealPlanner.test.ts` and `src/services/recipeService.test.ts` for branch coverage
 
 ### Lint Errors
 - Fix automatically: `npm run lint:fix`
