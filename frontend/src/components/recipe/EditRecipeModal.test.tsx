@@ -101,7 +101,249 @@ describe('EditRecipeModal Component', () => {
     const closeButton = screen.getByLabelText('Close');
     await user.click(closeButton);
 
-    expect(mockOnClose).toHaveBeenCalled();
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows editing recipe name', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const nameInput = screen.getByDisplayValue('Pasta Carbonara');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Updated Pasta');
+
+    expect(nameInput).toHaveValue('Updated Pasta');
+  });
+
+  it('allows changing recipe category', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const categorySelects = screen.queryAllByDisplayValue('dinner');
+    if (categorySelects.length > 0) {
+      await user.selectOptions(categorySelects[0], 'breakfast');
+      expect(categorySelects[0]).toHaveValue('breakfast');
+    }
+  });
+
+  it('allows editing instructions', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const instructionsInput = screen.getByDisplayValue('Cook pasta and mix with eggs');
+    await user.clear(instructionsInput);
+    await user.type(instructionsInput, 'New instructions');
+
+    expect(instructionsInput).toHaveValue('New instructions');
+  });
+
+  it('allows editing prep time', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const prepTimeInput = screen.getByDisplayValue('20');
+    await user.clear(prepTimeInput);
+    await user.type(prepTimeInput, '30');
+
+    expect(prepTimeInput).toHaveValue(30);
+  });
+
+  it('allows editing portions', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const portionsInput = screen.getByDisplayValue('4');
+    await user.clear(portionsInput);
+    await user.type(portionsInput, '6');
+
+    expect(portionsInput).toHaveValue(6);
+  });
+
+  it('allows adding main ingredients', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const addIngredientButtons = screen.getAllByText('Add Ingredient');
+    await user.click(addIngredientButtons[0]);
+
+    const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
+    expect(ingredientInputs.length).toBe(2);
+  });
+
+  it('allows removing main ingredients', async () => {
+    const recipeWithMultipleIngredients: Recipe = {
+      ...mockRecipe,
+      main_ingredients: [
+        { quantity: 400, unit: 'g', name: 'pasta' },
+        { quantity: 100, unit: 'g', name: 'butter' },
+      ],
+    };
+
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={recipeWithMultipleIngredients}
+      />
+    );
+
+    const removeButtons = screen.getAllByLabelText('Remove ingredient');
+    expect(removeButtons.length).toBeGreaterThan(0);
+  });
+
+  it('allows adding common ingredients', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const commonIngredientInput = screen.getByPlaceholderText(
+      'Add common ingredient (salt, pepper, etc.)'
+    );
+    await user.type(commonIngredientInput, 'garlic');
+
+    const addButtons = screen.getAllByRole('button').filter(btn => btn.textContent?.includes('Add'));
+    await user.click(addButtons[addButtons.length - 1]);
+
+    expect(commonIngredientInput).toHaveValue('');
+  });
+
+  it('allows removing common ingredients', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const removeTagButtons = screen.queryAllByLabelText(/Remove/);
+    expect(removeTagButtons.length).toBeGreaterThan(0);
+  });
+
+  it('calls onEditRecipe with updated recipe on form submission', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const submitButton = screen.getByRole('button', { name: /Save Changes/i });
+    await user.click(submitButton);
+
+    expect(mockOnEditRecipe).toHaveBeenCalled();
+    expect(mockOnEditRecipe.mock.calls[0][0]).toHaveProperty('name');
+    expect(mockOnEditRecipe.mock.calls[0][0]).toHaveProperty('category');
+  });
+
+  it('filters out empty ingredients before submission', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const submitButton = screen.getByRole('button', { name: /Save Changes/i });
+    await user.click(submitButton);
+
+    expect(mockOnEditRecipe).toHaveBeenCalled();
+    const submittedRecipe = mockOnEditRecipe.mock.calls[0][0];
+    expect(submittedRecipe.main_ingredients.every(ing => ing.name.trim() !== '')).toBe(true);
+  });
+
+  it('allows editing foto URL', async () => {
+    const user = userEvent.setup();
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={mockRecipe}
+      />
+    );
+
+    const fotoUrlInput = screen.getByDisplayValue('https://example.com/pasta.jpg');
+    await user.clear(fotoUrlInput);
+    await user.type(fotoUrlInput, 'https://example.com/new.jpg');
+
+    expect(fotoUrlInput).toHaveValue('https://example.com/new.jpg');
+  });
+
+  it('handles recipe with no main ingredients', () => {
+    const recipeWithoutIngredients: Recipe = {
+      ...mockRecipe,
+      main_ingredients: [],
+    };
+
+    render(
+      <EditRecipeModal
+        isOpen={true}
+        onClose={mockOnClose}
+        onEditRecipe={mockOnEditRecipe}
+        recipe={recipeWithoutIngredients}
+      />
+    );
+
+    expect(screen.getByText('Edit Recipe')).toBeInTheDocument();
   });
 
   it('calls onClose when cancel button is clicked', async () => {

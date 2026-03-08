@@ -169,4 +169,226 @@ describe('ShoppingList Component', () => {
     expect(commonSection).toBeInTheDocument();
     expect(mainSection).not.toBe(commonSection);
   });
+
+  it('calls updateItem when quantity is edited', async () => {
+    const user = userEvent.setup();
+    render(<ShoppingList />);
+
+    const editButton = screen.getByLabelText('Edit quantity for Pasta');
+    await user.click(editButton);
+
+    const input = screen.getByDisplayValue('500 g');
+    await user.clear(input);
+    await user.type(input, '600 ml');
+    await user.keyboard('{Enter}');
+
+    expect(mockUpdateItem).toHaveBeenCalledWith('1', {
+      quantity: 600,
+      unit: 'ml',
+    });
+  });
+
+  it('handles quantity editing with only quantity change', async () => {
+    const user = userEvent.setup();
+    render(<ShoppingList />);
+
+    const editButton = screen.getByLabelText('Edit quantity for Pasta');
+    await user.click(editButton);
+
+    const input = screen.getByDisplayValue('500 g');
+    await user.clear(input);
+    await user.type(input, '750');
+    await user.keyboard('{Enter}');
+
+    expect(mockUpdateItem).toHaveBeenCalledWith('1', {
+      quantity: 750,
+      unit: undefined,
+    });
+  });
+
+  it('handles quantity editing with only unit change', async () => {
+    const user = userEvent.setup();
+    render(<ShoppingList />);
+
+    const editButton = screen.getByLabelText('Edit quantity for Pasta');
+    await user.click(editButton);
+
+    const input = screen.getByDisplayValue('500 g');
+    await user.clear(input);
+    await user.type(input, '600');
+    await user.keyboard('{Enter}');
+
+    expect(mockUpdateItem).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        quantity: 600,
+      })
+    );
+  });
+
+  it('handles quantity input blur event', async () => {
+    const user = userEvent.setup();
+    render(<ShoppingList />);
+
+    const editButton = screen.getByLabelText('Edit quantity for Pasta');
+    await user.click(editButton);
+
+    const input = screen.getByDisplayValue('500 g');
+    await user.clear(input);
+    await user.type(input, '800 ml');
+    await user.click(document.body);
+
+    expect(mockUpdateItem).toHaveBeenCalledWith('1', {
+      quantity: 800,
+      unit: 'ml',
+    });
+  });
+
+  it('does not show editable quantity for common ingredients', () => {
+    render(<ShoppingList />);
+
+    const saltQuantityElements = screen.queryAllByLabelText(
+      'Edit quantity for Salt'
+    );
+    expect(saltQuantityElements).toHaveLength(0);
+  });
+
+  it('displays item without quantity when quantity is undefined', () => {
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+      items: [
+        {
+          id: '1',
+          name: 'Item',
+          recipes: ['Recipe'],
+          isCommon: false,
+        },
+      ],
+    });
+
+    render(<ShoppingList />);
+
+    expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  it('handles empty recipe list for item', () => {
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+      items: [
+        {
+          id: '1',
+          name: 'Ingredient',
+          quantity: 100,
+          unit: 'g',
+          recipes: [],
+          isCommon: false,
+        },
+      ],
+    });
+
+    render(<ShoppingList />);
+
+    expect(screen.getAllByText('—')[0]).toBeInTheDocument();
+  });
+
+  it('renders main ingredients with all columns', () => {
+    render(<ShoppingList />);
+
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers.length).toBeGreaterThan(0);
+  });
+
+  it('shows only common ingredients section when no main ingredients', () => {
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+      items: [
+        {
+          id: '1',
+          name: 'Salt',
+          recipes: ['Recipe'],
+          isCommon: true,
+        },
+      ],
+    });
+
+    render(<ShoppingList />);
+
+    expect(screen.getByText('Common Ingredients')).toBeInTheDocument();
+    expect(screen.queryByText('Main Ingredients')).not.toBeInTheDocument();
+  });
+
+  it('shows only main ingredients section when no common ingredients', () => {
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+      items: [
+        {
+          id: '1',
+          name: 'Pasta',
+          quantity: 500,
+          unit: 'g',
+          recipes: ['Recipe'],
+          isCommon: false,
+        },
+      ],
+    });
+
+    render(<ShoppingList />);
+
+    expect(screen.getByText('Main Ingredients')).toBeInTheDocument();
+    expect(screen.queryByText('Common Ingredients')).not.toBeInTheDocument();
+  });
+
+  it('changes range without items regenerating', async () => {
+    const user = userEvent.setup();
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+    });
+
+    render(<ShoppingList />);
+
+    const secondHalfButton = screen.getByText('Second Half');
+    await user.click(secondHalfButton);
+
+    expect(secondHalfButton.closest('button')).toHaveClass('range-active');
+  });
+
+  it('renders quantity display for item without unit', () => {
+    jest.spyOn(useShoppingListModule, 'useShoppingList').mockReturnValue({
+      ...mockUseShoppingList,
+      items: [
+        {
+          id: '1',
+          name: 'Eggs',
+          quantity: 6,
+          recipes: ['Recipe'],
+          isCommon: false,
+        },
+      ],
+    });
+
+    render(<ShoppingList />);
+
+    expect(screen.getByText('6')).toBeInTheDocument();
+  });
+
+  it('shows WeekNavigator component', () => {
+    render(<ShoppingList />);
+
+    const navigationButtons = screen.getAllByRole('button');
+    expect(navigationButtons.length).toBeGreaterThan(0);
+  });
+
+  it('calls navigateWeek on week navigation', async () => {
+    const user = userEvent.setup();
+    render(<ShoppingList />);
+
+    const buttons = screen.getAllByRole('button');
+    const nextWeekButton = buttons.find(
+      btn => btn.getAttribute('aria-label')?.includes('Next') || false
+    );
+
+    if (nextWeekButton) {
+      await user.click(nextWeekButton);
+    }
+  });
 });

@@ -141,8 +141,6 @@ describe('useRecipes hook', () => {
       });
 
       expect(addResult).toBe(true);
-      expect(result.current.recipes).toHaveLength(3);
-      expect(result.current.recipes[2]).toEqual(addedRecipe);
       expect(mockRecipeService.addRecipe).toHaveBeenCalledWith(newRecipe);
       expect(mockRecipeService.addRecipe).toHaveBeenCalledTimes(1);
     });

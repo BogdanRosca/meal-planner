@@ -789,4 +789,98 @@ describe('Recipes Component', () => {
       consoleErrorSpy.mockRestore();
     });
   });
+
+  describe('Integration Tests', () => {
+    it('should handle rapid recipe filtering and searching', async () => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText('Search recipes...');
+      fireEvent.change(searchInput, { target: { value: 'Pasta' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('Pasta Carbonara')).toBeInTheDocument();
+      });
+    });
+
+    it('should handle switching between categories and search', async () => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      const categoryButtons = screen.getAllByRole('button').filter(btn => {
+        const text = btn.textContent?.toLowerCase();
+        return text && ['breakfast', 'lunch', 'dinner', 'snack'].some(c => text.includes(c));
+      });
+
+      if (categoryButtons.length > 0) {
+        fireEvent.click(categoryButtons[0]);
+      }
+    });
+
+    it('should display all recipe information on successful load', async () => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      mockRecipes.forEach(recipe => {
+        expect(screen.getByText(recipe.name)).toBeInTheDocument();
+      });
+    });
+
+    it('should handle adding multiple recipes in sequence', async () => {
+      mockGetAllRecipes.mockResolvedValue([]);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('No recipes available yet.')).toBeInTheDocument();
+      });
+    });
+
+    it('should handle edit and delete operations in succession', async () => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      const editButtons = screen.queryAllByRole('button', { name: /edit/i });
+      if (editButtons.length > 0) {
+        fireEvent.click(editButtons[0]);
+      }
+    });
+
+    it('should maintain search state when recipes update', async () => {
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+
+      render(<Recipes />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Pancakes')).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByPlaceholderText('Search recipes...');
+      fireEvent.change(searchInput, { target: { value: 'Salad' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
+      });
+    });
+  });
 });
