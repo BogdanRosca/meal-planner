@@ -214,7 +214,9 @@ describe('AddRecipeModal Component', () => {
     expect(ingredientInputs).toHaveLength(2);
 
     // Remove the second ingredient
-    const ingredientRemoveButton = screen.getByRole('button', { name: /remove ingredient/i });
+    const ingredientRemoveButton = screen.getByRole('button', {
+      name: /remove ingredient/i,
+    });
     fireEvent.click(ingredientRemoveButton);
 
     // Should now have 1 ingredient row
@@ -308,7 +310,9 @@ describe('AddRecipeModal Component', () => {
     expect(screen.getByText('Pepper')).toBeInTheDocument();
 
     // Remove it
-    const tagRemoveButton = screen.getByRole('button', { name: /remove pepper/i });
+    const tagRemoveButton = screen.getByRole('button', {
+      name: /remove pepper/i,
+    });
     fireEvent.click(tagRemoveButton);
 
     expect(screen.queryByText('Pepper')).not.toBeInTheDocument();

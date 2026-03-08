@@ -111,12 +111,20 @@ describe('Recipes Component', () => {
 
       // Check prep time - emoji and text may be split across elements
       const timeElements = screen.queryAllByText((content, element) => {
-        return element?.textContent?.includes('15') && element?.textContent?.includes('min') || false;
+        return (
+          (element?.textContent?.includes('15') &&
+            element?.textContent?.includes('min')) ||
+          false
+        );
       });
       expect(timeElements.length).toBeGreaterThan(0);
-      
+
       const timeElements20 = screen.queryAllByText((content, element) => {
-        return element?.textContent?.includes('20') && element?.textContent?.includes('min') || false;
+        return (
+          (element?.textContent?.includes('20') &&
+            element?.textContent?.includes('min')) ||
+          false
+        );
       });
       expect(timeElements20.length).toBeGreaterThan(0);
 
@@ -333,7 +341,9 @@ describe('Recipes Component', () => {
 
       // Click the search button (which triggers form submit)
       const searchForm = searchInput.closest('form');
-      const searchButton = searchForm?.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const searchButton = searchForm?.querySelector(
+        'button[type="submit"]'
+      ) as HTMLButtonElement;
       await user.click(searchButton);
 
       // Should display filtered results

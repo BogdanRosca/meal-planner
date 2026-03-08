@@ -110,7 +110,7 @@ describe('RecipeCard', () => {
     });
 
     it('should display delete button', () => {
-      const { container } = render(
+      render(
         <RecipeCard
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
