@@ -109,9 +109,16 @@ describe('Recipes Component', () => {
       expect(screen.getByText('dinner')).toBeInTheDocument();
       expect(screen.getByText('snack')).toBeInTheDocument();
 
-      // Check prep time
-      expect(screen.getByText('⏱️ 15 min')).toBeInTheDocument();
-      expect(screen.getByText('⏱️ 20 min')).toBeInTheDocument();
+      // Check prep time - emoji and text may be split across elements
+      const timeElements = screen.queryAllByText((content, element) => {
+        return element?.textContent?.includes('15') && element?.textContent?.includes('min') || false;
+      });
+      expect(timeElements.length).toBeGreaterThan(0);
+      
+      const timeElements20 = screen.queryAllByText((content, element) => {
+        return element?.textContent?.includes('20') && element?.textContent?.includes('min') || false;
+      });
+      expect(timeElements20.length).toBeGreaterThan(0);
 
       // Check portions
       expect(screen.getAllByText(/4 portions/).length).toBeGreaterThan(0);
@@ -325,7 +332,8 @@ describe('Recipes Component', () => {
       await user.type(searchInput, 'salad');
 
       // Click the search button (which triggers form submit)
-      const searchButton = screen.getByAltText('Search');
+      const searchForm = searchInput.closest('form');
+      const searchButton = searchForm?.querySelector('button[type="submit"]') as HTMLButtonElement;
       await user.click(searchButton);
 
       // Should display filtered results
@@ -520,7 +528,7 @@ describe('Recipes Component', () => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText('+ Add recipe'));
+      await user.click(screen.getByRole('button', { name: /add recipe/i }));
       expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
 
       await user.type(
@@ -554,7 +562,7 @@ describe('Recipes Component', () => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
       });
 
-      await user.click(screen.getByText('+ Add recipe'));
+      await user.click(screen.getByRole('button', { name: /add recipe/i }));
       expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
 
       await user.type(
@@ -597,7 +605,7 @@ describe('Recipes Component', () => {
       });
 
       // Find the first recipe card delete button and click it
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Check if confirmation popup appears
@@ -615,7 +623,7 @@ describe('Recipes Component', () => {
       });
 
       // Open the delete confirmation
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Click the cancel button
@@ -642,7 +650,7 @@ describe('Recipes Component', () => {
       ).toBe(4);
 
       // Open the delete confirmation for the first recipe
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Click the delete/confirm button
@@ -673,7 +681,7 @@ describe('Recipes Component', () => {
       });
 
       // Open the delete confirmation
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Verify modal is open
@@ -705,7 +713,7 @@ describe('Recipes Component', () => {
       });
 
       // Open the delete confirmation
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Click the delete/confirm button
@@ -746,7 +754,7 @@ describe('Recipes Component', () => {
       });
 
       // Open the delete confirmation
-      const deleteButtons = screen.getAllByAltText('Delete');
+      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
       fireEvent.click(deleteButtons[0]);
 
       // Verify modal is open
