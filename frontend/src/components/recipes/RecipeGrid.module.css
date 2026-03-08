@@ -7,6 +7,10 @@
 }
 
 .no-recipes-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   text-align: center;
   padding: 60px 20px;
   font-size: 18px;
@@ -15,6 +19,15 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 20px;
+}
+
+.no-recipes-message p {
+  margin: 0;
+}
+
+.no-recipes-icon {
+  color: #5b8266;
+  opacity: 0.6;
 }
 
 /* Responsive Design */

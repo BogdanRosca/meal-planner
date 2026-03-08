@@ -40,7 +40,7 @@ describe('AddRecipeModal Component', () => {
         onAddRecipe={mockOnAddRecipe}
       />
     );
-    const closeButton = screen.getByText('×');
+    const closeButton = screen.getByRole('button', { name: /close/i });
     fireEvent.click(closeButton);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
@@ -148,7 +148,7 @@ describe('AddRecipeModal Component', () => {
         onAddRecipe={mockOnAddRecipe}
       />
     );
-    const addButton = screen.getByText('+ Add Ingredient');
+    const addButton = screen.getByRole('button', { name: /add ingredient/i });
     fireEvent.click(addButton);
 
     // Should now have 2 ingredient rows (1 default + 1 added)
@@ -206,7 +206,7 @@ describe('AddRecipeModal Component', () => {
     );
 
     // Add a second ingredient
-    const addButton = screen.getByText('+ Add Ingredient');
+    const addButton = screen.getByRole('button', { name: /add ingredient/i });
     fireEvent.click(addButton);
 
     // Should have 2 ingredient rows
@@ -214,13 +214,10 @@ describe('AddRecipeModal Component', () => {
     expect(ingredientInputs).toHaveLength(2);
 
     // Remove the second ingredient
-    const removeButtons = screen.getAllByRole('button', { name: '×' });
-    const ingredientRemoveButton = removeButtons.find(
-      btn => btn.className === 'remove-btn'
-    );
-    if (ingredientRemoveButton) {
-      fireEvent.click(ingredientRemoveButton);
-    }
+    const ingredientRemoveButton = screen.getByRole('button', {
+      name: /remove ingredient/i,
+    });
+    fireEvent.click(ingredientRemoveButton);
 
     // Should now have 1 ingredient row
     ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
@@ -313,13 +310,10 @@ describe('AddRecipeModal Component', () => {
     expect(screen.getByText('Pepper')).toBeInTheDocument();
 
     // Remove it
-    const removeTagButtons = screen.getAllByRole('button', { name: '×' });
-    const tagRemoveButton = removeTagButtons.find(
-      btn => btn.className === 'remove-tag-btn'
-    );
-    if (tagRemoveButton) {
-      fireEvent.click(tagRemoveButton);
-    }
+    const tagRemoveButton = screen.getByRole('button', {
+      name: /remove pepper/i,
+    });
+    fireEvent.click(tagRemoveButton);
 
     expect(screen.queryByText('Pepper')).not.toBeInTheDocument();
   });
@@ -402,7 +396,7 @@ describe('AddRecipeModal Component', () => {
     });
 
     // Add another ingredient but leave it empty
-    fireEvent.click(screen.getByText('+ Add Ingredient'));
+    fireEvent.click(screen.getByRole('button', { name: /add ingredient/i }));
 
     fireEvent.change(screen.getByLabelText('Instructions'), {
       target: { value: 'Mix and bake' },

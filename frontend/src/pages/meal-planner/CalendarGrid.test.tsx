@@ -18,6 +18,7 @@ describe('CalendarGrid', () => {
   const monday = new Date(2026, 2, 2);
   const mockOnCellClick = jest.fn();
   const mockOnRemoveEntry = jest.fn();
+  const mockOnMealClick = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -30,6 +31,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -49,6 +51,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -65,6 +68,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -85,6 +89,7 @@ describe('CalendarGrid', () => {
         getEntry={getEntry}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -100,6 +105,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -121,6 +127,7 @@ describe('CalendarGrid', () => {
         getEntry={getEntry}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -138,6 +145,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 
@@ -153,6 +161,7 @@ describe('CalendarGrid', () => {
         getEntry={() => undefined}
         onCellClick={mockOnCellClick}
         onRemoveEntry={mockOnRemoveEntry}
+        onMealClick={mockOnMealClick}
       />
     );
 

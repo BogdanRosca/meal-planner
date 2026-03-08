@@ -118,9 +118,9 @@ describe('RecipeCard', () => {
         />
       );
 
-      const deleteButton = screen.getByAltText('Delete');
+      const deleteButton = screen.getByRole('button', { name: /delete/i });
       expect(deleteButton).toBeInTheDocument();
-      expect(deleteButton).toHaveClass('delete-icon');
+      expect(deleteButton).toHaveClass('recipe-delete-button');
     });
   });
 

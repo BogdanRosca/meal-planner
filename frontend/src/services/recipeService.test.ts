@@ -4,6 +4,15 @@ import { Recipe, RecipesResponse } from '../types/recipe';
 // Mock fetch globally
 global.fetch = jest.fn();
 
+// Mock the API configuration to ensure consistent test URLs
+jest.mock('../config/api', () => ({
+  API_BASE_URL: 'http://localhost:8000',
+  API_ENDPOINTS: {
+    RECIPES: 'http://localhost:8000/recipes',
+    MEAL_PLANS: 'http://localhost:8000/meal-plans',
+  },
+}));
+
 describe('recipeService', () => {
   const mockRecipe: Recipe = {
     id: 1,
@@ -507,6 +516,97 @@ describe('recipeService', () => {
         'Error deleting recipe 1:',
         networkError
       );
+    });
+  });
+
+  describe('updateRecipe', () => {
+    const updatedRecipe: Omit<Recipe, 'id'> = {
+      name: 'Updated Recipe',
+      category: 'lunch',
+      main_ingredients: [{ name: 'chicken', quantity: 300, unit: 'g' }],
+      common_ingredients: ['salt', 'pepper'],
+      instructions: 'Cook chicken',
+      prep_time: 45,
+      portions: 3,
+      foto_url: 'https://example.com/updated.jpg',
+    };
+
+    it('should update a recipe successfully', async () => {
+      const updatedRecipeWithId: Recipe = { ...updatedRecipe, id: 1 };
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => updatedRecipeWithId,
+      });
+
+      const result = await recipeService.updateRecipe(1, updatedRecipe);
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8000/recipes/1',
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedRecipe),
+        }
+      );
+      expect(result).toEqual(updatedRecipeWithId);
+      expect(result.id).toBe(1);
+    });
+
+    it('should handle errors when updating a recipe', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      await expect(
+        recipeService.updateRecipe(999, updatedRecipe)
+      ).rejects.toThrow('HTTP error! status: 404');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error updating recipe 999:',
+        expect.any(Error)
+      );
+    });
+
+    it('should handle network errors when updating a recipe', async () => {
+      const networkError = new Error('Network error');
+      (global.fetch as jest.Mock).mockRejectedValueOnce(networkError);
+
+      await expect(
+        recipeService.updateRecipe(1, updatedRecipe)
+      ).rejects.toThrow('Network error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error updating recipe 1:',
+        networkError
+      );
+    });
+
+    it('should handle server errors when updating', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      await expect(
+        recipeService.updateRecipe(1, updatedRecipe)
+      ).rejects.toThrow('HTTP error! status: 500');
+    });
+
+    it('should update recipe with all fields', async () => {
+      const completeRecipe: Recipe = { ...updatedRecipe, id: 5 };
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => completeRecipe,
+      });
+
+      const result = await recipeService.updateRecipe(5, updatedRecipe);
+
+      expect(result).toHaveProperty('name', 'Updated Recipe');
+      expect(result).toHaveProperty('category', 'lunch');
+      expect(result).toHaveProperty('prep_time', 45);
+      expect(result).toHaveProperty('portions', 3);
     });
   });
 });

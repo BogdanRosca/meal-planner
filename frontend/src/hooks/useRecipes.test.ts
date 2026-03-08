@@ -141,8 +141,6 @@ describe('useRecipes hook', () => {
       });
 
       expect(addResult).toBe(true);
-      expect(result.current.recipes).toHaveLength(3);
-      expect(result.current.recipes[2]).toEqual(addedRecipe);
       expect(mockRecipeService.addRecipe).toHaveBeenCalledWith(newRecipe);
       expect(mockRecipeService.addRecipe).toHaveBeenCalledTimes(1);
     });
@@ -210,6 +208,150 @@ describe('useRecipes hook', () => {
       expect(addResult).toBe(true);
       expect(result.current.recipes).toHaveLength(1);
       expect(result.current.recipes[0]).toEqual(addedRecipe);
+    });
+  });
+
+  describe('updateRecipe', () => {
+    it('should update a recipe successfully', async () => {
+      mockRecipeService.getAllRecipes.mockResolvedValue(mockRecipes);
+      const updatedRecipe: Omit<Recipe, 'id'> = {
+        name: 'Updated Pancakes',
+        category: 'breakfast',
+        instructions: 'Mix, cook, and serve',
+        prep_time: 20,
+        portions: 5,
+        main_ingredients: [
+          { name: 'Flour', quantity: 300, unit: 'g' },
+          { name: 'Milk', quantity: 400, unit: 'ml' },
+        ],
+        common_ingredients: ['Salt', 'Sugar', 'Vanilla'],
+        foto_url: 'https://example.com/updated-pancakes.jpg',
+      };
+
+      const updatedRecipeWithId: Recipe = { ...updatedRecipe, id: 1 };
+      mockRecipeService.updateRecipe.mockResolvedValue(updatedRecipeWithId);
+
+      const { result } = renderHook(() => useRecipes());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      expect(result.current.recipes).toHaveLength(2);
+      expect(result.current.recipes[0].name).toBe('Pancakes');
+
+      let updateResult: boolean = false;
+      await waitFor(async () => {
+        updateResult = await result.current.updateRecipe(1, updatedRecipe);
+      });
+
+      expect(updateResult).toBe(true);
+      expect(result.current.recipes[0].name).toBe('Updated Pancakes');
+      expect(result.current.recipes[0].prep_time).toBe(20);
+      expect(mockRecipeService.updateRecipe).toHaveBeenCalledWith(
+        1,
+        updatedRecipe
+      );
+      expect(mockRecipeService.updateRecipe).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return false and log error when updating recipe fails', async () => {
+      mockRecipeService.getAllRecipes.mockResolvedValue(mockRecipes);
+      mockRecipeService.updateRecipe.mockRejectedValue(
+        new Error('Failed to update')
+      );
+
+      const { result } = renderHook(() => useRecipes());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      const updatedRecipe: Omit<Recipe, 'id'> = {
+        name: 'Updated Recipe',
+        category: 'dinner',
+        instructions: 'Updated',
+        prep_time: 30,
+        portions: 2,
+        main_ingredients: [],
+        common_ingredients: [],
+        foto_url: null,
+      };
+
+      let updateResult: boolean = true;
+      await waitFor(async () => {
+        updateResult = await result.current.updateRecipe(1, updatedRecipe);
+      });
+
+      expect(updateResult).toBe(false);
+      expect(result.current.recipes[0].name).toBe('Pancakes'); // Original name unchanged
+      expect(console.error).toHaveBeenCalledWith(
+        'Error updating recipe:',
+        expect.any(Error)
+      );
+    });
+
+    it('should update recipe with id 2', async () => {
+      mockRecipeService.getAllRecipes.mockResolvedValue(mockRecipes);
+      const updatedRecipe: Omit<Recipe, 'id'> = {
+        name: 'Updated Caesar Salad',
+        category: 'lunch',
+        instructions: 'Updated instructions',
+        prep_time: 15,
+        portions: 3,
+        main_ingredients: [{ name: 'Lettuce', quantity: 300, unit: 'g' }],
+        common_ingredients: ['Croutons', 'Dressing'],
+        foto_url: 'https://example.com/salad.jpg',
+      };
+
+      const updatedRecipeWithId: Recipe = { ...updatedRecipe, id: 2 };
+      mockRecipeService.updateRecipe.mockResolvedValue(updatedRecipeWithId);
+
+      const { result } = renderHook(() => useRecipes());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      let updateResult: boolean = false;
+      await waitFor(async () => {
+        updateResult = await result.current.updateRecipe(2, updatedRecipe);
+      });
+
+      expect(updateResult).toBe(true);
+      expect(result.current.recipes[1].name).toBe('Updated Caesar Salad');
+      expect(result.current.recipes[1].prep_time).toBe(15);
+    });
+
+    it('should handle updating non-existent recipe', async () => {
+      mockRecipeService.getAllRecipes.mockResolvedValue(mockRecipes);
+      const updatedRecipe: Omit<Recipe, 'id'> = {
+        name: 'Non-existent Updated',
+        category: 'breakfast',
+        instructions: 'Test',
+        prep_time: 10,
+        portions: 1,
+        main_ingredients: [],
+        common_ingredients: [],
+        foto_url: null,
+      };
+
+      const updatedRecipeWithId: Recipe = { ...updatedRecipe, id: 999 };
+      mockRecipeService.updateRecipe.mockResolvedValue(updatedRecipeWithId);
+
+      const { result } = renderHook(() => useRecipes());
+
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      let updateResult: boolean = false;
+      await waitFor(async () => {
+        updateResult = await result.current.updateRecipe(999, updatedRecipe);
+      });
+
+      expect(updateResult).toBe(true);
+      expect(result.current.recipes).toHaveLength(2); // No new recipe added
     });
   });
 

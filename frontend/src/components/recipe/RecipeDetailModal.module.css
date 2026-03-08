@@ -48,26 +48,52 @@
   }
 }
 
-/* Close Button */
-.recipe-modal-close {
+/* Action Buttons Container */
+.recipe-modal-actions {
   position: absolute;
   top: 20px;
   right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+/* Edit Button */
+.recipe-modal-edit {
   background: white;
   border: none;
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
-  font-size: 18px;
+  color: #5b8266;
+  padding: 0;
+}
+
+.recipe-modal-edit:hover {
+  background: #e8f5e9;
+  transform: scale(1.25);
+}
+
+/* Close Button */
+.recipe-modal-close {
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
   color: #333;
-  line-height: 1;
   padding: 0;
 }
 
@@ -153,11 +179,19 @@
 }
 
 .recipe-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 18px;
   font-weight: 700;
   color: #000;
   margin: 0 0 20px 0;
   text-align: left;
+}
+
+.recipe-section-title svg {
+  color: #5b8266;
+  flex-shrink: 0;
 }
 
 /* Ingredients Lists */
@@ -179,8 +213,7 @@
 
 .ingredient-bullet {
   color: #5b8266;
-  font-size: 10px;
-  line-height: 1.5;
+  flex-shrink: 0;
 }
 
 .ingredient-quantity {

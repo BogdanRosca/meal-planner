@@ -38,6 +38,26 @@ export const useRecipes = () => {
     }
   };
 
+  const updateRecipe = async (
+    recipeId: number,
+    updatedRecipe: Omit<Recipe, 'id'>
+  ) => {
+    try {
+      const newRecipe = await recipeService.updateRecipe(
+        recipeId,
+        updatedRecipe
+      );
+      setRecipes(
+        recipes.map(recipe => (recipe.id === recipeId ? newRecipe : recipe))
+      );
+      return true;
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error updating recipe:', err);
+      return false;
+    }
+  };
+
   const deleteRecipe = async (recipeId: number) => {
     try {
       await recipeService.deleteRecipe(recipeId);
@@ -50,5 +70,5 @@ export const useRecipes = () => {
     }
   };
 
-  return { recipes, loading, error, addRecipe, deleteRecipe };
+  return { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe };
 };

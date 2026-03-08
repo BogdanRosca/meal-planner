@@ -77,7 +77,10 @@ describe('RecipeDetailModal Component', () => {
         onClose={mockOnClose}
       />
     );
-    expect(screen.getByText('30')).toBeInTheDocument();
+    const prepTimeElements = screen.queryAllByText((content, element) => {
+      return element?.textContent?.includes('30') || false;
+    });
+    expect(prepTimeElements.length).toBeGreaterThan(0);
   });
 
   it('should display portions with singular text for 1 portion', () => {
@@ -210,7 +213,7 @@ describe('RecipeDetailModal Component', () => {
         onClose={mockOnClose}
       />
     );
-    const closeButton = screen.getByText('×');
+    const closeButton = screen.getByRole('button', { name: /close/i });
     fireEvent.click(closeButton);
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });

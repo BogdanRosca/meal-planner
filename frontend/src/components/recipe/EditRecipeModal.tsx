@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, BookOpen } from 'lucide-react';
 import { Recipe, Ingredient } from '../../types/recipe';
 import styles from './AddRecipeModal.module.css';
 
-interface AddRecipeModalProps {
+interface EditRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddRecipe: (_recipe: Omit<Recipe, 'id'>) => void;
+  onEditRecipe: (_recipe: Omit<Recipe, 'id'>) => void;
+  recipe: Recipe | null;
 }
 
-const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
+const EditRecipeModal: React.FC<EditRecipeModalProps> = ({
   isOpen,
   onClose,
-  onAddRecipe,
+  onEditRecipe,
+  recipe,
 }) => {
   const [name, setName] = useState<string>('');
   const [category, setCategory] = useState<string>('dinner');
@@ -26,6 +28,25 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   ]);
   const [commonIngredient, setCommonIngredient] = useState<string>('');
   const [commonIngredients, setCommonIngredients] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isOpen && recipe) {
+      setName(recipe.name);
+      setCategory(recipe.category);
+      setInstructions(recipe.instructions);
+      setPrepTime(recipe.prep_time);
+      setPortions(recipe.portions);
+      setFotoUrl(recipe.foto_url || '');
+      setVideoUrl(recipe.video_url || '');
+      setMainIngredients(
+        recipe.main_ingredients.length > 0
+          ? recipe.main_ingredients
+          : [{ name: '', unit: 'g', quantity: 0 }]
+      );
+      setCommonIngredients(recipe.common_ingredients || []);
+      setCommonIngredient('');
+    }
+  }, [isOpen, recipe]);
 
   const handleAddMainIngredient = () => {
     setMainIngredients([
@@ -78,12 +99,11 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Filter out any empty main ingredients
     const filteredMainIngredients = mainIngredients.filter(
       ing => ing.name.trim() !== '' && ing.quantity > 0
     );
 
-    const newRecipe: Omit<Recipe, 'id'> = {
+    const updatedRecipe: Omit<Recipe, 'id'> = {
       name,
       category,
       instructions,
@@ -95,10 +115,10 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
       video_url: videoUrl.trim() || null,
     };
 
-    onAddRecipe(newRecipe);
+    onEditRecipe(updatedRecipe);
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !recipe) return null;
 
   return (
     <div className={styles['modal-overlay']}>
@@ -106,7 +126,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
         <div className={styles['modal-header']}>
           <h2>
             <BookOpen size={24} />
-            Add New Recipe
+            Edit Recipe
           </h2>
           <button
             className={styles['close-button']}
@@ -325,7 +345,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             </button>
             <button type="submit" className={styles['submit-btn']}>
               <Plus size={18} />
-              Add Recipe
+              Save Changes
             </button>
           </div>
         </form>
@@ -334,4 +354,4 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   );
 };
 
-export default AddRecipeModal;
+export default EditRecipeModal;
