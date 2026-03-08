@@ -291,8 +291,9 @@ describe('MealPlanner', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
-        expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
       });
+
+      expect(screen.getByText('Caesar Salad')).toBeInTheDocument();
     });
 
     it('should handle adding recipe with immediate feedback', async () => {
@@ -478,7 +479,9 @@ describe('MealPlanner', () => {
       fireEvent.click(addButtons[0].closest('[role="button"]')!);
 
       await waitFor(() => {
-        expect(screen.getByText(/Select a breakfast recipe/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Select a breakfast recipe/)
+        ).toBeInTheDocument();
       });
     });
 
@@ -549,9 +552,10 @@ describe('MealPlanner', () => {
     });
 
     it('should add meal plan entry when recipe is selected from modal', async () => {
-      const mockAddEntry = mealPlanService.addMealPlanEntry as jest.MockedFunction<
-        typeof mealPlanService.addMealPlanEntry
-      >;
+      const mockAddEntry =
+        mealPlanService.addMealPlanEntry as jest.MockedFunction<
+          typeof mealPlanService.addMealPlanEntry
+        >;
 
       mockGetMealPlan.mockResolvedValue([]);
       mockAddEntry.mockResolvedValue(mockEntry);
@@ -568,7 +572,9 @@ describe('MealPlanner', () => {
 
       // Wait for selector to open
       await waitFor(() => {
-        expect(screen.getByText(/Select a breakfast recipe/)).toBeInTheDocument();
+        expect(
+          screen.getByText(/Select a breakfast recipe/)
+        ).toBeInTheDocument();
       });
 
       // Click a recipe to select it

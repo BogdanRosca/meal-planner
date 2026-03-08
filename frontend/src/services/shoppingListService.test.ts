@@ -261,7 +261,11 @@ describe('shoppingListService', () => {
 
       const sugar = result.find(item => item.name === 'Sugar');
       expect(sugar!.quantity).toBe(850);
-      expect(sugar!.recipes).toEqual(['Small Batch', 'Large Batch', 'Medium Batch']);
+      expect(sugar!.recipes).toEqual([
+        'Small Batch',
+        'Large Batch',
+        'Medium Batch',
+      ]);
     });
 
     it('preserves trimmed names for main ingredients', () => {

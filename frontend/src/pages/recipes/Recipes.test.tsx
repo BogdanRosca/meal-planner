@@ -625,17 +625,19 @@ describe('Recipes Component', () => {
       const editButton = screen.getByRole('button', { name: /edit/i });
       fireEvent.click(editButton);
 
+      // Modal is open, now close it
       await waitFor(() => {
-        // Modal is open, now close it
-        const closeButton = screen.getByLabelText('Close');
-        fireEvent.click(closeButton);
+        expect(screen.getByLabelText('Close')).toBeInTheDocument();
       });
+      const closeButton = screen.getByLabelText('Close');
+      fireEvent.click(closeButton);
     });
 
     it('should handle update recipe callback', async () => {
-      const mockUpdateRecipe = recipeService.updateRecipe as jest.MockedFunction<
-        typeof recipeService.updateRecipe
-      >;
+      const mockUpdateRecipe =
+        recipeService.updateRecipe as jest.MockedFunction<
+          typeof recipeService.updateRecipe
+        >;
       const updatedRecipe: Recipe = {
         ...mockRecipes[0],
         name: 'Updated Pancakes',
@@ -643,7 +645,6 @@ describe('Recipes Component', () => {
       mockUpdateRecipe.mockResolvedValue(updatedRecipe);
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      const user = userEvent.setup();
       render(<Recipes />);
 
       await waitFor(() => {
@@ -696,9 +697,10 @@ describe('Recipes Component', () => {
     });
 
     it('should close edit modal after successful update', async () => {
-      const mockUpdateRecipe = recipeService.updateRecipe as jest.MockedFunction<
-        typeof recipeService.updateRecipe
-      >;
+      const mockUpdateRecipe =
+        recipeService.updateRecipe as jest.MockedFunction<
+          typeof recipeService.updateRecipe
+        >;
       const updatedRecipe: Recipe = {
         ...mockRecipes[0],
         name: 'Updated Pancakes',
@@ -733,7 +735,9 @@ describe('Recipes Component', () => {
       });
 
       // Submit the form by clicking Save Changes
-      const saveButtons = screen.getAllByRole('button', { name: /Save Changes/i });
+      const saveButtons = screen.getAllByRole('button', {
+        name: /Save Changes/i,
+      });
       if (saveButtons.length > 0) {
         await user.click(saveButtons[0]);
       }
@@ -1016,7 +1020,10 @@ describe('Recipes Component', () => {
 
       const categoryButtons = screen.getAllByRole('button').filter(btn => {
         const text = btn.textContent?.toLowerCase();
-        return text && ['breakfast', 'lunch', 'dinner', 'snack'].some(c => text.includes(c));
+        return (
+          text &&
+          ['breakfast', 'lunch', 'dinner', 'snack'].some(c => text.includes(c))
+        );
       });
 
       if (categoryButtons.length > 0) {
@@ -1044,7 +1051,9 @@ describe('Recipes Component', () => {
       render(<Recipes />);
 
       await waitFor(() => {
-        expect(screen.getByText('No recipes available yet.')).toBeInTheDocument();
+        expect(
+          screen.getByText('No recipes available yet.')
+        ).toBeInTheDocument();
       });
     });
 

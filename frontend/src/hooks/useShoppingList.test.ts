@@ -58,8 +58,7 @@ describe('useShoppingList', () => {
       mealPlanService.mealPlanService.getMealPlan as jest.Mock
     ).mockResolvedValue(mockMealPlanEntries);
     (recipeService.recipeService.getRecipeById as jest.Mock).mockImplementation(
-      (id: string) =>
-        Promise.resolve(mockRecipes.find(r => r.id === id))
+      (id: string) => Promise.resolve(mockRecipes.find(r => r.id === id))
     );
     (shoppingListService.aggregateIngredients as jest.Mock).mockReturnValue(
       mockShoppingItems
@@ -101,28 +100,28 @@ describe('useShoppingList', () => {
     });
 
     it('filters meals for first-half range', async () => {
-      (mealPlanService.mealPlanService.getMealPlan as jest.Mock).mockResolvedValue(
-        [
-          {
-            id: 1,
-            recipe_id: 'recipe1',
-            day_of_week: 0,
-            meal_type: 'lunch' as const,
-          },
-          {
-            id: 2,
-            recipe_id: 'recipe2',
-            day_of_week: 1,
-            meal_type: 'lunch' as const,
-          },
-          {
-            id: 3,
-            recipe_id: 'recipe1',
-            day_of_week: 5,
-            meal_type: 'dinner' as const,
-          },
-        ]
-      );
+      (
+        mealPlanService.mealPlanService.getMealPlan as jest.Mock
+      ).mockResolvedValue([
+        {
+          id: 1,
+          recipe_id: 'recipe1',
+          day_of_week: 0,
+          meal_type: 'lunch' as const,
+        },
+        {
+          id: 2,
+          recipe_id: 'recipe2',
+          day_of_week: 1,
+          meal_type: 'lunch' as const,
+        },
+        {
+          id: 3,
+          recipe_id: 'recipe1',
+          day_of_week: 5,
+          meal_type: 'dinner' as const,
+        },
+      ]);
 
       const { result } = renderHook(() => useShoppingList('first-half'));
 
@@ -130,32 +129,34 @@ describe('useShoppingList', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(2);
+      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(
+        2
+      );
     });
 
     it('filters meals for second-half range', async () => {
-      (mealPlanService.mealPlanService.getMealPlan as jest.Mock).mockResolvedValue(
-        [
-          {
-            id: 1,
-            recipe_id: 'recipe1',
-            day_of_week: 0,
-            meal_type: 'lunch' as const,
-          },
-          {
-            id: 2,
-            recipe_id: 'recipe2',
-            day_of_week: 4,
-            meal_type: 'lunch' as const,
-          },
-          {
-            id: 3,
-            recipe_id: 'recipe1',
-            day_of_week: 6,
-            meal_type: 'dinner' as const,
-          },
-        ]
-      );
+      (
+        mealPlanService.mealPlanService.getMealPlan as jest.Mock
+      ).mockResolvedValue([
+        {
+          id: 1,
+          recipe_id: 'recipe1',
+          day_of_week: 0,
+          meal_type: 'lunch' as const,
+        },
+        {
+          id: 2,
+          recipe_id: 'recipe2',
+          day_of_week: 4,
+          meal_type: 'lunch' as const,
+        },
+        {
+          id: 3,
+          recipe_id: 'recipe1',
+          day_of_week: 6,
+          meal_type: 'dinner' as const,
+        },
+      ]);
 
       const { result } = renderHook(() => useShoppingList('second-half'));
 
@@ -163,26 +164,28 @@ describe('useShoppingList', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(2);
+      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(
+        2
+      );
     });
 
     it('deduplicates recipe IDs before fetching', async () => {
-      (mealPlanService.mealPlanService.getMealPlan as jest.Mock).mockResolvedValue(
-        [
-          {
-            id: 1,
-            recipe_id: 'recipe1',
-            day_of_week: 0,
-            meal_type: 'lunch' as const,
-          },
-          {
-            id: 2,
-            recipe_id: 'recipe1',
-            day_of_week: 1,
-            meal_type: 'lunch' as const,
-          },
-        ]
-      );
+      (
+        mealPlanService.mealPlanService.getMealPlan as jest.Mock
+      ).mockResolvedValue([
+        {
+          id: 1,
+          recipe_id: 'recipe1',
+          day_of_week: 0,
+          meal_type: 'lunch' as const,
+        },
+        {
+          id: 2,
+          recipe_id: 'recipe1',
+          day_of_week: 1,
+          meal_type: 'lunch' as const,
+        },
+      ]);
 
       const { result } = renderHook(() => useShoppingList('entire'));
 
@@ -190,7 +193,9 @@ describe('useShoppingList', () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(1);
+      expect(recipeService.recipeService.getRecipeById).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('sets items after successful aggregation', async () => {
@@ -225,9 +230,9 @@ describe('useShoppingList', () => {
     });
 
     it('handles error when fetching recipes fails', async () => {
-      (recipeService.recipeService.getRecipeById as jest.Mock).mockRejectedValue(
-        new Error('Failed to fetch recipe')
-      );
+      (
+        recipeService.recipeService.getRecipeById as jest.Mock
+      ).mockRejectedValue(new Error('Failed to fetch recipe'));
 
       const { result } = renderHook(() => useShoppingList('entire'));
 
@@ -242,17 +247,15 @@ describe('useShoppingList', () => {
     });
 
     it('clears error and items on new attempt', async () => {
-      const { result, rerender } = renderHook(
-        () => useShoppingList('entire')
-      );
+      const { result } = renderHook(() => useShoppingList('entire'));
 
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
       });
 
-      (mealPlanService.mealPlanService.getMealPlan as jest.Mock).mockRejectedValue(
-        new Error('Failed')
-      );
+      (
+        mealPlanService.mealPlanService.getMealPlan as jest.Mock
+      ).mockRejectedValue(new Error('Failed'));
 
       act(() => {
         result.current.regenerate();

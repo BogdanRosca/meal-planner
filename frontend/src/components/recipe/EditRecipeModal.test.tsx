@@ -134,10 +134,9 @@ describe('EditRecipeModal Component', () => {
     );
 
     const categorySelects = screen.queryAllByDisplayValue('dinner');
-    if (categorySelects.length > 0) {
-      await user.selectOptions(categorySelects[0], 'breakfast');
-      expect(categorySelects[0]).toHaveValue('breakfast');
-    }
+    expect(categorySelects.length).toBeGreaterThan(0);
+    await user.selectOptions(categorySelects[0], 'breakfast');
+    expect(categorySelects[0]).toHaveValue('breakfast');
   });
 
   it('allows editing instructions', async () => {
@@ -151,7 +150,9 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const instructionsInput = screen.getByDisplayValue('Cook pasta and mix with eggs');
+    const instructionsInput = screen.getByDisplayValue(
+      'Cook pasta and mix with eggs'
+    );
     await user.clear(instructionsInput);
     await user.type(instructionsInput, 'New instructions');
 
@@ -233,10 +234,10 @@ describe('EditRecipeModal Component', () => {
 
     const removeButtons = screen.getAllByLabelText('Remove ingredient');
     expect(removeButtons.length).toBeGreaterThan(0);
-    
+
     // Click the remove button
     await user.click(removeButtons[0]);
-    
+
     // Verify the ingredient was removed
     const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
     expect(ingredientInputs.length).toBe(1);
@@ -263,12 +264,11 @@ describe('EditRecipeModal Component', () => {
     );
 
     const removeButtons = screen.getAllByLabelText('Remove ingredient');
-    if (removeButtons.length > 1) {
-      await user.click(removeButtons[1]);
-      
-      const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
-      expect(ingredientInputs.length).toBe(2);
-    }
+    expect(removeButtons.length).toBeGreaterThan(1);
+    await user.click(removeButtons[1]);
+
+    const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
+    expect(ingredientInputs.length).toBe(2);
   });
 
   it('allows adding common ingredients', async () => {
@@ -287,7 +287,9 @@ describe('EditRecipeModal Component', () => {
     );
     await user.type(commonIngredientInput, 'garlic');
 
-    const addButtons = screen.getAllByRole('button').filter(btn => btn.textContent?.includes('Add'));
+    const addButtons = screen
+      .getAllByRole('button')
+      .filter(btn => btn.textContent?.includes('Add'));
     await user.click(addButtons[addButtons.length - 1]);
 
     expect(commonIngredientInput).toHaveValue('');
@@ -329,11 +331,10 @@ describe('EditRecipeModal Component', () => {
 
     // Find quantity input and change it
     const quantityInputs = screen.getAllByPlaceholderText('Qty');
-    if (quantityInputs.length > 0) {
-      await user.clear(quantityInputs[0]);
-      await user.type(quantityInputs[0], '500');
-      expect(quantityInputs[0]).toHaveValue(500);
-    }
+    expect(quantityInputs.length).toBeGreaterThan(0);
+    await user.clear(quantityInputs[0]);
+    await user.type(quantityInputs[0], '500');
+    expect(quantityInputs[0]).toHaveValue(500);
   });
 
   it('should handle changing ingredient name field', async () => {
@@ -349,11 +350,10 @@ describe('EditRecipeModal Component', () => {
 
     // Find ingredient name input and change it
     const ingredientInputs = screen.getAllByPlaceholderText('Ingredient name');
-    if (ingredientInputs.length > 0) {
-      await user.clear(ingredientInputs[0]);
-      await user.type(ingredientInputs[0], 'olive oil');
-      expect(ingredientInputs[0]).toHaveValue('olive oil');
-    }
+    expect(ingredientInputs.length).toBeGreaterThan(0);
+    await user.clear(ingredientInputs[0]);
+    await user.type(ingredientInputs[0], 'olive oil');
+    expect(ingredientInputs[0]).toHaveValue('olive oil');
   });
 
   it('calls onEditRecipe with updated recipe on form submission', async () => {
@@ -391,7 +391,9 @@ describe('EditRecipeModal Component', () => {
 
     expect(mockOnEditRecipe).toHaveBeenCalled();
     const submittedRecipe = mockOnEditRecipe.mock.calls[0][0];
-    expect(submittedRecipe.main_ingredients.every(ing => ing.name.trim() !== '')).toBe(true);
+    expect(
+      submittedRecipe.main_ingredients.every(ing => ing.name.trim() !== '')
+    ).toBe(true);
   });
 
   it('allows editing foto URL', async () => {
@@ -405,7 +407,9 @@ describe('EditRecipeModal Component', () => {
       />
     );
 
-    const fotoUrlInput = screen.getByDisplayValue('https://example.com/pasta.jpg');
+    const fotoUrlInput = screen.getByDisplayValue(
+      'https://example.com/pasta.jpg'
+    );
     await user.clear(fotoUrlInput);
     await user.type(fotoUrlInput, 'https://example.com/new.jpg');
 

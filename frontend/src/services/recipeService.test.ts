@@ -551,9 +551,9 @@ describe('recipeService', () => {
         status: 404,
       });
 
-      await expect(recipeService.updateRecipe(999, updatedRecipe)).rejects.toThrow(
-        'HTTP error! status: 404'
-      );
+      await expect(
+        recipeService.updateRecipe(999, updatedRecipe)
+      ).rejects.toThrow('HTTP error! status: 404');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error updating recipe 999:',
         expect.any(Error)
@@ -564,9 +564,9 @@ describe('recipeService', () => {
       const networkError = new Error('Network error');
       (global.fetch as jest.Mock).mockRejectedValueOnce(networkError);
 
-      await expect(recipeService.updateRecipe(1, updatedRecipe)).rejects.toThrow(
-        'Network error'
-      );
+      await expect(
+        recipeService.updateRecipe(1, updatedRecipe)
+      ).rejects.toThrow('Network error');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error updating recipe 1:',
         networkError
@@ -579,9 +579,9 @@ describe('recipeService', () => {
         status: 500,
       });
 
-      await expect(recipeService.updateRecipe(1, updatedRecipe)).rejects.toThrow(
-        'HTTP error! status: 500'
-      );
+      await expect(
+        recipeService.updateRecipe(1, updatedRecipe)
+      ).rejects.toThrow('HTTP error! status: 500');
     });
 
     it('should update recipe with all fields', async () => {
