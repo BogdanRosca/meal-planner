@@ -1,8 +1,18 @@
 import { recipeService } from './recipeService';
 import { Recipe, RecipesResponse } from '../types/recipe';
+import * as apiConfig from '../config/api';
 
 // Mock fetch globally
 global.fetch = jest.fn();
+
+// Mock the API configuration to ensure consistent test URLs
+jest.mock('../config/api', () => ({
+  API_BASE_URL: 'http://localhost:8000',
+  API_ENDPOINTS: {
+    RECIPES: 'http://localhost:8000/recipes',
+    MEAL_PLANS: 'http://localhost:8000/meal-plans',
+  },
+}));
 
 describe('recipeService', () => {
   const mockRecipe: Recipe = {
