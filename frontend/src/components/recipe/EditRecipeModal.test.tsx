@@ -394,7 +394,7 @@ describe('EditRecipeModal Component', () => {
     expect(mockOnEditRecipe).toHaveBeenCalled();
     const submittedRecipe = mockOnEditRecipe.mock.calls[0][0];
     expect(
-      submittedRecipe.main_ingredients.every(ing => ing.name.trim() !== '')
+      submittedRecipe.main_ingredients.every((ing: any) => ing.name.trim() !== '')
     ).toBe(true);
   });
 
