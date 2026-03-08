@@ -24,7 +24,7 @@ Making use of all quality standards are met.
 2. Frontend checks
    When there are changes on the /frontend:
 
-- make sure that linting through Prettier is correct
-- make sure all unit tests are passing
+- make sure that linting through Prettier is correct (npm run lint)
+- make sure all unit tests are passing (npm test -- --coverage)
 - make sure all unit integration tests are passing
 - make sure unit test coverage is above 80% for all branches
