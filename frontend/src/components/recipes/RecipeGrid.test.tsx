@@ -44,6 +44,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery=""
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -58,6 +59,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={[]}
         searchQuery=""
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -71,6 +73,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery="pasta"
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -85,6 +88,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery="nonexistent"
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -100,6 +104,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery="CAESAR"
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -114,6 +119,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery=""
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -128,6 +134,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery=""
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />
@@ -142,6 +149,7 @@ describe('RecipeGrid Component', () => {
       <RecipeGrid
         recipes={mockRecipes}
         searchQuery="car"
+        selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
       />

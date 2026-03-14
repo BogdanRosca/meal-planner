@@ -7,6 +7,7 @@ import styles from './RecipeGrid.module.css';
 interface RecipeGridProps {
   recipes: Recipe[];
   searchQuery: string;
+  selectedCategory: string;
   onRecipeClick: (_recipe: Recipe) => void;
   onDeleteClick: (_e: React.MouseEvent, _recipe: Recipe) => void;
 }
@@ -14,15 +15,20 @@ interface RecipeGridProps {
 const RecipeGrid: React.FC<RecipeGridProps> = ({
   recipes,
   searchQuery,
+  selectedCategory,
   onRecipeClick,
   onDeleteClick,
 }) => {
-  // Filter recipes based on search query
-  const filteredRecipes = searchQuery
-    ? recipes.filter(recipe =>
-        recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : recipes;
+  // Filter recipes based on search query and category
+  const filteredRecipes = recipes.filter(recipe => {
+    const matchesSearch =
+      !searchQuery ||
+      recipe.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'All Categories' ||
+      recipe.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   if (filteredRecipes.length === 0) {
     return (

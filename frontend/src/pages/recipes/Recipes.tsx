@@ -7,6 +7,7 @@ import AddRecipeModal from '../../components/recipe/AddRecipeModal';
 import EditRecipeModal from '../../components/recipe/EditRecipeModal';
 import ConfirmationPopup from '../../components/popup/ConfirmationPopup';
 import SearchBar from '../../components/recipes/SearchBar';
+import CategoryFilter from '../../components/recipes/CategoryFilter';
 import RecipeGrid from '../../components/recipes/RecipeGrid';
 import StatusMessage from '../../components/recipes/StatusMessage';
 import { useRecipes } from '../../hooks/useRecipes';
@@ -16,6 +17,8 @@ const Recipes: React.FC = () => {
   const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } =
     useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>('All Categories');
 
   const {
     selectedRecipe,
@@ -93,6 +96,10 @@ const Recipes: React.FC = () => {
               onSearchChange={handleSearchChange}
               onSearchSubmit={handleSearchSubmit}
             />
+            <CategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
             <button
               className={styles['add-recipe-button']}
               onClick={openAddRecipeModal}
@@ -105,6 +112,7 @@ const Recipes: React.FC = () => {
           <RecipeGrid
             recipes={recipes}
             searchQuery={searchQuery}
+            selectedCategory={selectedCategory}
             onRecipeClick={handleRecipeClick}
             onDeleteClick={handleDeleteClick}
           />
