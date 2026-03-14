@@ -121,9 +121,8 @@ jobs:
       - name: 🧪 Run integration tests against running app
         run: |
           set -o pipefail
-          # Run tests that might need the app running
-          # For now, we'll run all tests again as integration tests
-          npm test -- --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
+          # Run a focused subset of tests that verify app integration with running server
+          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
         env:
           CI: true
           REACT_APP_API_URL: http://localhost:3000
