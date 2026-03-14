@@ -3,7 +3,7 @@ name: Test BE service
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint:
@@ -12,24 +12,24 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-    
+
     steps:
-    - name: 📁 Checkout code
-      uses: actions/checkout@v4
-    
-    - name: 🐍 Set up Python 3.13.7
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13.7'
-    
-    - name: 🏗️ Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-    
-    - name: 🔍 Run Flake8 linting
-      run: |
-        flake8
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.13.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.7"
+
+      - name: 🏗️ Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: 🔍 Run Flake8 linting
+        run: |
+          flake8
 
   unit_tests:
     name: 🧪 Run unit tests
@@ -38,24 +38,32 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-    
-    steps:
-    - name: 📁 Checkout code
-      uses: actions/checkout@v4
-    
-    - name: 🐍 Set up Python 3.13.7
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13.7'
-    
-    - name: 🏗️ Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
 
-    - name: 🧪 Run tests
-      run: |
-        pytest tests/unit  -v
+    steps:
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.13.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.7"
+
+      - name: 🏗️ Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🧪 Run tests
+        run: |
+          pytest tests/unit  -v 2>&1 | tee unit-test-output.txt
+
+      - name: 📤 Upload unit test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-unit-test-output
+          path: backend/unit-test-output.txt
+          retention-days: 1
 
   integration_tests:
     name: ⚙️ Run integration tests
@@ -80,36 +88,128 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
-    - name: 📁 Checkout code
-      uses: actions/checkout@v4
-    
-    - name: 🐍 Set up Python 3.13
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13.7'
-    
-    - name: 🏗️ Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
 
-    - name: 💿 Setup database
-      uses: ./.github/actions/setup-database
-      with:
-        working-directory: './backend'
+      - name: 🐍 Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13.7"
 
-    - name: ▶️ Test server startup
-      uses: ./.github/actions/test-server-start
-      with:
-        app-module: 'app.main:app'
-        health-endpoint: '/health'
-        host: '127.0.0.1'
-        port: '8000'
-        startup-timeout: '5'
-        working-directory: './backend'
-    
-    - name: 🧪 Run tests
-      run: |
-        pytest tests/integration -v
+      - name: 🏗️ Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 💿 Setup database
+        uses: ./.github/actions/setup-database
+        with:
+          working-directory: "./backend"
+
+      - name: ▶️ Test server startup
+        uses: ./.github/actions/test-server-start
+        with:
+          app-module: "app.main:app"
+          health-endpoint: "/health"
+          host: "127.0.0.1"
+          port: "8000"
+          startup-timeout: "5"
+          working-directory: "./backend"
+
+      - name: 🧪 Run tests
+        run: |
+          pytest tests/integration -v 2>&1 | tee integration-test-output.txt
+
+      - name: 📤 Upload integration test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-integration-test-output
+          path: backend/integration-test-output.txt
+          retention-days: 1
+
+  report_results:
+    name: 💬 Post test results
+    runs-on: ubuntu-latest
+    needs: [unit_tests, integration_tests]
+    if: always()
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: 📥 Download test outputs
+        uses: actions/download-artifact@v4
+
+      - name: 💬 Post test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find test output files dynamically
+            const findTestFile = (dir) => {
+              const entries = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
+              const file = entries.find(f => f.isFile() && f.name.endsWith('output.txt'));
+              return file ? path.join(file.parentPath, file.name) : null;
+            };
+
+            // Read test outputs
+            const unitFile = findTestFile('be-unit-test-output');
+            const integrationFile = findTestFile('be-integration-test-output');
+
+            const unitOutput = unitFile ? fs.readFileSync(unitFile, 'utf8') : '';
+            const integrationOutput = integrationFile ? fs.readFileSync(integrationFile, 'utf8') : '';
+
+            // Parse pytest summary line (e.g., "====== 92 passed in 0.71s ======")
+            const parsePytestSummary = (output) => {
+              const match = output.match(/=+\s+(\d+\s+(?:passed|failed|error)[^=]*)\s+=+/);
+              return match ? match[1].trim() : 'No summary found';
+            };
+
+            const unitSummary = parsePytestSummary(unitOutput);
+            const integrationSummary = parsePytestSummary(integrationOutput);
+
+            const body = `<!-- be-test-results -->
+            ## BE Test Results
+
+            **Unit Tests** ✅
+            \`\`\`
+            ${unitSummary}
+            \`\`\`
+
+            **Integration Tests** ✅
+            \`\`\`
+            ${integrationSummary}
+            \`\`\``;
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.body.includes('<!-- be-test-results -->')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

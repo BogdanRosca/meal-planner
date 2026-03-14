@@ -179,8 +179,8 @@ jobs:
             const unitSummary = parseSummary(unitOutput);
             const integrationSummary = parseSummary(integrationOutput);
 
-            const body = `<!-- test-results -->
-            ## Test Results
+            const body = `<!-- fe-test-results -->
+            ## FE Test Results
 
             **Unit Tests** ✅
             \`\`\`
@@ -200,7 +200,7 @@ jobs:
             });
 
             const existingComment = comments.data.find(comment =>
-              comment.body.includes('<!-- test-results -->')
+              comment.body.includes('<!-- fe-test-results -->')
             );
 
             if (existingComment) {
