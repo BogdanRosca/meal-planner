@@ -10,12 +10,12 @@ def test_health_endpoint():
     response = client.get("/health")
 
     # Check that the response status code is 200 (OK)
-    assert response.status_code == 200
+    assert response.status_code == 500
 
     # Check that the response contains the expected JSON
     assert response.json() == {
-        "status": "healthy",
-        "message": "Meal Planner API is running !"
+        "status": "broken",
+        "message": "This is broken"
     }
 
 

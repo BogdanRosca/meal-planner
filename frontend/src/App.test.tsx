@@ -44,7 +44,7 @@ describe('App Component', () => {
 
   it('renders without crashing', () => {
     render(<App />);
-    expect(screen.getByText('MealCraft')).toBeInTheDocument();
+    expect(screen.getByText('BrokenApp')).toBeInTheDocument();
   });
 
   it('renders all main components', () => {
