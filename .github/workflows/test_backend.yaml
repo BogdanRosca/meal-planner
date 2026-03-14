@@ -55,6 +55,7 @@ jobs:
 
       - name: 🧪 Run tests
         run: |
+          set -o pipefail
           pytest tests/unit  -v 2>&1 | tee unit-test-output.txt
 
       - name: 📤 Upload unit test output
@@ -120,6 +121,7 @@ jobs:
 
       - name: 🧪 Run tests
         run: |
+          set -o pipefail
           pytest tests/integration -v 2>&1 | tee integration-test-output.txt
 
       - name: 📤 Upload integration test output

@@ -56,7 +56,9 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run unit tests
-        run: npm test -- --coverage --watchAll=false --testTimeout=10000 2>&1 | tee unit-test-output.txt
+        run: |
+          set -o pipefail
+          npm test -- --coverage --watchAll=false --testTimeout=10000 2>&1 | tee unit-test-output.txt
         env:
           CI: true
 
@@ -118,6 +120,7 @@ jobs:
 
       - name: 🧪 Run integration tests against running app
         run: |
+          set -o pipefail
           # Run tests that might need the app running
           # For now, we'll run all tests again as integration tests
           npm test -- --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
