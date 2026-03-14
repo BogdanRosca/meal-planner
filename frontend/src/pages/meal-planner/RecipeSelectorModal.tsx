@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Recipe } from '../../types/recipe';
 import styles from './RecipeSelectorModal.module.css';
 
@@ -10,13 +10,6 @@ interface RecipeSelectorModalProps {
   onClose: () => void;
 }
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  breakfast: '🍳',
-  lunch: '🥗',
-  dinner: '🍽️',
-  snack: '🍿',
-};
-
 const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
   isOpen,
   recipes,
@@ -24,10 +17,14 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
   onSelect,
   onClose,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   if (!isOpen) return null;
 
   const filtered = recipes.filter(
-    r => r.category.toLowerCase() === categoryFilter.toLowerCase()
+    r =>
+      r.category.toLowerCase() === categoryFilter.toLowerCase() &&
+      r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -47,10 +44,21 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
             ×
           </button>
         </div>
+        <div className={styles['selector-search-container']}>
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className={styles['selector-search-input']}
+          />
+        </div>
         <div className={styles['selector-list']}>
           {filtered.length === 0 ? (
             <p className={styles['selector-empty']}>
-              No {categoryFilter} recipes available.
+              {searchQuery
+                ? `No recipes found matching "${searchQuery}".`
+                : `No ${categoryFilter} recipes available.`}
             </p>
           ) : (
             filtered.map(recipe => (
@@ -59,9 +67,15 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
                 className={styles['selector-item']}
                 onClick={() => onSelect(recipe)}
               >
-                <span className={styles['selector-item-emoji']}>
-                  {CATEGORY_EMOJI[recipe.category.toLowerCase()] || '🍴'}
-                </span>
+                {recipe.foto_url ? (
+                  <img
+                    src={recipe.foto_url}
+                    alt={recipe.name}
+                    className={styles['selector-item-image']}
+                  />
+                ) : (
+                  <div className={styles['selector-item-placeholder']}>🍴</div>
+                )}
                 <div className={styles['selector-item-info']}>
                   <span className={styles['selector-item-name']}>
                     {recipe.name}

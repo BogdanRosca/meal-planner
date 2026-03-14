@@ -75,7 +75,7 @@ const TopBar: React.FC<TopBarProps> = ({
         {/* User Section */}
         <div className={styles['user-section']}>
           <div className={styles['language-selector']}>
-            <span className={styles.flag}>🇺🇸</span>
+            <span className={styles.flag}>🇬🇧</span>
           </div>
           <div className={styles['user-profile']}>
             <div className={styles['user-avatar']}>

@@ -152,7 +152,7 @@ describe('TopBar Component', () => {
   it('renders language selector', () => {
     render(<TopBar />);
 
-    const flagElement = screen.getByText('🇺🇸');
+    const flagElement = screen.getByText('🇬🇧');
     expect(flagElement).toBeInTheDocument();
     expect(flagElement).toHaveClass('flag');
   });

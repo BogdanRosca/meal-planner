@@ -125,11 +125,26 @@
   cursor: pointer;
   font: inherit;
   transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .cell-recipe-name:hover {
   color: #5b8266;
-  text-decoration: underline;
+}
+
+.cell-recipe-icon {
+  opacity: 0;
+  width: 14px;
+  height: 14px;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.cell-recipe-name:hover .cell-recipe-icon {
+  opacity: 1;
 }
 
 .cell-recipe-name:focus-visible {

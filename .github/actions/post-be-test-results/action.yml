@@ -46,9 +46,9 @@ runs:
             comment.body.includes('<!-- test-results-summary -->')
           );
 
-          // Detect test failures
-          const hasUnitFailure = unitOutput.includes('FAILED') || unitOutput.match(/failed/i);
-          const hasIntegrationFailure = integrationOutput.includes('FAILED') || integrationOutput.match(/failed/i);
+          // Detect test failures by looking for "failed" in the pytest summary
+          const hasUnitFailure = unitOutput.match(/^\d+\s+failed/m);
+          const hasIntegrationFailure = integrationOutput.match(/^\d+\s+failed/m);
 
           const unitIcon = hasUnitFailure ? '❌' : '✅';
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
@@ -88,7 +88,7 @@ runs:
             ## Test Results Summary
 
             ### FE Test Results
-            _Waiting for frontend tests to complete..._
+            _Frontend tests were not executed or still running..._
 
             ${beBody}`;
 
