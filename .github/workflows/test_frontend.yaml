@@ -158,3 +158,6 @@ jobs:
 
       - name: 📤 Post FE test results
         uses: ./.github/actions/post-fe-test-results
+        with:
+          unit_tests_result: ${{ needs.unit_tests.result }}
+          integration_tests_result: ${{ needs.integration_tests.result }}
