@@ -12,7 +12,13 @@ import StatusMessage from '../../components/recipes/StatusMessage';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 
-const Recipes: React.FC = () => {
+interface RecipesProps {
+  selectedCategory?: string;
+}
+
+const Recipes: React.FC<RecipesProps> = ({
+  selectedCategory = 'All Categories',
+}) => {
   const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } =
     useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -105,6 +111,7 @@ const Recipes: React.FC = () => {
           <RecipeGrid
             recipes={recipes}
             searchQuery={searchQuery}
+            selectedCategory={selectedCategory}
             onRecipeClick={handleRecipeClick}
             onDeleteClick={handleDeleteClick}
           />

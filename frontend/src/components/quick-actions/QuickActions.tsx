@@ -1,19 +1,18 @@
 import React from 'react';
 import styles from './QuickActions.module.css';
 import Categories from '../categories/Categories';
-import RecentRecipes from '../recent-recipes/RecentRecipes';
 
 interface QuickActionsProps {
   onActionClick?: (_action: string) => void;
   onCategoryClick?: (_category: string) => void;
-  onRecipeClick?: (_recipe: { name: string }) => void;
+  selectedCategory?: string;
   isMobileOpen?: boolean;
 }
 
 const QuickActions: React.FC<QuickActionsProps> = ({
   onActionClick,
   onCategoryClick: _onCategoryClick,
-  onRecipeClick: _onRecipeClick,
+  selectedCategory = 'All Categories',
   isMobileOpen = false,
 }) => {
   const actions = [
@@ -71,10 +70,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       </div>
 
       {/* Categories Section */}
-      <Categories onCategoryClick={_onCategoryClick} />
-
-      {/* Recent Recipes Section */}
-      <RecentRecipes onRecipeClick={_onRecipeClick} />
+      <Categories
+        selectedCategory={selectedCategory}
+        onCategoryClick={_onCategoryClick}
+      />
     </aside>
   );
 };

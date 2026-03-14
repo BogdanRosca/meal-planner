@@ -1,6 +1,17 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import QuickActions from './QuickActions';
+import * as useRecipesModule from '../../hooks/useRecipes';
+
+const mockRecipes = [
+  { id: 1, name: 'Pancakes', category: 'breakfast' },
+  { id: 2, name: 'Waffles', category: 'breakfast' },
+  { id: 3, name: 'Chips', category: 'snack' },
+  { id: 4, name: 'Salad', category: 'lunch' },
+  { id: 5, name: 'Steak', category: 'dinner' },
+];
+
+jest.mock('../../hooks/useRecipes');
 
 describe('QuickActions Component', () => {
   const mockOnActionClick = jest.fn();
@@ -8,6 +19,14 @@ describe('QuickActions Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useRecipesModule.useRecipes as jest.Mock).mockReturnValue({
+      recipes: mockRecipes,
+      loading: false,
+      error: null,
+      addRecipe: jest.fn(),
+      updateRecipe: jest.fn(),
+      deleteRecipe: jest.fn(),
+    });
   });
 
   it('renders the QuickActions component with title', () => {
@@ -90,11 +109,10 @@ describe('QuickActions Component', () => {
 
     // Check that Categories component is rendered
     expect(screen.getByText('Categories')).toBeInTheDocument();
-    // Use getAllByText to handle multiple elements with same text
-    expect(screen.getAllByText('Breakfast')).toHaveLength(3); // One in categories, two in recent recipes
-    expect(screen.getAllByText('Lunch')).toHaveLength(2); // One in categories, one in recent recipes
-    expect(screen.getAllByText('Dinner')).toHaveLength(2); // One in categories, one in recent recipes
-    expect(screen.getByText('Snack')).toBeInTheDocument(); // Only appears in categories
+    expect(screen.getByText('Breakfast')).toBeInTheDocument();
+    expect(screen.getByText('Lunch')).toBeInTheDocument();
+    expect(screen.getByText('Dinner')).toBeInTheDocument();
+    expect(screen.getByText('Snack')).toBeInTheDocument();
   });
 
   it('calls onCategoryClick when a category is clicked', () => {
@@ -133,5 +151,61 @@ describe('QuickActions Component', () => {
       (arrow: Element) => arrow.textContent === '→'
     );
     expect(quickActionArrows.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('passes selectedCategory prop to Categories component', () => {
+    const { container } = render(<QuickActions selectedCategory="Breakfast" />);
+
+    // Check if the breakfast button has active class when it matches selectedCategory
+    const categorySection = container.querySelector('.categories-section');
+    const buttons = categorySection?.querySelectorAll('button');
+    expect(buttons).toBeTruthy();
+
+    let hasActiveBreakfastButton = false;
+    buttons?.forEach(button => {
+      if (
+        button.textContent?.includes('Breakfast') &&
+        button.classList.contains('active')
+      ) {
+        hasActiveBreakfastButton = true;
+      }
+    });
+    expect(hasActiveBreakfastButton).toBe(true);
+  });
+
+  it('passes onCategoryClick callback to Categories component', () => {
+    render(
+      <QuickActions
+        onCategoryClick={mockOnCategoryClick}
+        selectedCategory="All Categories"
+      />
+    );
+
+    const categorySection = screen
+      .getByText('Categories')
+      .closest('.categories-section');
+    const dinnerButton = categorySection?.querySelector(
+      '.category-item:last-child'
+    ) as HTMLElement;
+
+    expect(dinnerButton).toBeTruthy();
+    fireEvent.click(dinnerButton);
+    expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('works with mobile menu state', () => {
+    const { container } = render(
+      <QuickActions
+        isMobileOpen={true}
+        selectedCategory="Lunch"
+        onCategoryClick={mockOnCategoryClick}
+      />
+    );
+
+    const quickActionsAside = container.querySelector('.quick-actions');
+    expect(quickActionsAside).toHaveClass('mobile-open');
+
+    // Categories should still be rendered and interactive
+    expect(screen.getByText('Lunch')).toBeInTheDocument();
   });
 });

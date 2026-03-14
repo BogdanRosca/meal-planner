@@ -192,3 +192,7 @@ These checks mirror the GitHub Actions workflows:
 - `.github/workflows/test_backend.yaml` - Backend checks
 
 Run locally to catch issues before pushing to GitHub!
+
+## Final step
+
+When all checks are passing, generate a "ready-to-paste" in Github PR summary following `.github/pull_request_template.md`.
