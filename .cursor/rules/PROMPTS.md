@@ -1,6 +1,0 @@
----
-globs:
-alwaysApply: true
----
-
-
