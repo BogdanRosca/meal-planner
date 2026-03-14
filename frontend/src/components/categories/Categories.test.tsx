@@ -294,4 +294,34 @@ describe('Categories Component', () => {
     );
     expect(activeButtons).toHaveLength(0);
   });
+
+  it('renders loading state when recipes are loading', () => {
+    (useRecipesModule.useRecipes as jest.Mock).mockReturnValue({
+      recipes: [],
+      loading: true,
+      error: null,
+      addRecipe: jest.fn(),
+      updateRecipe: jest.fn(),
+      deleteRecipe: jest.fn(),
+    });
+
+    render(<Categories />);
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+
+  it('renders empty state when no recipes exist', () => {
+    (useRecipesModule.useRecipes as jest.Mock).mockReturnValue({
+      recipes: [],
+      loading: false,
+      error: null,
+      addRecipe: jest.fn(),
+      updateRecipe: jest.fn(),
+      deleteRecipe: jest.fn(),
+    });
+
+    render(<Categories />);
+
+    expect(screen.getByText('No recipes yet')).toBeInTheDocument();
+  });
 });

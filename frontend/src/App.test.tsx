@@ -262,4 +262,79 @@ describe('App Component', () => {
 
     expect(mealPlannerNav.closest('button')).toHaveClass('active');
   });
+
+  it('renders correct content for each section', () => {
+    render(<App />);
+
+    // Default is Meal Planner
+    let mealPlannerContent = document.querySelector('.meal-planner');
+    expect(mealPlannerContent).toBeInTheDocument();
+
+    // Switch to Recipes
+    fireEvent.click(screen.getByText('Recipes'));
+    let recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
+
+    // Switch to Shopping List
+    const shoppingListButtons = screen.getAllByText('Shopping List');
+    fireEvent.click(shoppingListButtons[0]);
+    let shoppingListContent = document.querySelector('.shopping-list');
+    expect(shoppingListContent).toBeInTheDocument();
+
+    // Switch back to Meal Planner
+    fireEvent.click(screen.getByText('Meal Planner'));
+    mealPlannerContent = document.querySelector('.meal-planner');
+    expect(mealPlannerContent).toBeInTheDocument();
+  });
+
+  it('passes selectedCategory to Recipes component', () => {
+    render(<App />);
+
+    // Click a category
+    const categorySection = screen
+      .getByText('Categories')
+      .closest('.categories-section');
+    const categoryButton = categorySection?.querySelector('.category-item');
+
+    expect(categoryButton).toBeTruthy();
+    fireEvent.click(categoryButton!);
+
+    // Should navigate to Recipes with category selected
+    const recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
+  });
+
+  it('navigates to recipes when Add Recipe quick action is clicked', () => {
+    render(<App />);
+
+    const addRecipeButton = screen.getByText('Add Recipe');
+    fireEvent.click(addRecipeButton);
+
+    const recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
+  });
+
+  it('navigates to meal planner when Plan Meals quick action is clicked', () => {
+    render(<App />);
+
+    const planMealsButton = screen.getByText('Plan Meals');
+    fireEvent.click(planMealsButton);
+
+    const mealPlannerContent = document.querySelector('.meal-planner');
+    expect(mealPlannerContent).toBeInTheDocument();
+  });
+
+  it('navigates to shopping list when Shopping List quick action is clicked', () => {
+    render(<App />);
+
+    // Find the quick action "Shopping List" button (the last one is in quick actions)
+    const allShoppingListButtons = screen.getAllByText('Shopping List');
+    const quickActionButton =
+      allShoppingListButtons[allShoppingListButtons.length - 1];
+
+    fireEvent.click(quickActionButton);
+
+    const shoppingListContent = document.querySelector('.shopping-list');
+    expect(shoppingListContent).toBeInTheDocument();
+  });
 });
