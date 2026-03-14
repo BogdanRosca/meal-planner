@@ -1,6 +1,6 @@
 /* Search Section */
 .recipes-search-section {
-  max-width: clamp(200px, 31%, 500px);
+  max-width: clamp(400px, 62%, 1000px);
   flex: 1;
 }
 
@@ -39,7 +39,7 @@
 
 .search-button {
   position: absolute;
-  left: 108%;
+  left: 104%;
   top: 50%;
   transform: translateY(-50%);
   background: #b7d7c0;
