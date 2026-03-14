@@ -1,0 +1,132 @@
+name: Report Test Results
+
+on:
+  workflow_run:
+    workflows: [Test FE service, Test BE service]
+    types: [completed]
+
+jobs:
+  report_results:
+    name: 📊 Report all test results
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: 📥 Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts
+
+      - name: 💬 Post consolidated test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find test output files dynamically
+            const findTestFile = (baseDir, pattern) => {
+              if (!fs.existsSync(baseDir)) return null;
+              const entries = fs.readdirSync(baseDir, { recursive: true, withFileTypes: true });
+              const file = entries.find(f => f.isFile() && f.name.match(pattern));
+              return file ? path.join(file.parentPath, file.name) : null;
+            };
+
+            // Read FE test outputs
+            const feUnitFile = findTestFile('test-artifacts/unit-test-output', /output\.txt$/);
+            const feIntegrationFile = findTestFile('test-artifacts/integration-test-output', /output\.txt$/);
+
+            // Read BE test outputs
+            const beUnitFile = findTestFile('test-artifacts/be-unit-test-output', /output\.txt$/);
+            const beIntegrationFile = findTestFile('test-artifacts/be-integration-test-output', /output\.txt$/);
+
+            const feUnitOutput = feUnitFile ? fs.readFileSync(feUnitFile, 'utf8') : '';
+            const feIntegrationOutput = feIntegrationFile ? fs.readFileSync(feIntegrationFile, 'utf8') : '';
+            const beUnitOutput = beUnitFile ? fs.readFileSync(beUnitFile, 'utf8') : '';
+            const beIntegrationOutput = beIntegrationFile ? fs.readFileSync(beIntegrationFile, 'utf8') : '';
+
+            // Parse Jest summary (FE)
+            const parseJestSummary = (output) => {
+              const lines = output.split('\n');
+              return lines.filter(line =>
+                line.includes('Test Suites:') ||
+                line.includes('Tests:') ||
+                line.includes('Snapshots:') ||
+                line.includes('Time:') ||
+                line.includes('Ran all test suites')
+              ).join('\n');
+            };
+
+            // Parse Pytest summary (BE)
+            const parsePytestSummary = (output) => {
+              const match = output.match(/=+\s+(\d+\s+(?:passed|failed|error)[^=]*)\s+=+/);
+              return match ? match[1].trim() : 'No summary found';
+            };
+
+            const feUnitSummary = parseJestSummary(feUnitOutput);
+            const feIntegrationSummary = parseJestSummary(feIntegrationOutput);
+            const beUnitSummary = parsePytestSummary(beUnitOutput);
+            const beIntegrationSummary = parsePytestSummary(beIntegrationOutput);
+
+            const body = `<!-- test-results-summary -->
+            ## Test Results Summary
+
+            ### FE Test Results
+            **Unit Tests** ✅
+            \`\`\`
+            ${feUnitSummary || 'No results available'}
+            \`\`\`
+
+            **Integration Tests** ✅
+            \`\`\`
+            ${feIntegrationSummary || 'No results available'}
+            \`\`\`
+
+            ### BE Test Results
+            **Unit Tests** ✅
+            \`\`\`
+            ${beUnitSummary || 'No results available'}
+            \`\`\`
+
+            **Integration Tests** ✅
+            \`\`\`
+            ${beIntegrationSummary || 'No results available'}
+            \`\`\``;
+
+            // Get PR number from workflow_run context
+            const prNumber = context.payload.workflow_run.pull_requests[0]?.number;
+
+            if (!prNumber) {
+              console.log('Not running on a PR, skipping comment');
+              return;
+            }
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const existingComment = comments.data.find(comment =>
+              comment.body.includes('<!-- test-results-summary -->')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: prNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
