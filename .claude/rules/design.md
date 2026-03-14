@@ -1,6 +1,6 @@
 # Frontend design rules
 
-> Purpose: enforce consistent, maintainable React patterns and a Tailwind-first styling approach.  
+> Purpose: enforce consistent, maintainable React patterns and a CSS Modules-based styling approach.
 > Scope: applies to all new/modified frontend code in this repo.
 
 ---
@@ -132,61 +132,16 @@ Do not put component styles in global CSS.
 
 ---
 
-## 2) Tailwind rules (enforced)
+## 2) Architecture & design patterns
 
-### 2.1 No bespoke CSS
-
-- Do not create or modify `.css`, `.scss`, `.sass`, `.less` for component styling.
-- If you must add CSS (rare), require explicit approval in the PR description with rationale.
-
-### 2.2 Class management
-
-- Prefer readable Tailwind class lists.
-- When class composition is non-trivial, use a helper:
-  - `clsx` or `classnames` for conditional classes
-  - `tailwind-merge` for conflict resolution (e.g., `px-2` vs `px-4`)
-- Do not build Tailwind class strings via fragile concatenation.
-
-**Example**
-
-```tsx
-import clsx from "clsx";
-
-// Category badge from RecipeCard component
-export function CategoryBadge({ category }: { category: string }) {
-  return (
-    <div
-      className={clsx(
-        "inline-flex items-center rounded-md px-3 py-1 text-xs font-medium",
-        category === "breakfast" && "bg-amber-100 text-amber-700",
-        category === "lunch" && "bg-green-100 text-green-700",
-        category === "dinner" && "bg-blue-100 text-blue-700",
-        category === "snack" && "bg-purple-100 text-purple-700",
-      )}
-    >
-      {category}
-    </div>
-  );
-}
-```
-
-### 2.3 Design tokens via Tailwind theme
-
-- Prefer Tailwind config tokens (colors, spacing, radius) over hard-coded arbitrary values.
-- Use arbitrary values (`w-[372px]`) only when unavoidable and documented in a comment.
-
----
-
-## 3) Architecture & design patterns
-
-### 3.1 Separate “UI” from “logic”
+### 2.1 Separate "UI" from "logic"
 
 - Prefer the **container/presenter** split when complexity grows:
   - Container: data fetching, state, orchestration
   - Presenter: pure UI props -> JSX
 - Keep presentational components **pure** whenever possible.
 
-### 3.2 Hooks rules
+### 2.2 Hooks rules
 
 - Custom hooks must:
   - Start with `use*`
@@ -194,14 +149,14 @@ export function CategoryBadge({ category }: { category: string }) {
   - Return stable shapes (prefer objects with named fields for extensibility)
 - Do not call hooks conditionally.
 
-### 3.3 State management
+### 2.3 State management
 
 - Prefer local state (`useState`, `useReducer`) for local UI concerns.
 - Lift state up only when needed.
 - Avoid prop drilling by introducing composition or context **only** when justified.
-- Don’t store derived state; derive it during render or via memoization.
+- Don't store derived state; derive it during render or via memoization.
 
-### 3.4 Data fetching & side effects
+### 2.4 Data fetching & side effects
 
 - Side effects live in `useEffect` (or in the data layer), never during render.
 - Abort/cancel in-flight requests when relevant.
@@ -209,28 +164,28 @@ export function CategoryBadge({ category }: { category: string }) {
 
 ---
 
-## 4) TypeScript rules
+## 3) TypeScript rules
 
-### 4.1 Types over `any`
+### 3.1 Types over `any`
 
 - No new `any`. If unavoidable, use `unknown` and narrow.
 - Prefer discriminated unions for state machines.
 
-### 4.2 Component props
+### 3.2 Component props
 
 - Export prop types when components are reused across modules.
 - Prefer explicit prop types over `React.FC`.
 
-### 4.3 Strictness
+### 3.3 Strictness
 
 - No `as SomeType` casting unless you prove correctness (narrow first).
 - Prefer runtime validation for external inputs (API, localStorage).
 
 ---
 
-## 5) Code style & quality
+## 4) Code style & quality
 
-### 5.1 Naming
+### 4.1 Naming
 
 - Components: `PascalCase`
 - Hooks: `useSomething`
@@ -240,20 +195,20 @@ export function CategoryBadge({ category }: { category: string }) {
   - Hooks: `use-something.ts`
   - Utilities: `something.ts`
 
-### 5.2 Avoid premature optimization
+### 4.2 Avoid premature optimization
 
 - Use `useMemo`/`useCallback` only when:
   - there is a measurable render/perf issue, or
   - you pass functions/objects to memoized children and it matters.
 
-### 5.3 Comments
+### 4.3 Comments
 
 - Prefer self-documenting code.
-- Comments should explain “why”, not “what”.
+- Comments should explain "why", not "what".
 
 ---
 
-## 6) Testing expectations
+## 5) Testing expectations
 
 - Add/adjust tests for:
   - critical UI flows
@@ -263,15 +218,15 @@ export function CategoryBadge({ category }: { category: string }) {
 
 ---
 
-## 7) UI component guidelines (practical)
+## 6) UI component guidelines (practical)
 
-### 7.1 Buttons and links
+### 6.1 Buttons and links
 
 - Use `<button type="button">` by default.
 - Use `<a>` only for navigation; otherwise button.
 - Disabled states must be visually and functionally correct.
 
-### 7.2 Forms
+### 6.2 Forms
 
 - Every input must have a `<label>` (or `aria-label` as fallback).
 - Show validation messages near the field.
@@ -279,18 +234,18 @@ export function CategoryBadge({ category }: { category: string }) {
 
 ---
 
-## 8) PR / change discipline
+## 7) PR / change discipline
 
 - Each PR should keep scope small.
 - No drive-by refactors unless necessary for the change.
 - If a rule must be broken, document it in PR description:
   - what rule
-  - why it’s necessary
+  - why it's necessary
   - follow-up plan (if any)
 
 ---
 
-## 9) “Do not do” list (hard constraints)
+## 8) "Do not do" list (hard constraints)
 
 - Do not add CSS-in-JS libraries.
 - Do not add new component-level CSS/SCSS files.
@@ -300,12 +255,12 @@ export function CategoryBadge({ category }: { category: string }) {
 
 ---
 
-## 10) When unsure
+## 9) When unsure
 
 Default to:
 
 - semantic HTML
-- Tailwind utility classes
+- CSS Modules
 - small composable components
 - predictable types
 - explicit loading/error UI
