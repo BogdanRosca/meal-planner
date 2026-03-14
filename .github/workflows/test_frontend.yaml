@@ -69,12 +69,20 @@ jobs:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('frontend/unit-test-output.txt', 'utf8');
+            const lines = output.split('\n');
+            const summary = lines.filter(line =>
+              line.includes('Test Suites:') ||
+              line.includes('Tests:') ||
+              line.includes('Snapshots:') ||
+              line.includes('Time:') ||
+              line.includes('Ran all test suites')
+            ).join('\n');
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Unit Test Results ✅\n\nExecution results:\n\`\`\`\n${output}\n\`\`\``
+              body: `**Unit Test Results** ✅\n\n\`\`\`\n${summary}\n\`\`\``
             })
 
   integration_tests:
@@ -151,10 +159,18 @@ jobs:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('frontend/integration-test-output.txt', 'utf8');
+            const lines = output.split('\n');
+            const summary = lines.filter(line =>
+              line.includes('Test Suites:') ||
+              line.includes('Tests:') ||
+              line.includes('Snapshots:') ||
+              line.includes('Time:') ||
+              line.includes('Ran all test suites')
+            ).join('\n');
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Integration Test Results ✅\n\nExecution results:\n\`\`\`\n${output}\n\`\`\``
+              body: `**Integration Test Results** ✅\n\n\`\`\`\n${summary}\n\`\`\``
             })
