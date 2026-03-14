@@ -41,8 +41,9 @@ Build a full-stack application that showcases **production-grade quality practic
 
 ## Documentation
 
+- **[README-ARCHITECTURE.md](./README-ARCHITECTURE.md)** – Technology stack, tools, and testing setup
 - **[CLAUDE.md](./CLAUDE.md)** – Developer guide for quick commands and workflow
-- **[.claude/rules/architecture.md](./.claude/rules/ARCHITECTURE.md)** – Current architectural patterns (Coming soon: separate architecture doc)
+- **[.claude/rules/architecture.md](./.claude/rules/ARCHITECTURE.md)** – Detailed architectural patterns and rules
 - **[.claude/ARCHITECTURE_IMPROVEMENTS.md](./.claude/ARCHITECTURE_IMPROVEMENTS.md)** – Planned improvements and tech debt
 
 ## Getting Started
