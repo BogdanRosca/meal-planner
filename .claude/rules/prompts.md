@@ -42,6 +42,6 @@ This document outlines the mandatory constraints for all system and user prompts
 > "Explain the following function. Tone: Concise technical peer. No preamble. Under 2000 tokens."
 > _Result:_ "The `handleAuth` function validates the JWT via the `/verify` endpoint and returns a 401 if the token is expired." (✅ Direct, technical, efficient).
 
-### 4. Github commoits
+### 4. Github commits
 
 - **No commits:** Do not commit the changes in my behalf. I will review the changes and commit them myself.
