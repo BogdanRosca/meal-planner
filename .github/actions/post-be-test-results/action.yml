@@ -46,13 +46,20 @@ runs:
             comment.body.includes('<!-- test-results-summary -->')
           );
 
+          // Detect test failures
+          const hasUnitFailure = beUnitOutput.includes('FAILED') || beUnitOutput.match(/failed/i);
+          const hasIntegrationFailure = beIntegrationOutput.includes('FAILED') || beIntegrationOutput.match(/failed/i);
+
+          const unitIcon = hasUnitFailure ? '❌' : '✅';
+          const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
+
           let beBody = `### BE Test Results
-          **Unit Tests** ✅
+          **Unit Tests** ${unitIcon}
           \`\`\`
           ${beUnitSummary}
           \`\`\`
 
-          **Integration Tests** ✅
+          **Integration Tests** ${integrationIcon}
           \`\`\`
           ${beIntegrationSummary}
           \`\`\``;

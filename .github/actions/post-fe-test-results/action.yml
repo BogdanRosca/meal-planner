@@ -52,13 +52,20 @@ runs:
             comment.body.includes('<!-- test-results-summary -->')
           );
 
+          // Detect test failures
+          const hasUnitFailure = feUnitOutput.includes('FAIL') || feUnitOutput.match(/failed/i);
+          const hasIntegrationFailure = feIntegrationOutput.includes('FAIL') || feIntegrationOutput.match(/failed/i);
+
+          const unitIcon = hasUnitFailure ? '❌' : '✅';
+          const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
+
           let feBody = `### FE Test Results
-          **Unit Tests** ✅
+          **Unit Tests** ${unitIcon}
           \`\`\`
           ${feUnitSummary}
           \`\`\`
 
-          **Integration Tests** ✅
+          **Integration Tests** ${integrationIcon}
           \`\`\`
           ${feIntegrationSummary}
           \`\`\``;
