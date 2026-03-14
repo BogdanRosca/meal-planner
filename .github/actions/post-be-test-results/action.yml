@@ -88,7 +88,7 @@ runs:
             ## Test Results Summary
 
             ### FE Test Results
-            _Waiting for frontend tests to complete..._
+            _Frontend tests were not executed or still running..._
 
             ${beBody}`;
 

@@ -96,7 +96,7 @@ runs:
             ${feBody}
 
             ### BE Test Results
-            _Waiting for backend tests to complete..._`;
+            _Backend tests were not executed or still running..._`;
 
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
