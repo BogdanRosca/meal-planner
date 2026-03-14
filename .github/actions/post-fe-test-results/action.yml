@@ -52,9 +52,9 @@ runs:
             comment.body.includes('<!-- test-results-summary -->')
           );
 
-          // Detect test failures
-          const hasUnitFailure = unitOutput.includes('FAIL') || unitOutput.match(/failed/i);
-          const hasIntegrationFailure = integrationOutput.includes('FAIL') || integrationOutput.match(/failed/i);
+          // Detect test failures by looking for "failed" in the summary line
+          const hasUnitFailure = unitOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
+          const hasIntegrationFailure = integrationOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
 
           const unitIcon = hasUnitFailure ? '❌' : '✅';
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
