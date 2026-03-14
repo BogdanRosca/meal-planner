@@ -63,7 +63,7 @@ jobs:
           CI: true
 
       - name: 📤 Upload unit test output
-        if: always()
+        if: !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-output
@@ -137,7 +137,7 @@ jobs:
           fi
 
       - name: 📤 Upload integration test output
-        if: always()
+        if: !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: integration-test-output

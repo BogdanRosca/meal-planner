@@ -59,7 +59,7 @@ jobs:
           pytest tests/unit  -v 2>&1 | tee unit-test-output.txt
 
       - name: 📤 Upload unit test output
-        if: always()
+        if: !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: be-unit-test-output
@@ -125,7 +125,7 @@ jobs:
           pytest tests/integration -v 2>&1 | tee integration-test-output.txt
 
       - name: 📤 Upload integration test output
-        if: always()
+        if: !cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: be-integration-test-output
