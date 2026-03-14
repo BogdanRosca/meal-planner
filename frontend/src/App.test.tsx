@@ -3,9 +3,19 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 import { mealPlanService } from './services/mealPlanService';
 import { recipeService } from './services/recipeService';
+import * as useRecipesModule from './hooks/useRecipes';
+
+const mockRecipes = [
+  { id: 1, name: 'Pancakes', category: 'breakfast' },
+  { id: 2, name: 'Waffles', category: 'breakfast' },
+  { id: 3, name: 'Chips', category: 'snack' },
+  { id: 4, name: 'Salad', category: 'lunch' },
+  { id: 5, name: 'Steak', category: 'dinner' },
+];
 
 jest.mock('./services/mealPlanService');
 jest.mock('./services/recipeService');
+jest.mock('./hooks/useRecipes');
 
 // Mock console.log to avoid noise in tests
 const originalConsoleLog = console.log;
@@ -22,6 +32,14 @@ describe('App Component', () => {
     jest.clearAllMocks();
     (mealPlanService.getMealPlan as jest.Mock).mockResolvedValue([]);
     (recipeService.getAllRecipes as jest.Mock).mockResolvedValue([]);
+    (useRecipesModule.useRecipes as jest.Mock).mockReturnValue({
+      recipes: mockRecipes,
+      loading: false,
+      error: null,
+      addRecipe: jest.fn(),
+      updateRecipe: jest.fn(),
+      deleteRecipe: jest.fn(),
+    });
   });
 
   it('renders without crashing', () => {
@@ -42,9 +60,8 @@ describe('App Component', () => {
     // Check main content area is rendered
     expect(screen.getByRole('main')).toBeInTheDocument();
 
-    // Check Home component is rendered (it should contain categories and recent recipes)
+    // Check QuickActions contains Categories
     expect(screen.getByText('Categories')).toBeInTheDocument();
-    expect(screen.getByText('Recent Recipes')).toBeInTheDocument();
   });
 
   it('displays default section as "Meal Planner"', () => {
@@ -60,8 +77,9 @@ describe('App Component', () => {
     const recipesNavButton = screen.getByText('Recipes');
     fireEvent.click(recipesNavButton);
 
-    // Verify recipes page is rendered (shows loading message or content)
-    expect(screen.getByText(/Loading recipes.../i)).toBeInTheDocument();
+    // Verify recipes page is rendered
+    const recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
     expect(recipesNavButton.closest('button')).toHaveClass('active');
   });
 
@@ -137,25 +155,24 @@ describe('App Component', () => {
     expect(quickActions).not.toHaveClass('mobile-open');
   });
 
-  it('handles recipe clicks and closes mobile menu', () => {
-    const { container } = render(<App />);
+  it('navigates to recipes when category is clicked', () => {
+    render(<App />);
 
-    // Open mobile menu first
-    const mobileMenuButton = container.querySelector('.mobile-menu-btn');
-    fireEvent.click(mobileMenuButton!);
+    // Get initial section (should be Meal Planner)
+    const mealPlannerNav = screen.getByText('Meal Planner');
+    expect(mealPlannerNav.closest('button')).toHaveClass('active');
 
-    const quickActions = screen.getByRole('complementary');
-    expect(quickActions).toHaveClass('mobile-open');
+    // Click a category to navigate to Recipes
+    const categorySection = screen
+      .getByText('Categories')
+      .closest('.categories-section');
+    const categoryButton = categorySection?.querySelector('.category-item');
+    expect(categoryButton).toBeTruthy();
+    fireEvent.click(categoryButton!);
 
-    // Find and click a recent recipe
-    const recentRecipeButton = screen
-      .getAllByText('Açaí bowl')[0]
-      .closest('button');
-    expect(recentRecipeButton).toBeTruthy();
-    fireEvent.click(recentRecipeButton!);
-
-    // Should close mobile menu
-    expect(quickActions).not.toHaveClass('mobile-open');
+    // Should navigate to Recipes page
+    const recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
   });
 
   it('passes correct props to child components', () => {
@@ -202,17 +219,19 @@ describe('App Component', () => {
     const recipesNavButton = screen.getByText('Recipes');
     fireEvent.click(recipesNavButton);
 
-    // Wait for recipes page to render - should see loading or search input
-    const loadingOrSearch = screen.queryByText(/Loading recipes.../i);
-    expect(loadingOrSearch).toBeInTheDocument();
+    // Verify recipes page is rendered
+    const recipesContent = document.querySelector('.recipes-content');
+    expect(recipesContent).toBeInTheDocument();
+    expect(recipesNavButton.closest('button')).toHaveClass('active');
 
-    // Click Analytics nav
-    const analyticsNavButton = screen.getByText('Analytics');
-    fireEvent.click(analyticsNavButton);
-    // Verify navigation state changed (the active class should be on Analytics now)
-    expect(analyticsNavButton.closest('button')).toHaveClass('active');
+    // Click Shopping List nav
+    const shoppingListNavButtons = screen.getAllByText('Shopping List');
+    const shoppingListNavButton = shoppingListNavButtons[0];
+    fireEvent.click(shoppingListNavButton);
+    // Verify navigation state changed
+    expect(shoppingListNavButton.closest('button')).toHaveClass('active');
 
-    // Go back to Home (Meal Planner) and verify search works
+    // Go back to Meal Planner and verify it's active
     const mealPlannerNav = screen.getByText('Meal Planner');
     fireEvent.click(mealPlannerNav);
     expect(mealPlannerNav.closest('button')).toHaveClass('active');

@@ -1,12 +1,36 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Categories from './Categories';
+import * as useRecipesModule from '../../hooks/useRecipes';
+
+const mockRecipes = [
+  { id: 1, name: 'Pancakes', category: 'breakfast' },
+  { id: 2, name: 'Waffles', category: 'breakfast' },
+  { id: 3, name: 'French Toast', category: 'breakfast' },
+  { id: 4, name: 'Eggs', category: 'breakfast' },
+  { id: 5, name: 'Cereal', category: 'breakfast' },
+  { id: 6, name: 'Toast', category: 'breakfast' },
+  { id: 7, name: 'Chips', category: 'snack' },
+  { id: 8, name: 'Popcorn', category: 'snack' },
+  { id: 9, name: 'Salad', category: 'lunch' },
+  { id: 10, name: 'Steak', category: 'dinner' },
+];
+
+jest.mock('../../hooks/useRecipes');
 
 describe('Categories Component', () => {
   const mockOnCategoryClick = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useRecipesModule.useRecipes as jest.Mock).mockReturnValue({
+      recipes: mockRecipes,
+      loading: false,
+      error: null,
+      addRecipe: jest.fn(),
+      updateRecipe: jest.fn(),
+      deleteRecipe: jest.fn(),
+    });
   });
 
   it('renders the Categories component with title', () => {
@@ -189,5 +213,85 @@ describe('Categories Component', () => {
 
     expect(lunchCount?.textContent).toBe('1');
     expect(dinnerCount?.textContent).toBe('1');
+  });
+
+  it('highlights active category when selectedCategory prop is provided', () => {
+    render(
+      <Categories
+        selectedCategory="Breakfast"
+        onCategoryClick={mockOnCategoryClick}
+      />
+    );
+
+    const breakfastButton = screen
+      .getByText('Breakfast')
+      .closest('button') as HTMLElement;
+    expect(breakfastButton).toHaveClass('active');
+
+    // Other categories should not have active class
+    const snackButton = screen
+      .getByText('Snack')
+      .closest('button') as HTMLElement;
+    expect(snackButton).not.toHaveClass('active');
+  });
+
+  it('toggles category on/off when clicked', () => {
+    const { rerender } = render(
+      <Categories
+        selectedCategory="All Categories"
+        onCategoryClick={mockOnCategoryClick}
+      />
+    );
+
+    const breakfastButton = screen.getByText('Breakfast').closest('button');
+
+    // First click - should select Breakfast
+    fireEvent.click(breakfastButton!);
+    expect(mockOnCategoryClick).toHaveBeenCalledWith('Breakfast');
+    expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
+
+    // Simulate selecting Breakfast category
+    mockOnCategoryClick.mockClear();
+    rerender(
+      <Categories
+        selectedCategory="Breakfast"
+        onCategoryClick={mockOnCategoryClick}
+      />
+    );
+
+    // Second click - should deselect and show 'All Categories'
+    fireEvent.click(breakfastButton!);
+    expect(mockOnCategoryClick).toHaveBeenCalledWith('All Categories');
+    expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies active styling correctly with CSS class and styles', () => {
+    render(
+      <Categories
+        selectedCategory="Lunch"
+        onCategoryClick={mockOnCategoryClick}
+      />
+    );
+
+    const lunchButton = screen
+      .getByText('Lunch')
+      .closest('button') as HTMLElement;
+    expect(lunchButton).toHaveClass('active');
+
+    // Verify the color property is set
+    expect(lunchButton.style.getPropertyValue('--category-color')).toBe(
+      '#3e6259'
+    );
+  });
+
+  it('shows default selectedCategory when not provided', () => {
+    render(<Categories onCategoryClick={mockOnCategoryClick} />);
+
+    // No category should be active by default
+    const categoryButtons = screen.getAllByRole('button');
+    const activeButtons = categoryButtons.filter(btn =>
+      btn.className.includes('active')
+    );
+    expect(activeButtons).toHaveLength(0);
   });
 });
