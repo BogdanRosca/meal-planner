@@ -53,8 +53,8 @@ runs:
           );
 
           // Detect test failures
-          const hasUnitFailure = feUnitOutput.includes('FAIL') || feUnitOutput.match(/failed/i);
-          const hasIntegrationFailure = feIntegrationOutput.includes('FAIL') || feIntegrationOutput.match(/failed/i);
+          const hasUnitFailure = unitOutput.includes('FAIL') || unitOutput.match(/failed/i);
+          const hasIntegrationFailure = integrationOutput.includes('FAIL') || integrationOutput.match(/failed/i);
 
           const unitIcon = hasUnitFailure ? '❌' : '✅';
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
