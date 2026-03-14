@@ -1,4 +1,5 @@
 import React from 'react';
+import { Maximize2 } from 'lucide-react';
 import { MealPlanEntry } from '../../types/recipe';
 import styles from './CalendarGrid.module.css';
 
@@ -104,6 +105,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
                         }}
                         aria-label={`View ${entry.recipe_name} details`}
                       >
+                        <Maximize2 className={styles['cell-recipe-icon']} />
                         {entry.recipe_name}
                       </button>
                       <button
