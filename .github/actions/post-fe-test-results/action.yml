@@ -1,0 +1,107 @@
+name: Post FE Test Results
+description: Post frontend test results to PR comment
+
+runs:
+  using: composite
+  steps:
+    - name: 💬 Post FE results to shared comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          // Find test output files dynamically
+          const findTestFile = (dir) => {
+            if (!fs.existsSync(dir)) return null;
+            const entries = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
+            const file = entries.find(f => f.isFile() && f.name.endsWith('output.txt'));
+            return file ? path.join(file.parentPath, file.name) : null;
+          };
+
+          // Read FE test outputs
+          const unitFile = findTestFile('unit-test-output');
+          const integrationFile = findTestFile('integration-test-output');
+
+          const unitOutput = unitFile ? fs.readFileSync(unitFile, 'utf8') : '';
+          const integrationOutput = integrationFile ? fs.readFileSync(integrationFile, 'utf8') : '';
+
+          // Parse Jest summary
+          const parseSummary = (output) => {
+            const lines = output.split('\n');
+            return lines.filter(line =>
+              line.includes('Test Suites:') ||
+              line.includes('Tests:') ||
+              line.includes('Snapshots:') ||
+              line.includes('Time:') ||
+              line.includes('Ran all test suites')
+            ).join('\n') || 'No results available';
+          };
+
+          const feUnitSummary = parseSummary(unitOutput);
+          const feIntegrationSummary = parseSummary(integrationOutput);
+
+          // Find existing comment or create placeholder
+          const comments = await github.rest.issues.listComments({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          });
+
+          const existingComment = comments.data.find(comment =>
+            comment.body.includes('<!-- test-results-summary -->')
+          );
+
+          // Detect test failures
+          const hasUnitFailure = unitOutput.includes('FAIL') || unitOutput.match(/failed/i);
+          const hasIntegrationFailure = integrationOutput.includes('FAIL') || integrationOutput.match(/failed/i);
+
+          const unitIcon = hasUnitFailure ? '❌' : '✅';
+          const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
+
+          let feBody = `### FE Test Results
+          **Unit Tests** ${unitIcon}
+          \`\`\`
+          ${feUnitSummary}
+          \`\`\`
+
+          **Integration Tests** ${integrationIcon}
+          \`\`\`
+          ${feIntegrationSummary}
+          \`\`\``;
+
+          if (existingComment) {
+            // Extract BE results if they exist in the comment
+            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### FE|$)/);
+            const beSection = beMatch ? beMatch[1].trim() : '';
+
+            const body = `<!-- test-results-summary -->
+            ## Test Results Summary
+
+            ${feBody}
+
+            ${beSection}`;
+
+            await github.rest.issues.updateComment({
+              comment_id: existingComment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          } else {
+            // Create new comment with placeholder for BE results
+            const body = `<!-- test-results-summary -->
+            ## Test Results Summary
+
+            ${feBody}
+
+            ### BE Test Results
+            _Waiting for backend tests to complete..._`;
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          }
