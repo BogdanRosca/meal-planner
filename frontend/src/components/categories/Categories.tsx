@@ -3,6 +3,7 @@ import styles from './Categories.module.css';
 import { useRecipes } from '../../hooks/useRecipes';
 
 interface CategoriesProps {
+  selectedCategory?: string;
   onCategoryClick?: (_category: string) => void;
 }
 
@@ -13,8 +14,19 @@ const CATEGORY_ICONS: Record<string, { icon: string; color: string }> = {
   Dinner: { icon: '🌙', color: '#212922' },
 };
 
-const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
+const Categories: React.FC<CategoriesProps> = ({
+  selectedCategory = 'All Categories',
+  onCategoryClick,
+}) => {
   const { recipes, loading } = useRecipes();
+
+  const handleCategorySelect = (categoryName: string) => {
+    if (selectedCategory === categoryName) {
+      onCategoryClick?.('All Categories');
+    } else {
+      onCategoryClick?.(categoryName);
+    }
+  };
 
   const categories = useMemo(() => {
     const categoryCounts: Record<string, number> = {};
@@ -57,22 +69,29 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
       </div>
       <div className={styles['categories-list']}>
         {categories.length > 0 ? (
-          categories.map(category => (
-            <button
-              key={category.id}
-              className={styles['category-item']}
-              onClick={() => onCategoryClick?.(category.name)}
-              style={
-                { '--category-color': category.color } as React.CSSProperties
-              }
-            >
-              <div className={styles['category-content']}>
-                <div className={styles['category-icon']}>{category.icon}</div>
-                <span className={styles['category-name']}>{category.name}</span>
-              </div>
-              <div className={styles['category-count']}>{category.count}</div>
-            </button>
-          ))
+          categories.map(category => {
+            const isActive = selectedCategory === category.name;
+            return (
+              <button
+                key={category.id}
+                className={`${styles['category-item']} ${
+                  isActive ? styles['active'] : ''
+                }`}
+                onClick={() => handleCategorySelect(category.name)}
+                style={
+                  { '--category-color': category.color } as React.CSSProperties
+                }
+              >
+                <div className={styles['category-content']}>
+                  <div className={styles['category-icon']}>{category.icon}</div>
+                  <span className={styles['category-name']}>
+                    {category.name}
+                  </span>
+                </div>
+                <div className={styles['category-count']}>{category.count}</div>
+              </button>
+            );
+          })
         ) : (
           <p>No recipes yet</p>
         )}

@@ -26,7 +26,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
       recipe.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       selectedCategory === 'All Categories' ||
-      recipe.category === selectedCategory;
+      recipe.category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 

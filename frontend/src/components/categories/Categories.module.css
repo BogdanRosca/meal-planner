@@ -64,6 +64,22 @@
   opacity: 1;
 }
 
+/* Active State */
+.category-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--category-color);
+  box-shadow: 0 4px 12px rgba(91, 130, 102, 0.25);
+}
+
+.category-item.active::before {
+  opacity: 1;
+}
+
+.category-item.active .category-count {
+  background: var(--category-color);
+  box-shadow: 0 2px 8px rgba(91, 130, 102, 0.4);
+}
+
 .category-content {
   display: flex;
   align-items: center;

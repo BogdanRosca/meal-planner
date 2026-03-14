@@ -5,12 +5,14 @@ import Categories from '../categories/Categories';
 interface QuickActionsProps {
   onActionClick?: (_action: string) => void;
   onCategoryClick?: (_category: string) => void;
+  selectedCategory?: string;
   isMobileOpen?: boolean;
 }
 
 const QuickActions: React.FC<QuickActionsProps> = ({
   onActionClick,
   onCategoryClick: _onCategoryClick,
+  selectedCategory = 'All Categories',
   isMobileOpen = false,
 }) => {
   const actions = [
@@ -68,7 +70,10 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       </div>
 
       {/* Categories Section */}
-      <Categories onCategoryClick={_onCategoryClick} />
+      <Categories
+        selectedCategory={selectedCategory}
+        onCategoryClick={_onCategoryClick}
+      />
     </aside>
   );
 };

@@ -10,6 +10,8 @@ import ShoppingList from './pages/shopping-list/ShoppingList';
 function App() {
   const [currentSection, setCurrentSection] = useState('Meal Planner');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>('All Categories');
 
   const handleNavigation = (section: string) => {
     setCurrentSection(section);
@@ -30,7 +32,8 @@ function App() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleCategoryClick = (_category: string) => {
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
     setCurrentSection('Recipes');
     setIsMobileMenuOpen(false);
   };
@@ -45,11 +48,12 @@ function App() {
       <QuickActions
         onActionClick={handleQuickAction}
         onCategoryClick={handleCategoryClick}
+        selectedCategory={selectedCategory}
         isMobileOpen={isMobileMenuOpen}
       />
       <main className={styles['App-main']}>
         {currentSection === 'Recipes' ? (
-          <Recipes />
+          <Recipes selectedCategory={selectedCategory} />
         ) : currentSection === 'Meal Planner' ? (
           <MealPlanner />
         ) : currentSection === 'Shopping List' ? (
