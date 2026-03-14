@@ -1,14 +1,6 @@
 name: Post BE Test Results
 description: Post backend test results to PR comment
 
-inputs:
-  unit_tests_result:
-    description: Result of unit_tests job
-    required: true
-  integration_tests_result:
-    description: Result of integration_tests job
-    required: true
-
 runs:
   using: composite
   steps:
@@ -106,13 +98,4 @@ runs:
               repo: context.repo.repo,
               body: body
             });
-          }
-
-          // Check job results from inputs
-          const unitJobFailed = '${{ inputs.unit_tests_result }}' === 'failure';
-          const integrationJobFailed = '${{ inputs.integration_tests_result }}' === 'failure';
-
-          // Fail the job if upstream test jobs failed
-          if (unitJobFailed || integrationJobFailed) {
-            core.setFailed('BE Tests failed - see PR comment for details');
           }

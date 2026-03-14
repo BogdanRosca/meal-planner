@@ -147,6 +147,3 @@ jobs:
 
       - name: 📤 Post BE test results
         uses: ./.github/actions/post-be-test-results
-        with:
-          unit_tests_result: ${{ needs.unit_tests.result }}
-          integration_tests_result: ${{ needs.integration_tests.result }}
