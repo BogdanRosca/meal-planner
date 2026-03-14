@@ -209,7 +209,9 @@ describe('RecipeSelectorModal', () => {
     expect(screen.getByText('Oatmeal')).toBeInTheDocument();
     // Check that placeholder text is rendered for Oatmeal (no foto_url)
     const items = screen.getAllByRole('button');
-    const oatmealButton = items.find(btn => btn.textContent.includes('Oatmeal'));
+    const oatmealButton = items.find(
+      btn => btn.textContent?.includes('Oatmeal')
+    );
     expect(oatmealButton).toBeInTheDocument();
   });
 
