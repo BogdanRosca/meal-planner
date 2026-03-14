@@ -16,7 +16,12 @@ function App() {
   };
 
   const handleQuickAction = (action: string) => {
-    const target = action === 'Plan Meals' ? 'Meal Planner' : action;
+    let target = action;
+    if (action === 'Plan Meals') {
+      target = 'Meal Planner';
+    } else if (action === 'Add Recipe') {
+      target = 'Recipes';
+    }
     setCurrentSection(target);
     setIsMobileMenuOpen(false);
   };
@@ -25,13 +30,8 @@ function App() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleCategoryClick = (category: string) => {
-    setCurrentSection(category);
-    setIsMobileMenuOpen(false); // Close mobile menu when category is selected
-  };
-
-  const handleRecipeClick = (recipe: { name: string }) => {
-    setCurrentSection(`Recipe: ${recipe.name}`);
+  const handleCategoryClick = (_category: string) => {
+    setCurrentSection('Recipes');
     setIsMobileMenuOpen(false);
   };
 
@@ -45,7 +45,6 @@ function App() {
       <QuickActions
         onActionClick={handleQuickAction}
         onCategoryClick={handleCategoryClick}
-        onRecipeClick={handleRecipeClick}
         isMobileOpen={isMobileMenuOpen}
       />
       <main className={styles['App-main']}>

@@ -1,49 +1,54 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styles from './Categories.module.css';
-
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  count: number;
-  color: string;
-}
+import { useRecipes } from '../../hooks/useRecipes';
 
 interface CategoriesProps {
   onCategoryClick?: (_category: string) => void;
 }
 
+const CATEGORY_ICONS: Record<string, { icon: string; color: string }> = {
+  Breakfast: { icon: '☕️', color: '#5b8266' },
+  Snack: { icon: '🍎', color: '#294936' },
+  Lunch: { icon: '☀️', color: '#3e6259' },
+  Dinner: { icon: '🌙', color: '#212922' },
+};
+
 const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
-  const categories: Category[] = [
-    {
-      id: 'breakfast',
-      name: 'Breakfast',
-      icon: '☕️',
-      count: 6,
-      color: '#5b8266', // Viridian
-    },
-    {
-      id: 'snack',
-      name: 'Snack',
-      icon: '🍎',
-      count: 2,
-      color: '#294936', // Brunswick green
-    },
-    {
-      id: 'lunch',
-      name: 'Lunch',
-      icon: '☀️',
-      count: 1,
-      color: '#3e6259', // Feldgrau
-    },
-    {
-      id: 'dinner',
-      name: 'Dinner',
-      icon: '🌙',
-      count: 1,
-      color: '#212922', // Black olive
-    },
-  ];
+  const { recipes, loading } = useRecipes();
+
+  const categories = useMemo(() => {
+    const categoryCounts: Record<string, number> = {};
+
+    recipes.forEach(recipe => {
+      const category = recipe.category;
+      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    });
+
+    return Object.entries(categoryCounts).map(([name, count]) => {
+      const normalizedName =
+        name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+      return {
+        id: name.toLowerCase(),
+        name: normalizedName,
+        icon: CATEGORY_ICONS[normalizedName]?.icon || '🍽️',
+        count,
+        color: CATEGORY_ICONS[normalizedName]?.color || '#666',
+      };
+    });
+  }, [recipes]);
+
+  if (loading) {
+    return (
+      <div className={styles['categories-section']}>
+        <div className={styles['categories-header']}>
+          <h3>Categories</h3>
+        </div>
+        <div className={styles['categories-list']}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles['categories-section']}>
@@ -51,22 +56,26 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
         <h3>Categories</h3>
       </div>
       <div className={styles['categories-list']}>
-        {categories.map(category => (
-          <button
-            key={category.id}
-            className={styles['category-item']}
-            onClick={() => onCategoryClick?.(category.name)}
-            style={
-              { '--category-color': category.color } as React.CSSProperties
-            }
-          >
-            <div className={styles['category-content']}>
-              <div className={styles['category-icon']}>{category.icon}</div>
-              <span className={styles['category-name']}>{category.name}</span>
-            </div>
-            <div className={styles['category-count']}>{category.count}</div>
-          </button>
-        ))}
+        {categories.length > 0 ? (
+          categories.map(category => (
+            <button
+              key={category.id}
+              className={styles['category-item']}
+              onClick={() => onCategoryClick?.(category.name)}
+              style={
+                { '--category-color': category.color } as React.CSSProperties
+              }
+            >
+              <div className={styles['category-content']}>
+                <div className={styles['category-icon']}>{category.icon}</div>
+                <span className={styles['category-name']}>{category.name}</span>
+              </div>
+              <div className={styles['category-count']}>{category.count}</div>
+            </button>
+          ))
+        ) : (
+          <p>No recipes yet</p>
+        )}
       </div>
     </div>
   );
