@@ -36,6 +36,8 @@ jobs:
   unit_tests:
     name: 🧪 Run unit tests
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     defaults:
       run:
@@ -56,13 +58,30 @@ jobs:
         run: npm ci
 
       - name: 🧪 Run unit tests
-        run: npm test -- --coverage --watchAll=false --testTimeout=10000
+        run: npm test -- --coverage --watchAll=false --testTimeout=10000 2>&1 | tee unit-test-output.txt
         env:
           CI: true
+
+      - name: 💬 Post unit test results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('frontend/unit-test-output.txt', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Unit Test Results ✅\n\nExecution results:\n\`\`\`\n${output}\n\`\`\``
+            })
 
   integration_tests:
     name: ⚙️ Run integration tests
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     defaults:
       run:
@@ -112,7 +131,7 @@ jobs:
         run: |
           # Run tests that might need the app running
           # For now, we'll run all tests again as integration tests
-          npm test -- --watchAll=false --testTimeout=10000
+          npm test -- --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
         env:
           CI: true
           REACT_APP_API_URL: http://localhost:3000
@@ -124,3 +143,18 @@ jobs:
             kill $(cat app.pid) || true
             rm app.pid
           fi
+
+      - name: 💬 Post integration test results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('frontend/integration-test-output.txt', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Integration Test Results ✅\n\nExecution results:\n\`\`\`\n${output}\n\`\`\``
+            })
