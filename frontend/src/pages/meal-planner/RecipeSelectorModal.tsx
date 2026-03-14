@@ -10,13 +10,6 @@ interface RecipeSelectorModalProps {
   onClose: () => void;
 }
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  breakfast: '🍳',
-  lunch: '🥗',
-  dinner: '🍽️',
-  snack: '🍿',
-};
-
 const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
   isOpen,
   recipes,
@@ -59,9 +52,15 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
                 className={styles['selector-item']}
                 onClick={() => onSelect(recipe)}
               >
-                <span className={styles['selector-item-emoji']}>
-                  {CATEGORY_EMOJI[recipe.category.toLowerCase()] || '🍴'}
-                </span>
+                {recipe.foto_url ? (
+                  <img
+                    src={recipe.foto_url}
+                    alt={recipe.name}
+                    className={styles['selector-item-image']}
+                  />
+                ) : (
+                  <div className={styles['selector-item-placeholder']}>🍴</div>
+                )}
                 <div className={styles['selector-item-info']}>
                   <span className={styles['selector-item-name']}>
                     {recipe.name}

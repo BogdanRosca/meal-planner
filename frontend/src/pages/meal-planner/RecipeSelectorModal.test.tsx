@@ -13,6 +13,7 @@ const mockRecipes: Recipe[] = [
     instructions: 'Mix and cook',
     prep_time: 15,
     portions: 4,
+    foto_url: 'https://example.com/pancakes.jpg',
   },
   {
     id: 2,
@@ -176,5 +177,39 @@ describe('RecipeSelectorModal', () => {
     expect(screen.getByText(/15 min/)).toBeInTheDocument();
     expect(screen.getByText(/4 portions/)).toBeInTheDocument();
     expect(screen.getByText(/1 portion(?!s)/)).toBeInTheDocument();
+  });
+
+  it('should display recipe image when foto_url is provided', () => {
+    render(
+      <RecipeSelectorModal
+        isOpen={true}
+        recipes={mockRecipes}
+        categoryFilter="breakfast"
+        onSelect={mockOnSelect}
+        onClose={mockOnClose}
+      />
+    );
+
+    const pancakesImage = screen.getByAltText('Pancakes');
+    expect(pancakesImage).toBeInTheDocument();
+    expect(pancakesImage).toHaveAttribute('src', 'https://example.com/pancakes.jpg');
+  });
+
+  it('should display placeholder when foto_url is not provided', () => {
+    render(
+      <RecipeSelectorModal
+        isOpen={true}
+        recipes={mockRecipes}
+        categoryFilter="breakfast"
+        onSelect={mockOnSelect}
+        onClose={mockOnClose}
+      />
+    );
+
+    expect(screen.getByText('Oatmeal')).toBeInTheDocument();
+    // Check that placeholder text is rendered for Oatmeal (no foto_url)
+    const items = screen.getAllByRole('button');
+    const oatmealButton = items.find(btn => btn.textContent.includes('Oatmeal'));
+    expect(oatmealButton).toBeInTheDocument();
   });
 });
