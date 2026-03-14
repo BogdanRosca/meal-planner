@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/test_backend.yaml'
 
 jobs:
   lint:
