@@ -192,7 +192,10 @@ describe('RecipeSelectorModal', () => {
 
     const pancakesImage = screen.getByAltText('Pancakes');
     expect(pancakesImage).toBeInTheDocument();
-    expect(pancakesImage).toHaveAttribute('src', 'https://example.com/pancakes.jpg');
+    expect(pancakesImage).toHaveAttribute(
+      'src',
+      'https://example.com/pancakes.jpg'
+    );
   });
 
   it('should display placeholder when foto_url is not provided', () => {
@@ -209,8 +212,8 @@ describe('RecipeSelectorModal', () => {
     expect(screen.getByText('Oatmeal')).toBeInTheDocument();
     // Check that placeholder text is rendered for Oatmeal (no foto_url)
     const items = screen.getAllByRole('button');
-    const oatmealButton = items.find(
-      btn => btn.textContent?.includes('Oatmeal')
+    const oatmealButton = items.find(btn =>
+      btn.textContent?.includes('Oatmeal')
     );
     expect(oatmealButton).toBeInTheDocument();
   });
