@@ -1,5 +1,7 @@
 # Architecture
 
+![Architecture Diagram](Gemini_Generated_architecture.png)
+
 ## Overview
 
 Meal Planner is a two-tier web application:
