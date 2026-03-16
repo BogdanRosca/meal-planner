@@ -1,0 +1,45 @@
+name: ↪️ Mergeable
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check_changes:
+    name: 📍 Check file changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.check.outputs.backend }}
+      frontend: ${{ steps.check.outputs.frontend }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: check
+        run: |
+          if git diff origin/main HEAD --quiet -- backend/ .github/workflows/_test_backend.yaml; then
+            echo "backend=false" >> $GITHUB_OUTPUT
+          else
+            echo "backend=true" >> $GITHUB_OUTPUT
+          fi
+          if git diff origin/main HEAD --quiet -- frontend/ .github/workflows/_test_frontend.yaml; then
+            echo "frontend=false" >> $GITHUB_OUTPUT
+          else
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          fi
+
+  test_backend:
+    name: 🧪 Run unit tests
+    needs: check_changes
+    if: needs.check_changes.outputs.backend == 'true'
+    uses: ./.github/workflows/_test_backend.yaml
+    secrets: inherit
+
+  test_frontend:
+    name: ⚙️ Run integration tests
+    needs: check_changes
+    if: needs.check_changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/_test_frontend.yaml
+    secrets: inherit
