@@ -8,6 +8,9 @@
       "Bash(npx eslint:*)",
       "Bash(npm test:*)",
       "Bash(git add:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(echo:*)",
       "Bash(source:*)"
     ],
     "deny": ["Read(**/.env*)"]
