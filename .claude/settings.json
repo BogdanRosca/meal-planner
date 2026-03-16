@@ -35,6 +35,28 @@
             "statusMessage": "Formatting frontend code"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ./backend && flake8 2>/dev/null || true",
+            "async": true,
+            "statusMessage": "Linting backend code"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ./backend && flake8 2>/dev/null || true",
+            "async": true,
+            "statusMessage": "Linting backend code"
+          }
+        ]
       }
     ]
   }
