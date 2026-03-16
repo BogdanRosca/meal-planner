@@ -38,14 +38,14 @@ jobs:
           fi
 
   test_backend:
-    name: 🧪 Run unit tests
+    name: ⚙️ Run BE tests
     needs: check_changes
     if: needs.check_changes.outputs.backend == 'true'
     uses: ./.github/workflows/_test_backend.yaml
     secrets: inherit
 
   test_frontend:
-    name: ⚙️ Run integration tests
+    name: 🖥️ Run FE tests
     needs: check_changes
     if: needs.check_changes.outputs.frontend == 'true'
     uses: ./.github/workflows/_test_frontend.yaml
