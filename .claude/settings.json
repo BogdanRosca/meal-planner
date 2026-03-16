@@ -11,5 +11,31 @@
       "Bash(source:*)"
     ],
     "deny": ["Read(**/.env*)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ./frontend && npm run format 2>/dev/null || true",
+            "async": true,
+            "statusMessage": "Formatting frontend code"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ./frontend && npm run format 2>/dev/null || true",
+            "async": true,
+            "statusMessage": "Formatting frontend code"
+          }
+        ]
+      }
+    ]
   }
 }
