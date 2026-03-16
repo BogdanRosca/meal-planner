@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Bash(find:*)",
+      "Bash(npm run:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm test:*)",
+      "Bash(git add:*)",
+      "Bash(source:*)"
+    ],
+    "deny": ["Read(**/.env*)"]
+  }
+}
