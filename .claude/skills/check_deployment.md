@@ -6,14 +6,23 @@ description: This skill will perform all checks that would run at CI level in a 
 
 # Can I Deploy? Pre-deployment Validation Guide
 
-Verify all quality standards are met before pushing to production.
+These checks mirror the GitHub Actions workflows:
+
+- `.github/workflows/test_frontend.yaml` - Frontend checks
+- `.github/workflows/test_backend.yaml` - Backend checks
+
+Run locally to catch issues before pushing to GitHub!
 
 ## When to Use
 
-- Use this skill when prompted `/can-i-deploy`
-- Run these checks before creating a pull request or deployment
+- Use this skill when prompted `can I deploy ?`
 
 ## Instructions
+
+- Run these checks, making use of subagents as needed. For example Backend and Frontend checks can be run in parallel.
+- At the end, if all checks are passing, generate a "ready-to-paste" Github PR summary following `.github/pull_request_template.md`.
+
+## Steps:
 
 ### 1. Backend Validation
 
@@ -184,16 +193,3 @@ npm run format:check
 - Clear cache: `rm -rf node_modules && npm ci && npm run build`
 
 ---
-
-## CI/CD Integration
-
-These checks mirror the GitHub Actions workflows:
-
-- `.github/workflows/test_frontend.yaml` - Frontend checks
-- `.github/workflows/test_backend.yaml` - Backend checks
-
-Run locally to catch issues before pushing to GitHub!
-
-## Final step
-
-When all checks are passing, generate a "ready-to-paste" in Github PR summary following `.github/pull_request_template.md`.
