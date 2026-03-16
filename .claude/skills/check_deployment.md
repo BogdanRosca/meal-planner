@@ -20,7 +20,7 @@ Run locally to catch issues before pushing to GitHub!
 ## Instructions
 
 - Run these checks, making use of subagents as needed. For example Backend and Frontend checks can be run in parallel.
-- At the end, if all checks are passing, generate a "ready-to-paste" Github PR summary following `.github/pull_request_template.md`.
+- At the end, if all checks are passing, generate a "ready-to-paste" Github PR summary following `.github/pull_request_template.md`. Sign it using "🤖 Generated with Claude Code"
 
 ## Steps:
 
