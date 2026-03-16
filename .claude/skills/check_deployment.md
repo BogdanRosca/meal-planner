@@ -1,5 +1,6 @@
 ---
 name: can-i-deploy
+model: claude-haiku-4-5-20251001
 description: This skill will perform all checks that would run at CI level in a local environment
 ---
 
