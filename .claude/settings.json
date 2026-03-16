@@ -15,7 +15,7 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Write",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -26,29 +26,7 @@
         ]
       },
       {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd ./frontend && npm run format 2>/dev/null || true",
-            "async": true,
-            "statusMessage": "Formatting frontend code"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd ./backend && flake8 2>/dev/null || true",
-            "async": true,
-            "statusMessage": "Linting backend code"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
