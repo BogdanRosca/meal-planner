@@ -13,10 +13,6 @@ These checks mirror the GitHub Actions workflows:
 
 Run locally to catch issues before pushing to GitHub!
 
-## When to Use
-
-- Use this skill when prompted `can I deploy ?`
-
 ## Instructions
 
 - Run these checks, making use of subagents as needed. For example Backend and Frontend checks can be run in parallel.
