@@ -50,3 +50,18 @@ jobs:
     if: needs.check_changes.outputs.frontend == 'true'
     uses: ./.github/workflows/_test_frontend.yaml
     secrets: inherit
+
+  mergeable:
+    name: ❓ Mergeable
+    needs: [check_changes, test_backend, test_frontend]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate mergeability
+        run: |
+          # If any required job failed, fail this job
+          if [[ "${{ needs.test_backend.result }}" == "failure" ]] || [[ "${{ needs.test_frontend.result }}" == "failure" ]]; then
+            echo "Required tests failed"
+            exit 1
+          fi
+          echo "PR is mergeable"
