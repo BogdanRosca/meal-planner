@@ -1,7 +1,7 @@
 ---
 name: can-i-deploy
 model: claude-haiku-4-5-20251001
-description: This skill will perform all checks that would run at CI level in a local environment
+description: This skill will perform all checks that would run at CI level, but in a local environment. It is based on /test_frontend.yaml and test_backend.yaml.
 ---
 
 # Can I Deploy? Pre-deployment Validation Guide
@@ -12,10 +12,6 @@ These checks mirror the GitHub Actions workflows:
 - `.github/workflows/test_backend.yaml` - Backend checks
 
 Run locally to catch issues before pushing to GitHub!
-
-## When to Use
-
-- Use this skill when prompted `can I deploy ?`
 
 ## Instructions
 
