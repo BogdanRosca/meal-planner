@@ -11,7 +11,7 @@ When writing a PR description:
 
 # Summary
 
-A short sentence, maximum 50 words, summarizing the scope of the changes.
+A short sentence, keep it concise and to the point, focusing on the most important changes.
 
 # Changelog
 
@@ -43,6 +43,8 @@ A short sentence, maximum 50 words, summarizing the scope of the changes.
 - merge when relevant.
 - if no changes on anything outside /backend /frontend or /.github don't add the section
 
-## Lastly sign the PR as:
+Lastly sign the PR as:
+
+---
 
 🤖 Generated with Claude Code
