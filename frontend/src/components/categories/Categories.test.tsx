@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Categories from './Categories';
 import * as useRecipesModule from '../../hooks/useRecipes';
 
@@ -18,6 +19,18 @@ const mockRecipes = [
 
 jest.mock('../../hooks/useRecipes');
 
+const renderCategories = (
+  props: React.ComponentProps<typeof Categories> = {},
+  locationState: { category?: string } | null = null
+) =>
+  render(
+    <MemoryRouter
+      initialEntries={[{ pathname: '/meal-planner', state: locationState }]}
+    >
+      <Categories {...props} />
+    </MemoryRouter>
+  );
+
 describe('Categories Component', () => {
   const mockOnCategoryClick = jest.fn();
 
@@ -34,13 +47,13 @@ describe('Categories Component', () => {
   });
 
   it('renders the Categories component with title', () => {
-    render(<Categories />);
+    renderCategories();
 
     expect(screen.getByText('Categories')).toBeInTheDocument();
   });
 
   it('renders all category items', () => {
-    render(<Categories />);
+    renderCategories();
 
     expect(screen.getByText('Breakfast')).toBeInTheDocument();
     expect(screen.getByText('Snack')).toBeInTheDocument();
@@ -49,7 +62,7 @@ describe('Categories Component', () => {
   });
 
   it('renders category icons', () => {
-    const { container } = render(<Categories />);
+    const { container } = renderCategories();
 
     const icons = container.querySelectorAll('.category-icon');
     expect(icons).toHaveLength(4);
@@ -61,7 +74,7 @@ describe('Categories Component', () => {
   });
 
   it('renders category counts with correct values', () => {
-    render(<Categories />);
+    renderCategories();
 
     // Check for count badges
     expect(screen.getByText('6')).toBeInTheDocument(); // Breakfast
@@ -73,7 +86,7 @@ describe('Categories Component', () => {
   });
 
   it('calls onCategoryClick when a category is clicked', () => {
-    render(<Categories onCategoryClick={mockOnCategoryClick} />);
+    renderCategories({ onCategoryClick: mockOnCategoryClick });
 
     const breakfastButton = screen.getByText('Breakfast').closest('button');
     fireEvent.click(breakfastButton!);
@@ -83,7 +96,7 @@ describe('Categories Component', () => {
   });
 
   it('calls onCategoryClick for all category buttons', () => {
-    render(<Categories onCategoryClick={mockOnCategoryClick} />);
+    renderCategories({ onCategoryClick: mockOnCategoryClick });
 
     const breakfastButton = screen.getByText('Breakfast').closest('button');
     const snackButton = screen.getByText('Snack').closest('button');
@@ -103,7 +116,7 @@ describe('Categories Component', () => {
   });
 
   it('applies correct CSS custom properties for category colors', () => {
-    const { container } = render(<Categories />);
+    const { container } = renderCategories();
 
     const categoryButtons = container.querySelectorAll('.category-item');
     expect(categoryButtons).toHaveLength(4);
@@ -137,7 +150,7 @@ describe('Categories Component', () => {
   });
 
   it('has proper category structure with content and count', () => {
-    const { container } = render(<Categories />);
+    const { container } = renderCategories();
 
     const categoryItems = container.querySelectorAll('.category-item');
     categoryItems.forEach(item => {
@@ -149,7 +162,7 @@ describe('Categories Component', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(<Categories />);
+    renderCategories();
 
     const categoryButtons = screen.getAllByRole('button');
     // Should have 4 category buttons
@@ -170,7 +183,7 @@ describe('Categories Component', () => {
   });
 
   it('works without onCategoryClick prop', () => {
-    render(<Categories />);
+    renderCategories();
 
     const breakfastButton = screen.getByText('Breakfast').closest('button');
 
@@ -181,7 +194,7 @@ describe('Categories Component', () => {
   });
 
   it('renders categories in correct order', () => {
-    render(<Categories />);
+    renderCategories();
 
     const categoryNames = screen.getAllByText(
       /^(Breakfast|Snack|Lunch|Dinner)$/
@@ -194,7 +207,7 @@ describe('Categories Component', () => {
   });
 
   it('has correct category data structure', () => {
-    render(<Categories />);
+    renderCategories();
 
     // Test that each category has the expected structure
     const breakfastCategory = screen
@@ -215,12 +228,10 @@ describe('Categories Component', () => {
     expect(dinnerCount?.textContent).toBe('1');
   });
 
-  it('highlights active category when selectedCategory prop is provided', () => {
-    render(
-      <Categories
-        selectedCategory="Breakfast"
-        onCategoryClick={mockOnCategoryClick}
-      />
+  it('highlights active category from router location state', () => {
+    renderCategories(
+      { onCategoryClick: mockOnCategoryClick },
+      { category: 'Breakfast' }
     );
 
     const breakfastButton = screen
@@ -235,42 +246,33 @@ describe('Categories Component', () => {
     expect(snackButton).not.toHaveClass('active');
   });
 
-  it('toggles category on/off when clicked', () => {
-    const { rerender } = render(
-      <Categories
-        selectedCategory="All Categories"
-        onCategoryClick={mockOnCategoryClick}
-      />
+  it('selects a category when none is active', () => {
+    renderCategories({ onCategoryClick: mockOnCategoryClick });
+
+    const breakfastButton = screen.getByText('Breakfast').closest('button');
+    fireEvent.click(breakfastButton!);
+
+    expect(mockOnCategoryClick).toHaveBeenCalledWith('Breakfast');
+    expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('deselects a category when already active', () => {
+    renderCategories(
+      { onCategoryClick: mockOnCategoryClick },
+      { category: 'Breakfast' }
     );
 
     const breakfastButton = screen.getByText('Breakfast').closest('button');
-
-    // First click - should select Breakfast
     fireEvent.click(breakfastButton!);
-    expect(mockOnCategoryClick).toHaveBeenCalledWith('Breakfast');
-    expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
 
-    // Simulate selecting Breakfast category
-    mockOnCategoryClick.mockClear();
-    rerender(
-      <Categories
-        selectedCategory="Breakfast"
-        onCategoryClick={mockOnCategoryClick}
-      />
-    );
-
-    // Second click - should deselect and show 'All Categories'
-    fireEvent.click(breakfastButton!);
     expect(mockOnCategoryClick).toHaveBeenCalledWith('All Categories');
     expect(mockOnCategoryClick).toHaveBeenCalledTimes(1);
   });
 
   it('applies active styling correctly with CSS class and styles', () => {
-    render(
-      <Categories
-        selectedCategory="Lunch"
-        onCategoryClick={mockOnCategoryClick}
-      />
+    renderCategories(
+      { onCategoryClick: mockOnCategoryClick },
+      { category: 'Lunch' }
     );
 
     const lunchButton = screen
@@ -284,8 +286,8 @@ describe('Categories Component', () => {
     );
   });
 
-  it('shows default selectedCategory when not provided', () => {
-    render(<Categories onCategoryClick={mockOnCategoryClick} />);
+  it('shows no active category when no location state', () => {
+    renderCategories({ onCategoryClick: mockOnCategoryClick });
 
     // No category should be active by default
     const categoryButtons = screen.getAllByRole('button');
@@ -305,7 +307,7 @@ describe('Categories Component', () => {
       deleteRecipe: jest.fn(),
     });
 
-    render(<Categories />);
+    renderCategories();
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
@@ -320,7 +322,7 @@ describe('Categories Component', () => {
       deleteRecipe: jest.fn(),
     });
 
-    render(<Categories />);
+    renderCategories();
 
     expect(screen.getByText('No recipes yet')).toBeInTheDocument();
   });

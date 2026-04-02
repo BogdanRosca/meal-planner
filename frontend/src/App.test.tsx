@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 import { mealPlanService } from './services/mealPlanService';
 import { recipeService } from './services/recipeService';
@@ -27,6 +28,13 @@ afterAll(() => {
   console.log = originalConsoleLog;
 });
 
+const renderApp = (initialPath = '/meal-planner') =>
+  render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <App />
+    </MemoryRouter>
+  );
+
 describe('App Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -43,12 +51,12 @@ describe('App Component', () => {
   });
 
   it('renders without crashing', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByText('MealCraft')).toBeInTheDocument();
   });
 
   it('renders all main components', () => {
-    render(<App />);
+    renderApp();
 
     // Check TopBar is rendered
     expect(screen.getByText('MealCraft')).toBeInTheDocument();
@@ -65,14 +73,14 @@ describe('App Component', () => {
   });
 
   it('displays default section as "Meal Planner"', () => {
-    render(<App />);
+    renderApp();
     // Check the Meal Planner nav button is active by default
     const mealPlannerNav = screen.getByText('Meal Planner');
     expect(mealPlannerNav.closest('button')).toHaveClass('active');
   });
 
   it('updates current section when navigation is clicked', () => {
-    render(<App />);
+    renderApp();
 
     const recipesNavButton = screen.getByText('Recipes');
     fireEvent.click(recipesNavButton);
@@ -84,7 +92,7 @@ describe('App Component', () => {
   });
 
   it('navigates to recipes page when Recipes nav is clicked', async () => {
-    render(<App />);
+    renderApp();
 
     // Navigate to Recipes page
     const recipesNavButton = screen.getByText('Recipes');
@@ -101,7 +109,7 @@ describe('App Component', () => {
   });
 
   it('handles mobile menu toggle', () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
 
     const mobileMenuButton = container.querySelector('.mobile-menu-btn');
     expect(mobileMenuButton).toBeInTheDocument();
@@ -116,7 +124,7 @@ describe('App Component', () => {
   });
 
   it('handles quick action clicks and closes mobile menu', () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
 
     // Open mobile menu first
     const mobileMenuButton = container.querySelector('.mobile-menu-btn');
@@ -134,7 +142,7 @@ describe('App Component', () => {
   });
 
   it('handles category clicks and closes mobile menu', () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
 
     // Open mobile menu first
     const mobileMenuButton = container.querySelector('.mobile-menu-btn');
@@ -156,7 +164,7 @@ describe('App Component', () => {
   });
 
   it('navigates to recipes when category is clicked', () => {
-    render(<App />);
+    renderApp();
 
     // Get initial section (should be Meal Planner)
     const mealPlannerNav = screen.getByText('Meal Planner');
@@ -176,7 +184,7 @@ describe('App Component', () => {
   });
 
   it('passes correct props to child components', () => {
-    render(<App />);
+    renderApp();
 
     // Check TopBar receives correct user prop
     expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -189,7 +197,7 @@ describe('App Component', () => {
   });
 
   it('has correct CSS classes', () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
 
     const appDiv = container.firstChild as HTMLElement;
     expect(appDiv).toHaveClass('App');
@@ -204,16 +212,16 @@ describe('App Component', () => {
 
   it('renders with React.StrictMode compatibility', () => {
     // This test ensures the component works with StrictMode (no side effects)
-    const { unmount } = render(<App />);
+    const { unmount } = renderApp();
     unmount();
 
     // Re-render to check for any side effects
-    render(<App />);
+    renderApp();
     expect(screen.getByText('MealCraft')).toBeInTheDocument();
   });
 
   it('maintains state correctly across interactions', () => {
-    render(<App />);
+    renderApp();
 
     // Test multiple state changes - click Recipes nav
     const recipesNavButton = screen.getByText('Recipes');
@@ -238,7 +246,7 @@ describe('App Component', () => {
   });
 
   it('navigates to shopping list page when Shopping List nav is clicked', () => {
-    render(<App />);
+    renderApp();
 
     const shoppingListNavButtons = screen.getAllByText('Shopping List');
     const shoppingListNavButton = shoppingListNavButtons[0];
@@ -249,22 +257,8 @@ describe('App Component', () => {
     expect(shoppingListContent).toBeInTheDocument();
   });
 
-  it('renders Home when navigated to unknown section', () => {
-    render(<App />);
-
-    // Navigate to Recipes
-    const recipesNavButton = screen.getByText('Recipes');
-    fireEvent.click(recipesNavButton);
-
-    // Navigate to an unknown section by triggering category click with different name
-    const mealPlannerNav = screen.getByText('Meal Planner');
-    fireEvent.click(mealPlannerNav);
-
-    expect(mealPlannerNav.closest('button')).toHaveClass('active');
-  });
-
   it('renders correct content for each section', () => {
-    render(<App />);
+    renderApp();
 
     // Default is Meal Planner
     let mealPlannerContent = document.querySelector('.meal-planner');
@@ -288,7 +282,7 @@ describe('App Component', () => {
   });
 
   it('passes selectedCategory to Recipes component', () => {
-    render(<App />);
+    renderApp();
 
     // Click a category
     const categorySection = screen
@@ -305,7 +299,7 @@ describe('App Component', () => {
   });
 
   it('navigates to recipes when Add Recipe quick action is clicked', () => {
-    render(<App />);
+    renderApp();
 
     const addRecipeButton = screen.getByText('Add Recipe');
     fireEvent.click(addRecipeButton);
@@ -315,7 +309,7 @@ describe('App Component', () => {
   });
 
   it('navigates to meal planner when Plan Meals quick action is clicked', () => {
-    render(<App />);
+    renderApp();
 
     const planMealsButton = screen.getByText('Plan Meals');
     fireEvent.click(planMealsButton);
@@ -325,7 +319,7 @@ describe('App Component', () => {
   });
 
   it('navigates to shopping list when Shopping List quick action is clicked', () => {
-    render(<App />);
+    renderApp();
 
     // Find the quick action "Shopping List" button (the last one is in quick actions)
     const allShoppingListButtons = screen.getAllByText('Shopping List');

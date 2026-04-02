@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import QuickActions from './QuickActions';
 import * as useRecipesModule from '../../hooks/useRecipes';
 
@@ -12,6 +13,18 @@ const mockRecipes = [
 ];
 
 jest.mock('../../hooks/useRecipes');
+
+const renderQuickActions = (
+  props: React.ComponentProps<typeof QuickActions> = {},
+  locationState: { category?: string } | null = null
+) =>
+  render(
+    <MemoryRouter
+      initialEntries={[{ pathname: '/meal-planner', state: locationState }]}
+    >
+      <QuickActions {...props} />
+    </MemoryRouter>
+  );
 
 describe('QuickActions Component', () => {
   const mockOnActionClick = jest.fn();
@@ -30,13 +43,13 @@ describe('QuickActions Component', () => {
   });
 
   it('renders the QuickActions component with title', () => {
-    render(<QuickActions />);
+    renderQuickActions();
 
     expect(screen.getByText('Quick Actions')).toBeInTheDocument();
   });
 
   it('renders all quick action items', () => {
-    render(<QuickActions />);
+    renderQuickActions();
 
     expect(screen.getByText('Add Recipe')).toBeInTheDocument();
     expect(screen.getByText('Plan Meals')).toBeInTheDocument();
@@ -48,7 +61,7 @@ describe('QuickActions Component', () => {
   });
 
   it('renders action icons', () => {
-    render(<QuickActions />);
+    renderQuickActions();
 
     const actionButtons = screen.getAllByRole('button');
     // Filter out category buttons by checking for quick action specific content
@@ -62,7 +75,7 @@ describe('QuickActions Component', () => {
   });
 
   it('calls onActionClick when a quick action is clicked', () => {
-    render(<QuickActions onActionClick={mockOnActionClick} />);
+    renderQuickActions({ onActionClick: mockOnActionClick });
 
     const addRecipeButton = screen.getByText('Add Recipe').closest('button');
     fireEvent.click(addRecipeButton!);
@@ -72,7 +85,7 @@ describe('QuickActions Component', () => {
   });
 
   it('calls onActionClick for all quick action buttons', () => {
-    render(<QuickActions onActionClick={mockOnActionClick} />);
+    renderQuickActions({ onActionClick: mockOnActionClick });
 
     const addRecipeButton = screen.getByText('Add Recipe').closest('button');
     const planMealsButton = screen.getByText('Plan Meals').closest('button');
@@ -91,21 +104,21 @@ describe('QuickActions Component', () => {
   });
 
   it('applies mobile-open class when isMobileOpen is true', () => {
-    const { container } = render(<QuickActions isMobileOpen={true} />);
+    const { container } = renderQuickActions({ isMobileOpen: true });
 
     const quickActionsAside = container.querySelector('.quick-actions');
     expect(quickActionsAside).toHaveClass('mobile-open');
   });
 
   it('does not apply mobile-open class when isMobileOpen is false', () => {
-    const { container } = render(<QuickActions isMobileOpen={false} />);
+    const { container } = renderQuickActions({ isMobileOpen: false });
 
     const quickActionsAside = container.querySelector('.quick-actions');
     expect(quickActionsAside).not.toHaveClass('mobile-open');
   });
 
   it('renders Categories component within QuickActions', () => {
-    render(<QuickActions />);
+    renderQuickActions();
 
     // Check that Categories component is rendered
     expect(screen.getByText('Categories')).toBeInTheDocument();
@@ -116,7 +129,7 @@ describe('QuickActions Component', () => {
   });
 
   it('calls onCategoryClick when a category is clicked', () => {
-    render(<QuickActions onCategoryClick={mockOnCategoryClick} />);
+    renderQuickActions({ onCategoryClick: mockOnCategoryClick });
 
     // Find the category button specifically (the one with category-item class)
     const categorySection = screen
@@ -131,7 +144,7 @@ describe('QuickActions Component', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(<QuickActions />);
+    renderQuickActions();
 
     const quickActionsSection = screen.getByRole('complementary');
     expect(quickActionsSection).toBeInTheDocument();
@@ -143,7 +156,7 @@ describe('QuickActions Component', () => {
   });
 
   it('renders arrow indicators for each action', () => {
-    const { container } = render(<QuickActions />);
+    const { container } = renderQuickActions();
 
     const arrows = container.querySelectorAll('.action-arrow');
     // Should have 3 arrows for quick actions (categories have their own component)
@@ -153,10 +166,13 @@ describe('QuickActions Component', () => {
     expect(quickActionArrows.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('passes selectedCategory prop to Categories component', () => {
-    const { container } = render(<QuickActions selectedCategory="Breakfast" />);
+  it('shows active category when location state has category', () => {
+    const { container } = renderQuickActions(
+      { onCategoryClick: mockOnCategoryClick },
+      { category: 'Breakfast' }
+    );
 
-    // Check if the breakfast button has active class when it matches selectedCategory
+    // Check if the breakfast button has active class
     const categorySection = container.querySelector('.categories-section');
     const buttons = categorySection?.querySelectorAll('button');
     expect(buttons).toBeTruthy();
@@ -174,12 +190,7 @@ describe('QuickActions Component', () => {
   });
 
   it('passes onCategoryClick callback to Categories component', () => {
-    render(
-      <QuickActions
-        onCategoryClick={mockOnCategoryClick}
-        selectedCategory="All Categories"
-      />
-    );
+    renderQuickActions({ onCategoryClick: mockOnCategoryClick });
 
     const categorySection = screen
       .getByText('Categories')
@@ -194,12 +205,9 @@ describe('QuickActions Component', () => {
   });
 
   it('works with mobile menu state', () => {
-    const { container } = render(
-      <QuickActions
-        isMobileOpen={true}
-        selectedCategory="Lunch"
-        onCategoryClick={mockOnCategoryClick}
-      />
+    const { container } = renderQuickActions(
+      { isMobileOpen: true, onCategoryClick: mockOnCategoryClick },
+      { category: 'Lunch' }
     );
 
     const quickActionsAside = container.querySelector('.quick-actions');

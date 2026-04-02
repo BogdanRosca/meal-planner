@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import Recipes from './Recipes';
 import { recipeService } from '../../services/recipeService';
@@ -60,6 +61,13 @@ const mockRecipes: Recipe[] = [
   },
 ];
 
+const renderRecipes = () =>
+  render(
+    <MemoryRouter initialEntries={['/recipes']}>
+      <Recipes />
+    </MemoryRouter>
+  );
+
 describe('Recipes Component', () => {
   const mockGetAllRecipes = recipeService.getAllRecipes as jest.MockedFunction<
     typeof recipeService.getAllRecipes
@@ -73,7 +81,7 @@ describe('Recipes Component', () => {
     it('should display loading message while fetching recipes', () => {
       mockGetAllRecipes.mockReturnValue(new Promise(() => {})); // Never resolves
 
-      render(<Recipes />);
+      renderRecipes();
 
       expect(screen.getByText('Loading recipes...')).toBeInTheDocument();
     });
@@ -83,7 +91,7 @@ describe('Recipes Component', () => {
     it('should render recipes after successful fetch', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -97,7 +105,7 @@ describe('Recipes Component', () => {
     it('should display recipe details correctly', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -136,7 +144,7 @@ describe('Recipes Component', () => {
     it('should render correct category emojis', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      const { container } = render(<Recipes />);
+      const { container } = renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -160,7 +168,7 @@ describe('Recipes Component', () => {
         mockRecipes[1],
       ]);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText(/1 portion(?!s)/)).toBeInTheDocument();
@@ -178,7 +186,7 @@ describe('Recipes Component', () => {
       const errorMessage = 'Network error';
       mockGetAllRecipes.mockRejectedValue(new Error(errorMessage));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(
@@ -196,7 +204,7 @@ describe('Recipes Component', () => {
       const error = new Error('Network error');
       mockGetAllRecipes.mockRejectedValue(error);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -215,7 +223,7 @@ describe('Recipes Component', () => {
     });
 
     it('should render search input', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -226,7 +234,7 @@ describe('Recipes Component', () => {
     });
 
     it('should filter recipes based on search query', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -243,7 +251,7 @@ describe('Recipes Component', () => {
     });
 
     it('should be case-insensitive when searching', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -261,7 +269,7 @@ describe('Recipes Component', () => {
     });
 
     it('should display filtered results when searching', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -276,7 +284,7 @@ describe('Recipes Component', () => {
     });
 
     it('should show no results message when no recipes match', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -291,7 +299,7 @@ describe('Recipes Component', () => {
     });
 
     it('should update search results dynamically', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -312,7 +320,7 @@ describe('Recipes Component', () => {
 
     it('should handle search form submission', async () => {
       const user = userEvent.setup();
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -330,7 +338,7 @@ describe('Recipes Component', () => {
 
     it('should submit search by clicking search button', async () => {
       const user = userEvent.setup();
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -352,7 +360,7 @@ describe('Recipes Component', () => {
     });
 
     it('should clear search results when search query is cleared', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -379,7 +387,7 @@ describe('Recipes Component', () => {
     it('should display no recipes message when no recipes exist', async () => {
       mockGetAllRecipes.mockResolvedValue([]);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(
@@ -391,7 +399,7 @@ describe('Recipes Component', () => {
     it('should not display search info when no recipes and no search query', async () => {
       mockGetAllRecipes.mockResolvedValue([]);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(
@@ -407,7 +415,7 @@ describe('Recipes Component', () => {
     it('should render recipes in a grid', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      const { container } = render(<Recipes />);
+      const { container } = renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -423,7 +431,7 @@ describe('Recipes Component', () => {
     it('should render recipe cards with correct structure', async () => {
       mockGetAllRecipes.mockResolvedValue([mockRecipes[0]]);
 
-      const { container } = render(<Recipes />);
+      const { container } = renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -451,7 +459,7 @@ describe('Recipes Component', () => {
     it('should apply correct category class to category badge', async () => {
       mockGetAllRecipes.mockResolvedValue([mockRecipes[0]]);
 
-      const { container } = render(<Recipes />);
+      const { container } = renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -466,7 +474,7 @@ describe('Recipes Component', () => {
     it('should fetch recipes on mount', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(mockGetAllRecipes).toHaveBeenCalledTimes(1);
@@ -476,13 +484,17 @@ describe('Recipes Component', () => {
     it('should not refetch recipes on re-render with same props', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      const { rerender } = render(<Recipes />);
+      const { rerender } = renderRecipes();
 
       await waitFor(() => {
         expect(mockGetAllRecipes).toHaveBeenCalledTimes(1);
       });
 
-      rerender(<Recipes />);
+      rerender(
+        <MemoryRouter initialEntries={['/recipes']}>
+          <Recipes />
+        </MemoryRouter>
+      );
 
       // Should still be called only once
       expect(mockGetAllRecipes).toHaveBeenCalledTimes(1);
@@ -495,7 +507,7 @@ describe('Recipes Component', () => {
     });
 
     it('should open detail modal when a recipe card is clicked', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -532,7 +544,7 @@ describe('Recipes Component', () => {
       };
       mockAddRecipe.mockResolvedValue(addedRecipe);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -566,7 +578,7 @@ describe('Recipes Component', () => {
         .mockImplementation(() => {});
       mockAddRecipe.mockRejectedValue(new Error('Failed to add'));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -608,7 +620,7 @@ describe('Recipes Component', () => {
     });
 
     it('should close edit modal when cancel button is clicked', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -645,7 +657,7 @@ describe('Recipes Component', () => {
       mockUpdateRecipe.mockResolvedValue(updatedRecipe);
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -672,7 +684,7 @@ describe('Recipes Component', () => {
     it('should close detail modal when edit is clicked', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -709,7 +721,7 @@ describe('Recipes Component', () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
       const user = userEvent.setup();
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -754,7 +766,7 @@ describe('Recipes Component', () => {
         .mockImplementation(() => {});
       mockUpdateRecipe.mockRejectedValue(new Error('Update failed'));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -772,7 +784,7 @@ describe('Recipes Component', () => {
         .mockImplementation(() => {});
       mockUpdateRecipe.mockRejectedValue(new Error('Update failed'));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -797,7 +809,7 @@ describe('Recipes Component', () => {
     it('should handle delete confirmation without recipe ID', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -809,7 +821,7 @@ describe('Recipes Component', () => {
     });
 
     it('should show delete confirmation popup when delete button is clicked', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -827,7 +839,7 @@ describe('Recipes Component', () => {
     });
 
     it('should close confirmation popup when cancel button is clicked', async () => {
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -848,7 +860,7 @@ describe('Recipes Component', () => {
     it('should delete the recipe when confirm button is clicked', async () => {
       mockDeleteRecipe.mockResolvedValue();
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -885,7 +897,7 @@ describe('Recipes Component', () => {
     it('should close delete confirmation modal after successful deletion', async () => {
       mockDeleteRecipe.mockResolvedValue();
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -917,7 +929,7 @@ describe('Recipes Component', () => {
       // Mock the deleteRecipe to throw an error
       mockDeleteRecipe.mockRejectedValue(new Error('API Error'));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -958,7 +970,7 @@ describe('Recipes Component', () => {
       // Mock the deleteRecipe to throw an error
       mockDeleteRecipe.mockRejectedValue(new Error('API Error'));
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -995,7 +1007,7 @@ describe('Recipes Component', () => {
     it('should handle rapid recipe filtering and searching', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -1012,7 +1024,7 @@ describe('Recipes Component', () => {
     it('should handle switching between categories and search', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -1034,7 +1046,7 @@ describe('Recipes Component', () => {
     it('should display all recipe information on successful load', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -1048,7 +1060,7 @@ describe('Recipes Component', () => {
     it('should handle adding multiple recipes in sequence', async () => {
       mockGetAllRecipes.mockResolvedValue([]);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(
@@ -1060,7 +1072,7 @@ describe('Recipes Component', () => {
     it('should handle edit and delete operations in succession', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
@@ -1075,7 +1087,7 @@ describe('Recipes Component', () => {
     it('should maintain search state when recipes update', async () => {
       mockGetAllRecipes.mockResolvedValue(mockRecipes);
 
-      render(<Recipes />);
+      renderRecipes();
 
       await waitFor(() => {
         expect(screen.getByText('Pancakes')).toBeInTheDocument();
