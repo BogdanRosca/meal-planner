@@ -1,9 +1,19 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import TopBar from './TopBar';
 
+const renderTopBar = (
+  props: React.ComponentProps<typeof TopBar> = {},
+  initialPath = '/meal-planner'
+) =>
+  render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <TopBar {...props} />
+    </MemoryRouter>
+  );
+
 describe('TopBar Component', () => {
-  const mockOnNavigate = jest.fn();
   const mockOnMenuToggle = jest.fn();
   const mockUser = { name: 'John Doe', avatar: 'avatar.jpg' };
 
@@ -12,7 +22,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders the TopBar component with default props', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByText('MealCraft')).toBeInTheDocument();
     expect(screen.getByText('🍴')).toBeInTheDocument();
@@ -20,7 +30,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders logo section correctly', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     const logoIcon = screen.getByText('🍴');
     const logoText = screen.getByText('MealCraft');
@@ -34,7 +44,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders all navigation items', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByText('Meal Planner')).toBeInTheDocument();
     expect(screen.getByText('Recipes')).toBeInTheDocument();
@@ -43,7 +53,7 @@ describe('TopBar Component', () => {
   });
 
   it('sets "Meal Planner" as active tab by default', () => {
-    render(<TopBar />);
+    renderTopBar({}, '/meal-planner');
 
     const mealPlannerButton = screen.getByRole('button', {
       name: 'Meal Planner',
@@ -54,18 +64,8 @@ describe('TopBar Component', () => {
     expect(recipesButton).not.toHaveClass('active');
   });
 
-  it('calls onNavigate when navigation items are clicked', () => {
-    render(<TopBar onNavigate={mockOnNavigate} />);
-
-    const recipesButton = screen.getByRole('button', { name: 'Recipes' });
-    fireEvent.click(recipesButton);
-
-    expect(mockOnNavigate).toHaveBeenCalledWith('Recipes');
-    expect(mockOnNavigate).toHaveBeenCalledTimes(1);
-  });
-
   it('updates active tab when navigation items are clicked', () => {
-    render(<TopBar onNavigate={mockOnNavigate} />);
+    renderTopBar();
 
     const recipesButton = screen.getByRole('button', { name: 'Recipes' });
     const mealPlannerButton = screen.getByRole('button', {
@@ -84,7 +84,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders mobile menu button', () => {
-    const { container } = render(<TopBar onMenuToggle={mockOnMenuToggle} />);
+    const { container } = renderTopBar({ onMenuToggle: mockOnMenuToggle });
 
     const mobileMenuButton = container.querySelector('.mobile-menu-btn');
     const svgElement = mobileMenuButton?.querySelector('svg');
@@ -95,7 +95,7 @@ describe('TopBar Component', () => {
   });
 
   it('calls onMenuToggle when mobile menu button is clicked', () => {
-    render(<TopBar onMenuToggle={mockOnMenuToggle} />);
+    renderTopBar({ onMenuToggle: mockOnMenuToggle });
 
     const mobileMenuButton = document.querySelector('.mobile-menu-btn');
     fireEvent.click(mobileMenuButton!);
@@ -104,14 +104,14 @@ describe('TopBar Component', () => {
   });
 
   it('renders user section with default user', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('JD')).toBeInTheDocument(); // Avatar placeholder
   });
 
   it('renders user section with custom user', () => {
-    render(<TopBar currentUser={mockUser} />);
+    renderTopBar({ currentUser: mockUser });
 
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     // When avatar is provided, initials are not shown
@@ -119,7 +119,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders user avatar when provided', () => {
-    render(<TopBar currentUser={mockUser} />);
+    renderTopBar({ currentUser: mockUser });
 
     const avatarImg = screen.getByAltText('John Doe');
     expect(avatarImg).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('TopBar Component', () => {
 
   it('renders avatar placeholder when no avatar provided', () => {
     const userWithoutAvatar = { name: 'Jane Smith' };
-    render(<TopBar currentUser={userWithoutAvatar} />);
+    renderTopBar({ currentUser: userWithoutAvatar });
 
     expect(screen.getByText('JS')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
@@ -143,14 +143,14 @@ describe('TopBar Component', () => {
     ];
 
     users.forEach(({ name, expected }) => {
-      const { unmount } = render(<TopBar currentUser={{ name }} />);
+      const { unmount } = renderTopBar({ currentUser: { name } });
       expect(screen.getByText(expected)).toBeInTheDocument();
       unmount();
     });
   });
 
   it('renders language selector', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     const flagElement = screen.getByText('🇬🇧');
     expect(flagElement).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe('TopBar Component', () => {
   });
 
   it('has proper semantic structure', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     const header = screen.getByRole('banner');
     expect(header).toBeInTheDocument();
@@ -170,7 +170,7 @@ describe('TopBar Component', () => {
   });
 
   it('works without optional callback props', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     const recipesButton = screen.getByRole('button', { name: 'Recipes' });
     const mobileMenuButton = document.querySelector('.mobile-menu-btn');
@@ -183,7 +183,7 @@ describe('TopBar Component', () => {
   });
 
   it('renders mobile menu SVG icon correctly', () => {
-    render(<TopBar />);
+    renderTopBar();
 
     const mobileMenuButton = document.querySelector('.mobile-menu-btn');
     const svgElement = mobileMenuButton?.querySelector('svg');
@@ -196,7 +196,7 @@ describe('TopBar Component', () => {
   });
 
   it('has correct CSS classes for styling', () => {
-    const { container } = render(<TopBar />);
+    const { container } = renderTopBar();
 
     expect(container.querySelector('.top-bar')).toBeInTheDocument();
     expect(container.querySelector('.top-bar-container')).toBeInTheDocument();
@@ -205,17 +205,15 @@ describe('TopBar Component', () => {
     expect(container.querySelector('.user-section')).toBeInTheDocument();
   });
 
-  it('calls all navigation callbacks for different nav items', () => {
-    render(<TopBar onNavigate={mockOnNavigate} />);
+  it('navigates to each section when nav items are clicked', () => {
+    renderTopBar();
 
     const navItems = ['Meal Planner', 'Recipes', 'Shopping List', 'Analytics'];
 
-    navItems.forEach((item, index) => {
+    navItems.forEach(item => {
       const button = screen.getByRole('button', { name: item });
       fireEvent.click(button);
-      expect(mockOnNavigate).toHaveBeenNthCalledWith(index + 1, item);
+      expect(button).toHaveClass('active');
     });
-
-    expect(mockOnNavigate).toHaveBeenCalledTimes(4);
   });
 });

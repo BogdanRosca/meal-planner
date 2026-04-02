@@ -11,14 +11,11 @@ import RecipeGrid from '../../components/recipes/RecipeGrid';
 import StatusMessage from '../../components/recipes/StatusMessage';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
+import { useSelectedCategory } from '../../hooks/useSelectedCategory';
 
-interface RecipesProps {
-  selectedCategory?: string;
-}
+const Recipes: React.FC = () => {
+  const selectedCategory = useSelectedCategory();
 
-const Recipes: React.FC<RecipesProps> = ({
-  selectedCategory = 'All Categories',
-}) => {
   const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } =
     useRecipes();
   const [searchQuery, setSearchQuery] = useState<string>('');
