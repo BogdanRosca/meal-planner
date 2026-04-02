@@ -1,32 +1,34 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './TopBar.module.css';
+import { SECTION_TO_PATH, PATH_TO_SECTION } from '../../config/routes';
+
+const NAVIGATION_ITEMS = [
+  'Meal Planner',
+  'Recipes',
+  'Shopping List',
+  'Analytics',
+];
 
 interface TopBarProps {
   currentUser?: {
     name: string;
     avatar?: string;
   };
-  onNavigate?: (_section: string) => void;
   onMenuToggle?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   currentUser = { name: 'John Doe' },
-  onNavigate,
   onMenuToggle,
 }) => {
-  const [activeTab, setActiveTab] = useState('Meal Planner');
-
-  const navigationItems = [
-    'Meal Planner',
-    'Recipes',
-    'Shopping List',
-    'Analytics',
-  ];
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeSection = PATH_TO_SECTION[location.pathname] ?? '';
 
   const handleNavClick = (item: string) => {
-    setActiveTab(item);
-    onNavigate?.(item);
+    const path = SECTION_TO_PATH[item];
+    if (path) navigate(path);
   };
 
   return (
@@ -56,12 +58,12 @@ const TopBar: React.FC<TopBarProps> = ({
 
         {/* Navigation Section */}
         <nav className={styles.navigation}>
-          {navigationItems.map(item => (
+          {NAVIGATION_ITEMS.map(item => (
             <button
               key={item}
               className={[
                 styles['nav-item'],
-                activeTab === item ? styles.active : '',
+                activeSection === item ? styles.active : '',
               ]
                 .filter(Boolean)
                 .join(' ')}

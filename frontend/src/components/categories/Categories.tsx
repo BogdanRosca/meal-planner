@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import styles from './Categories.module.css';
 import { useRecipes } from '../../hooks/useRecipes';
+import { useSelectedCategory } from '../../hooks/useSelectedCategory';
 
 interface CategoriesProps {
-  selectedCategory?: string;
   onCategoryClick?: (_category: string) => void;
 }
 
@@ -14,10 +14,9 @@ const CATEGORY_ICONS: Record<string, { icon: string; color: string }> = {
   Dinner: { icon: '🌙', color: '#212922' },
 };
 
-const Categories: React.FC<CategoriesProps> = ({
-  selectedCategory = 'All Categories',
-  onCategoryClick,
-}) => {
+const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
+  const selectedCategory = useSelectedCategory();
+
   const { recipes, loading } = useRecipes();
 
   const handleCategorySelect = (categoryName: string) => {
