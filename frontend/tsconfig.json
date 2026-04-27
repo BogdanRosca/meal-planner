@@ -21,6 +21,8 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "playwright.config.ts",
+    "e2e"
   ]
 }

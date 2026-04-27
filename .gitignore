@@ -278,3 +278,7 @@ Thumbs.db
 # Log files
 logs/
 
+# Playwright
+frontend/playwright-report
+frontend/test-results
+
