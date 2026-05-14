@@ -176,6 +176,7 @@ jobs:
     if: always()
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: 📁 Checkout code
@@ -183,6 +184,22 @@ jobs:
 
       - name: 📥 Download test outputs
         uses: actions/download-artifact@v4
+
+      - name: 📦 Prepare reports directory
+        if: "!cancelled()"
+        run: |
+          mkdir -p be-reports/be-unit be-reports/be-integration
+          [ -d be-unit-allure-report ]        && cp -r be-unit-allure-report/.        be-reports/be-unit/        || true
+          [ -d be-integration-allure-report ] && cp -r be-integration-allure-report/. be-reports/be-integration/ || true
+
+      - name: 🚀 Deploy BE reports to GitHub Pages
+        if: "!cancelled()"
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./be-reports
+          destination_dir: reports/${{ github.run_id }}
+          keep_files: true
 
       - name: 📤 Post BE test results
         uses: ./.github/actions/post-be-test-results

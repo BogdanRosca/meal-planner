@@ -35,18 +35,11 @@ runs:
           const beUnitSummary = parsePytestSummary(unitOutput);
           const beIntegrationSummary = parsePytestSummary(integrationOutput);
 
-          // Resolve BE artifact URLs
-          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            run_id: context.runId,
-          });
-          const artifactUrl = (name) => {
-            const a = artifacts.data.artifacts.find(x => x.name === name);
-            return a ? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${a.id}` : null;
-          };
-          const beUnitAllureUrl = artifactUrl('be-unit-allure-report');
-          const beIntegrationAllureUrl = artifactUrl('be-integration-allure-report');
+          // Construct GitHub Pages report URLs
+          const pagesBase = `https://${context.repo.owner.toLowerCase()}.github.io/${context.repo.repo}`;
+          const reportsBase = `${pagesBase}/reports/${context.runId}`;
+          const beUnitAllureUrl = `${reportsBase}/be-unit`;
+          const beIntegrationAllureUrl = `${reportsBase}/be-integration`;
 
           // Find existing comment
           const comments = await github.rest.issues.listComments({
