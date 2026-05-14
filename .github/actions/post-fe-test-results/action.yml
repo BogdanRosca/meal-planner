@@ -22,9 +22,11 @@ runs:
           // Read FE test outputs
           const unitFile = findTestFile('unit-test-output');
           const integrationFile = findTestFile('integration-test-output');
+          const e2eFile = findTestFile('e2e-test-output');
 
           const unitOutput = unitFile ? fs.readFileSync(unitFile, 'utf8') : '';
           const integrationOutput = integrationFile ? fs.readFileSync(integrationFile, 'utf8') : '';
+          const e2eOutput = e2eFile ? fs.readFileSync(e2eFile, 'utf8') : '';
 
           // Parse Jest summary
           const parseSummary = (output) => {
@@ -38,8 +40,18 @@ runs:
             ).join('\n') || 'No results available';
           };
 
+          // Parse Playwright summary
+          const parsePlaywrightSummary = (output) => {
+            const lines = output.split('\n');
+            return lines.filter(line =>
+              /\d+\s+(passed|failed|skipped)/.test(line) ||
+              /Running \d+ test/.test(line)
+            ).join('\n') || 'No results available';
+          };
+
           const feUnitSummary = parseSummary(unitOutput);
           const feIntegrationSummary = parseSummary(integrationOutput);
+          const feE2eSummary = parsePlaywrightSummary(e2eOutput);
 
           // Find existing comment or create placeholder
           const comments = await github.rest.issues.listComments({
@@ -55,9 +67,11 @@ runs:
           // Detect test failures by looking for "failed" in the summary line
           const hasUnitFailure = unitOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
           const hasIntegrationFailure = integrationOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
+          const hasE2eFailure = e2eOutput.match(/\d+\s+failed/);
 
           const unitIcon = hasUnitFailure ? '❌' : '✅';
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
+          const e2eIcon = hasE2eFailure ? '❌' : '✅';
 
           let feBody = `### FE Test Results
           **Unit Tests** ${unitIcon}
@@ -68,6 +82,11 @@ runs:
           **Integration Tests** ${integrationIcon}
           \`\`\`
           ${feIntegrationSummary}
+          \`\`\`
+
+          **E2E Tests** ${e2eIcon}
+          \`\`\`
+          ${feE2eSummary}
           \`\`\``;
 
           if (existingComment) {
