@@ -25,8 +25,8 @@ test.describe('Meal Planner - Add and remove a meal', () => {
     await mealPlanner.assertRecipeNotInSlot('Scrambled Eggs');
   });
 
-  test('adds a recipe to a meal slot and then removes it', async ({ page }) => {
-    await test.step('Add a breakfast recipe', async () => {
+  test('Add a breakfast for the first day of the week', async ({ page }) => {
+    await test.step('Click + to add breakfast recipe', async () => {
       await mealPlanner.openMealSlot(0);
       await mealPlanner.assertOnlyMatchingRecipes(
         'Scrambled Eggs',
@@ -40,7 +40,7 @@ test.describe('Meal Planner - Add and remove a meal', () => {
       await mealPlanner.assertSelectorClosed();
     });
 
-    await test.step('Verify recipe appears in slot', async () => {
+    await test.step('Verify recipe appears in right slot', async () => {
       await mealPlanner.assertRecipeInSlot('Scrambled Eggs');
     });
   });
