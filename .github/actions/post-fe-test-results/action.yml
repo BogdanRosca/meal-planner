@@ -53,16 +53,19 @@ runs:
           const feIntegrationSummary = parseSummary(integrationOutput);
           const feE2eSummary = parsePlaywrightSummary(e2eOutput);
 
-          // Resolve Playwright report artifact URL
+          // Resolve FE artifact URLs
           const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
             owner: context.repo.owner,
             repo: context.repo.repo,
             run_id: context.runId,
           });
-          const playwrightArtifact = artifacts.data.artifacts.find(a => a.name === 'playwright-report');
-          const playwrightReportUrl = playwrightArtifact
-            ? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${playwrightArtifact.id}`
-            : null;
+          const artifactUrl = (name) => {
+            const a = artifacts.data.artifacts.find(x => x.name === name);
+            return a ? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${a.id}` : null;
+          };
+          const playwrightReportUrl = artifactUrl('playwright-report');
+          const feUnitAllureUrl = artifactUrl('fe-unit-allure-report');
+          const feIntegrationAllureUrl = artifactUrl('fe-integration-allure-report');
 
           // Find existing comment or create placeholder
           const comments = await github.rest.issues.listComments({
@@ -100,13 +103,30 @@ runs:
           ${feE2eSummary}
           \`\`\``;
 
-          const reportsSection = `### Test Reports
-          ${playwrightReportUrl ? `- [📊 Playwright Report](${playwrightReportUrl})` : '_No reports available_'}`;
+          // Build FE reports block (owns playwright + FE allure links)
+          const feReportLinks = [
+            playwrightReportUrl && `- [🎭 Playwright Report](${playwrightReportUrl})`,
+            feUnitAllureUrl && `- [📊 FE Unit Allure Report](${feUnitAllureUrl})`,
+            feIntegrationAllureUrl && `- [📊 FE Integration Allure Report](${feIntegrationAllureUrl})`,
+          ].filter(Boolean).join('\n          ');
+          const feReportsBlock = `<!-- fe-reports -->
+          ${feReportLinks || '_No FE reports available yet_'}
+          <!-- /fe-reports -->`;
 
           if (existingComment) {
-            // Extract BE results if they exist in the comment
-            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### Test Reports|### FE|$)/);
+            // Extract BE results section (stop before Test Reports or end)
+            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### Test Reports|$)/);
             const beSection = beMatch ? beMatch[1].trim() : '';
+
+            // Preserve BE reports block if already posted by BE workflow
+            const beReportsMatch = existingComment.body.match(/<!-- be-reports -->([\s\S]*?)<!-- \/be-reports -->/);
+            const beReportsBlock = beReportsMatch
+              ? `<!-- be-reports -->${beReportsMatch[1]}<!-- /be-reports -->`
+              : `<!-- be-reports -->\n          _BE reports not available yet_\n          <!-- /be-reports -->`;
+
+            const reportsSection = `### Test Reports
+          ${feReportsBlock}
+          ${beReportsBlock}`;
 
             const body = `<!-- test-results-summary -->
             ## Test Results Summary
@@ -124,6 +144,12 @@ runs:
               body: body
             });
           } else {
+            const reportsSection = `### Test Reports
+          ${feReportsBlock}
+          <!-- be-reports -->
+          _BE reports not available yet_
+          <!-- /be-reports -->`;
+
             // Create new comment with placeholder for BE results
             const body = `<!-- test-results-summary -->
             ## Test Results Summary

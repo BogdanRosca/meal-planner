@@ -57,9 +57,20 @@ jobs:
       - name: 🧪 Run unit tests
         run: |
           set -o pipefail
-          npm test -- --coverage --watchAll=false --testTimeout=10000 2>&1 | tee unit-test-output.txt
+          npm test -- --coverage --watchAll=false --testTimeout=10000 --reporters=default --reporters=allure-jest 2>&1 | tee unit-test-output.txt
         env:
           CI: true
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload unit test output
         if: "!cancelled()"
@@ -68,6 +79,14 @@ jobs:
           name: unit-test-output
           path: frontend/unit-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload unit Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-unit-allure-report
+          path: frontend/allure-report/
+          retention-days: 7
 
   integration_tests:
     name: ⚙️ Run integration tests
@@ -121,7 +140,7 @@ jobs:
         run: |
           set -o pipefail
           # Run a focused subset of tests that verify app integration with running server
-          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
+          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 --reporters=default --reporters=allure-jest 2>&1 | tee integration-test-output.txt
         env:
           CI: true
           REACT_APP_API_URL: http://localhost:3000
@@ -134,6 +153,17 @@ jobs:
             rm app.pid
           fi
 
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
+
       - name: 📤 Upload integration test output
         if: "!cancelled()"
         uses: actions/upload-artifact@v4
@@ -141,6 +171,14 @@ jobs:
           name: integration-test-output
           path: frontend/integration-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload integration Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-integration-allure-report
+          path: frontend/allure-report/
+          retention-days: 7
 
   e2e_tests:
     name: 🎭 Run Playwright e2e tests

@@ -55,7 +55,18 @@ jobs:
       - name: 🧪 Run tests
         run: |
           set -o pipefail
-          pytest tests/unit  -v 2>&1 | tee unit-test-output.txt
+          pytest tests/unit -v --alluredir=allure-results 2>&1 | tee unit-test-output.txt
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload unit test output
         if: "!cancelled()"
@@ -64,6 +75,14 @@ jobs:
           name: be-unit-test-output
           path: backend/unit-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload unit Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-unit-allure-report
+          path: backend/allure-report/
+          retention-days: 7
 
   integration_tests:
     name: ⚙️ Run integration tests
@@ -121,7 +140,18 @@ jobs:
       - name: 🧪 Run tests
         run: |
           set -o pipefail
-          pytest tests/integration -v 2>&1 | tee integration-test-output.txt
+          pytest tests/integration -v --alluredir=allure-results 2>&1 | tee integration-test-output.txt
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload integration test output
         if: "!cancelled()"
@@ -130,6 +160,14 @@ jobs:
           name: be-integration-test-output
           path: backend/integration-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload integration Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-integration-allure-report
+          path: backend/allure-report/
+          retention-days: 7
 
   report_results:
     name: 💬 Post test results

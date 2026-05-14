@@ -285,3 +285,9 @@ logs/
 frontend/playwright-report
 frontend/test-results
 
+# Allure
+frontend/allure-results
+frontend/allure-report
+backend/allure-results
+backend/allure-report
+
