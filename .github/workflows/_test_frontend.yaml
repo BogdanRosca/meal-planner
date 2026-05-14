@@ -57,9 +57,11 @@ jobs:
       - name: 🧪 Run unit tests
         run: |
           set -o pipefail
-          npm test -- --coverage --watchAll=false --testTimeout=10000 --reporters=default --reporters=allure-jest 2>&1 | tee unit-test-output.txt
+          npm test -- --coverage --watchAll=false --testTimeout=10000 --reporters=default --reporters=jest-junit 2>&1 | tee unit-test-output.txt
         env:
           CI: true
+          JEST_JUNIT_OUTPUT_DIR: allure-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
 
       - name: 🔧 Setup Allure CLI
         if: "!cancelled()"
@@ -140,10 +142,12 @@ jobs:
         run: |
           set -o pipefail
           # Run a focused subset of tests that verify app integration with running server
-          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 --reporters=default --reporters=allure-jest 2>&1 | tee integration-test-output.txt
+          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 --reporters=default --reporters=jest-junit 2>&1 | tee integration-test-output.txt
         env:
           CI: true
           REACT_APP_API_URL: http://localhost:3000
+          JEST_JUNIT_OUTPUT_DIR: allure-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
 
       - name: 🛑 Stop React application
         if: always()
