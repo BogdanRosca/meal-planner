@@ -53,6 +53,17 @@ runs:
           const feIntegrationSummary = parseSummary(integrationOutput);
           const feE2eSummary = parsePlaywrightSummary(e2eOutput);
 
+          // Resolve Playwright report artifact URL
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: context.runId,
+          });
+          const playwrightArtifact = artifacts.data.artifacts.find(a => a.name === 'playwright-report');
+          const playwrightReportUrl = playwrightArtifact
+            ? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${playwrightArtifact.id}`
+            : null;
+
           // Find existing comment or create placeholder
           const comments = await github.rest.issues.listComments({
             issue_number: context.issue.number,
@@ -89,9 +100,12 @@ runs:
           ${feE2eSummary}
           \`\`\``;
 
+          const reportsSection = `### Test Reports
+          ${playwrightReportUrl ? `- [📊 Playwright Report](${playwrightReportUrl})` : '_No reports available_'}`;
+
           if (existingComment) {
             // Extract BE results if they exist in the comment
-            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### FE|$)/);
+            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### Test Reports|### FE|$)/);
             const beSection = beMatch ? beMatch[1].trim() : '';
 
             const body = `<!-- test-results-summary -->
@@ -99,7 +113,9 @@ runs:
 
             ${feBody}
 
-            ${beSection}`;
+            ${beSection}
+
+            ${reportsSection}`;
 
             await github.rest.issues.updateComment({
               comment_id: existingComment.id,
@@ -115,7 +131,9 @@ runs:
             ${feBody}
 
             ### BE Test Results
-            _Backend tests were not executed or still running..._`;
+            _Backend tests were not executed or still running..._
+
+            ${reportsSection}`;
 
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
