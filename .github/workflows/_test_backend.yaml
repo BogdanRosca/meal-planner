@@ -57,6 +57,24 @@ jobs:
           set -o pipefail
           pytest tests/unit -v --alluredir=allure-results 2>&1 | tee unit-test-output.txt
 
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/be-unit
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p backend/allure-results/history
+          [ -d gh-pages-history/history/be-unit ] && \
+            cp -r gh-pages-history/history/be-unit/. backend/allure-results/history/ || true
+
       - name: 🔧 Setup Allure CLI
         if: "!cancelled()"
         run: |
@@ -142,6 +160,24 @@ jobs:
           set -o pipefail
           pytest tests/integration -v --alluredir=allure-results 2>&1 | tee integration-test-output.txt
 
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/be-integration
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p backend/allure-results/history
+          [ -d gh-pages-history/history/be-integration ] && \
+            cp -r gh-pages-history/history/be-integration/. backend/allure-results/history/ || true
+
       - name: 🔧 Setup Allure CLI
         if: "!cancelled()"
         run: |
@@ -185,20 +221,24 @@ jobs:
       - name: 📥 Download test outputs
         uses: actions/download-artifact@v4
 
-      - name: 📦 Prepare reports directory
+      - name: 📦 Prepare reports and history directories
         if: "!cancelled()"
         run: |
-          mkdir -p be-reports/be-unit be-reports/be-integration
-          [ -d be-unit-allure-report ]        && cp -r be-unit-allure-report/.        be-reports/be-unit/        || true
-          [ -d be-integration-allure-report ] && cp -r be-integration-allure-report/. be-reports/be-integration/ || true
+          mkdir -p deploy/reports/${{ github.run_id }}/be-unit
+          mkdir -p deploy/reports/${{ github.run_id }}/be-integration
+          mkdir -p deploy/history/be-unit
+          mkdir -p deploy/history/be-integration
+          [ -d be-unit-allure-report ]        && cp -r be-unit-allure-report/.        deploy/reports/${{ github.run_id }}/be-unit/        || true
+          [ -d be-integration-allure-report ] && cp -r be-integration-allure-report/. deploy/reports/${{ github.run_id }}/be-integration/ || true
+          [ -d be-unit-allure-report/history ]        && cp -r be-unit-allure-report/history/.        deploy/history/be-unit/        || true
+          [ -d be-integration-allure-report/history ] && cp -r be-integration-allure-report/history/. deploy/history/be-integration/ || true
 
       - name: 🚀 Deploy BE reports to GitHub Pages
         if: "!cancelled()"
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./be-reports
-          destination_dir: reports/${{ github.run_id }}
+          publish_dir: ./deploy
           keep_files: true
 
       - name: 📤 Post BE test results

@@ -63,6 +63,24 @@ jobs:
           JEST_JUNIT_OUTPUT_DIR: allure-results
           JEST_JUNIT_OUTPUT_NAME: junit.xml
 
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/fe-unit
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p frontend/allure-results/history
+          [ -d gh-pages-history/history/fe-unit ] && \
+            cp -r gh-pages-history/history/fe-unit/. frontend/allure-results/history/ || true
+
       - name: 🔧 Setup Allure CLI
         if: "!cancelled()"
         run: |
@@ -157,6 +175,24 @@ jobs:
             rm app.pid
           fi
 
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/fe-integration
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p frontend/allure-results/history
+          [ -d gh-pages-history/history/fe-integration ] && \
+            cp -r gh-pages-history/history/fe-integration/. frontend/allure-results/history/ || true
+
       - name: 🔧 Setup Allure CLI
         if: "!cancelled()"
         run: |
@@ -248,21 +284,26 @@ jobs:
       - name: 📥 Download test outputs
         uses: actions/download-artifact@v4
 
-      - name: 📦 Prepare reports directory
+      - name: 📦 Prepare reports and history directories
         if: "!cancelled()"
         run: |
-          mkdir -p fe-reports/fe-unit fe-reports/fe-integration fe-reports/playwright
-          [ -d fe-unit-allure-report ]       && cp -r fe-unit-allure-report/.       fe-reports/fe-unit/       || true
-          [ -d fe-integration-allure-report ] && cp -r fe-integration-allure-report/. fe-reports/fe-integration/ || true
-          [ -d playwright-report ]            && cp -r playwright-report/.            fe-reports/playwright/     || true
+          mkdir -p deploy/reports/${{ github.run_id }}/fe-unit
+          mkdir -p deploy/reports/${{ github.run_id }}/fe-integration
+          mkdir -p deploy/reports/${{ github.run_id }}/playwright
+          mkdir -p deploy/history/fe-unit
+          mkdir -p deploy/history/fe-integration
+          [ -d fe-unit-allure-report ]        && cp -r fe-unit-allure-report/.        deploy/reports/${{ github.run_id }}/fe-unit/        || true
+          [ -d fe-integration-allure-report ] && cp -r fe-integration-allure-report/. deploy/reports/${{ github.run_id }}/fe-integration/ || true
+          [ -d playwright-report ]            && cp -r playwright-report/.            deploy/reports/${{ github.run_id }}/playwright/     || true
+          [ -d fe-unit-allure-report/history ]        && cp -r fe-unit-allure-report/history/.        deploy/history/fe-unit/        || true
+          [ -d fe-integration-allure-report/history ] && cp -r fe-integration-allure-report/history/. deploy/history/fe-integration/ || true
 
       - name: 🚀 Deploy FE reports to GitHub Pages
         if: "!cancelled()"
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./fe-reports
-          destination_dir: reports/${{ github.run_id }}
+          publish_dir: ./deploy
           keep_files: true
 
       - name: 📤 Post FE test results
