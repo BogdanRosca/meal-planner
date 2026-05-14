@@ -1,0 +1,1 @@
+[{'type': 'int_parsing', 'loc': ('id',), 'msg': 'Input should be a valid integer, unable to parse string as an integer', 'input': 'not-a-number', 'url': 'https://errors.pydantic.dev/2.13/v/int_parsing'}]
