@@ -105,9 +105,9 @@ runs:
 
           // Build FE reports block (owns playwright + FE allure links)
           const feReportLinks = [
-            feUnitAllureUrl && `- [📊 Unit Tests Allure Report](${feUnitAllureUrl})`,
-            feIntegrationAllureUrl && `- [📊 Integration Tests Allure Report](${feIntegrationAllureUrl})`,
-            playwrightReportUrl && `- [🎭 E2E Tests Playwright Report](${playwrightReportUrl})`,
+            feUnitAllureUrl && `• [📊 Unit Tests Allure Report](${feUnitAllureUrl})`,
+            feIntegrationAllureUrl && `• [📊 Integration Tests Allure Report](${feIntegrationAllureUrl})`,
+            playwrightReportUrl && `• [🎭 E2E Tests Playwright Report](${playwrightReportUrl})`,
           ].filter(Boolean).join('\n          ');
           const feReportsBlock = `<!-- fe-reports -->
           **FE Reports**

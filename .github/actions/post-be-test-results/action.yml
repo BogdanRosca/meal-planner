@@ -79,8 +79,8 @@ runs:
 
           // Build BE reports block (owns BE allure links)
           const beReportLinks = [
-            beUnitAllureUrl && `- [📊 Unit Tests Allure Report](${beUnitAllureUrl})`,
-            beIntegrationAllureUrl && `- [📊 Integration Tests Allure Report](${beIntegrationAllureUrl})`,
+            beUnitAllureUrl && `• [📊 Unit Tests Allure Report](${beUnitAllureUrl})`,
+            beIntegrationAllureUrl && `• [📊 Integration Tests Allure Report](${beIntegrationAllureUrl})`,
           ].filter(Boolean).join('\n          ');
           const beReportsBlock = `<!-- be-reports -->
           **BE Reports**
