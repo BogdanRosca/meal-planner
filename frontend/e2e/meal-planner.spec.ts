@@ -44,4 +44,28 @@ test.describe('Meal Planner - Add and remove a meal', () => {
       await mealPlanner.assertRecipeInSlot('Scrambled Eggs');
     });
   });
+
+  test('Delete a breakfast meal from the first day of the week', async ({
+    page,
+  }) => {
+    await test.step('Add a breakfast recipe', async () => {
+      await mealPlanner.openMealSlot(0);
+      await mockAddMealPlanEntry(page, MOCK_ENTRY);
+      await mealPlanner.selectRecipe(/Scrambled Eggs/i);
+      await mealPlanner.assertSelectorClosed();
+    });
+
+    await test.step('Verify recipe appears in slot', async () => {
+      await mealPlanner.assertRecipeInSlot('Scrambled Eggs');
+    });
+
+    await test.step('Delete the recipe', async () => {
+      await mockDeleteMealPlanEntry(page);
+      await mealPlanner.removeRecipe('Scrambled Eggs');
+    });
+
+    await test.step('Verify recipe is removed from slot', async () => {
+      await mealPlanner.assertRecipeNotInSlot('Scrambled Eggs');
+    });
+  });
 });
