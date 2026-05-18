@@ -55,6 +55,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // This gives both agents a real, named branch that persists across phases.
   const sandbox = await sandcastle.createSandbox({
     branch,
+    cwd: "..",
     sandbox: docker(),
     hooks,
     copyToWorktree,
@@ -73,7 +74,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     const implement = await sandbox.run({
       name: "implementer",
       maxIterations: 100,
-      agent: sandcastle.claudeCode("claude-opus-4-6"),
+      agent: sandcastle.claudeCode("claude-haiku-4-5-20251001"),
       promptFile: "./implement-prompt.md",
     });
 
@@ -95,7 +96,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     await sandbox.run({
       name: "reviewer",
       maxIterations: 1,
-      agent: sandcastle.claudeCode("claude-opus-4-6"),
+      agent: sandcastle.claudeCode("claude-haiku-4-5-20251001"),
       promptFile: "./review-prompt.md",
       promptArgs: {
         BRANCH: branch,
