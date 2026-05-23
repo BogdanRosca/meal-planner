@@ -1,5 +1,9 @@
 {
   "dependencies": {
     "@ai-hero/sandcastle": "^0.5.10"
+  },
+  "scripts": {
+    "sandcastle": "npx tsx main.mts",
+    "build-image": "cd .. && sandcastle docker build-image --image-name sandcastle:meal-planner-app"
   }
 }
