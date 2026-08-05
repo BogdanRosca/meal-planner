@@ -25,8 +25,9 @@ pip install -r requirements.txt
 ### Frontend Development
 
 - **Install dependencies:** `cd frontend && npm ci`
-- **Run dev server:** `cd frontend && npm run dev` (starts on port 3000)
+- **Run dev server:** `cd frontend && npm start` (starts on port 3000)
 - **Run prod build:** `cd frontend && npm run build`
+- **Serve prod build:** `cd frontend && npm run serve`
 - **Run tests:** `cd frontend && npm test -- --watchAll=false`
 - **Run single test:** `cd frontend && npm test -- --testNamePattern="test name" --watchAll=false`
 - **Lint:** `cd frontend && npm run lint`
