@@ -82,6 +82,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
               return (
                 <div
                   key={`${slot.key}-${dayIndex}`}
+                  data-testid={`meal-cell-${slot.key}-${dayIndex}`}
                   className={`${styles['calendar-cell']} ${
                     styles['calendar-meal-cell']
                   } ${entry ? styles['cell-filled'] : styles['cell-empty']}`}

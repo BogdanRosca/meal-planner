@@ -51,6 +51,7 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className={styles['selector-search-input']}
+            data-testid="recipe-search-input"
           />
         </div>
         <div className={styles['selector-list']}>
@@ -64,6 +65,7 @@ const RecipeSelectorModal: React.FC<RecipeSelectorModalProps> = ({
             filtered.map(recipe => (
               <button
                 key={recipe.id}
+                data-testid={`recipe-option-${recipe.id}`}
                 className={styles['selector-item']}
                 onClick={() => onSelect(recipe)}
               >
