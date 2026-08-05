@@ -1,29 +1,29 @@
 import { test, expect } from '@playwright/test';
-
-const MONDAY_BREAKFAST_CELL = 'meal-cell-breakfast-0';
+import { MealPlannerPage } from './pages/MealPlannerPage';
 
 test.describe('Meal Planner calendar', () => {
-  test.afterEach(async ({ page }) => {
-    const removeButton = page.getByRole('button', { name: /^Remove /i });
-    if (await removeButton.isVisible().catch(() => false)) {
-      await removeButton.click();
-    }
+  let mealPlanner: MealPlannerPage;
+
+  test.beforeEach(async ({ page }) => {
+    mealPlanner = new MealPlannerPage(page);
   });
 
-  test('adds a recipe to the calendar via search', async ({ page }) => {
-    await page.goto('/');
+  test.afterEach(async () => {
+    await mealPlanner.removeAnyEntry();
+  });
 
-    await page.getByTestId(MONDAY_BREAKFAST_CELL).click();
+  test('adds a recipe to the calendar via search', async () => {
+    await mealPlanner.goto();
 
-    const recipeOptions = page.locator('[data-testid^="recipe-option-"]');
-    await expect(recipeOptions).toHaveCount(3);
+    await mealPlanner.openMealSlot('breakfast', 0);
+    await expect(mealPlanner.recipeOptions).toHaveCount(3);
 
-    await page.getByTestId('recipe-search-input').fill('turk');
-    await expect(recipeOptions).toHaveCount(1);
+    await mealPlanner.searchRecipes('turk');
+    await expect(mealPlanner.recipeOptions).toHaveCount(1);
 
-    await page.getByRole('button', { name: /Turkish eggs/i }).click();
+    await mealPlanner.selectRecipe(/Turkish eggs/i);
 
-    await expect(page.getByTestId(MONDAY_BREAKFAST_CELL)).toContainText(
+    await expect(mealPlanner.mealCell('breakfast', 0)).toContainText(
       'Turkish eggs'
     );
   });
