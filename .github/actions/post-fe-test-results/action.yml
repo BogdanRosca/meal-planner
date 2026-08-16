@@ -22,9 +22,11 @@ runs:
           // Read FE test outputs
           const unitFile = findTestFile('unit-test-output');
           const integrationFile = findTestFile('integration-test-output');
+          const e2eFile = findTestFile('e2e-test-output');
 
           const unitOutput = unitFile ? fs.readFileSync(unitFile, 'utf8') : '';
           const integrationOutput = integrationFile ? fs.readFileSync(integrationFile, 'utf8') : '';
+          const e2eOutput = e2eFile ? fs.readFileSync(e2eFile, 'utf8') : '';
 
           // Parse Jest summary
           const parseSummary = (output) => {
@@ -38,8 +40,17 @@ runs:
             ).join('\n') || 'No results available';
           };
 
+          // Parse Playwright summary (e.g. "3 passed (12.4s)" / "1 failed")
+          const parseE2eSummary = (output) => {
+            const lines = output.split('\n');
+            return lines.filter(line =>
+              /^\s*\d+\s+(passed|failed|flaky|skipped)/.test(line)
+            ).join('\n') || 'No results available';
+          };
+
           const feUnitSummary = parseSummary(unitOutput);
           const feIntegrationSummary = parseSummary(integrationOutput);
+          const feE2eSummary = parseE2eSummary(e2eOutput);
 
           // Find existing comment or create placeholder
           const comments = await github.rest.issues.listComments({
@@ -55,9 +66,13 @@ runs:
           // Detect test failures by looking for "failed" in the summary line
           const hasUnitFailure = unitOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
           const hasIntegrationFailure = integrationOutput.match(/^\s*Tests:\s+.*\d+\s+failed/m);
+          const hasE2eFailure = e2eOutput.match(/\d+\s+failed/);
 
           const unitIcon = hasUnitFailure ? '❌' : '✅';
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
+          const e2eIcon = hasE2eFailure ? '❌' : '✅';
+
+          const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
           let feBody = `### FE Test Results
           **Unit Tests** ${unitIcon}
@@ -68,7 +83,13 @@ runs:
           **Integration Tests** ${integrationIcon}
           \`\`\`
           ${feIntegrationSummary}
-          \`\`\``;
+          \`\`\`
+
+          **E2E Tests** ${e2eIcon}
+          \`\`\`
+          ${feE2eSummary}
+          \`\`\`
+          [Full Playwright report](${runUrl})`;
 
           if (existingComment) {
             // Extract BE results if they exist in the comment
