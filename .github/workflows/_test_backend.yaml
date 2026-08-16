@@ -55,7 +55,36 @@ jobs:
       - name: 🧪 Run tests
         run: |
           set -o pipefail
-          pytest tests/unit  -v 2>&1 | tee unit-test-output.txt
+          pytest tests/unit -v --alluredir=allure-results 2>&1 | tee unit-test-output.txt
+
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/be-unit
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p backend/allure-results/history
+          [ -d gh-pages-history/history/be-unit ] && \
+            cp -r gh-pages-history/history/be-unit/. backend/allure-results/history/ || true
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload unit test output
         if: "!cancelled()"
@@ -64,6 +93,14 @@ jobs:
           name: be-unit-test-output
           path: backend/unit-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload unit Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-unit-allure-report
+          path: backend/allure-report/
+          retention-days: 7
 
   integration_tests:
     name: ⚙️ Run integration tests
@@ -121,7 +158,36 @@ jobs:
       - name: 🧪 Run tests
         run: |
           set -o pipefail
-          pytest tests/integration -v 2>&1 | tee integration-test-output.txt
+          pytest tests/integration -v --alluredir=allure-results 2>&1 | tee integration-test-output.txt
+
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/be-integration
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p backend/allure-results/history
+          [ -d gh-pages-history/history/be-integration ] && \
+            cp -r gh-pages-history/history/be-integration/. backend/allure-results/history/ || true
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload integration test output
         if: "!cancelled()"
@@ -131,6 +197,14 @@ jobs:
           path: backend/integration-test-output.txt
           retention-days: 1
 
+      - name: 📤 Upload integration Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: be-integration-allure-report
+          path: backend/allure-report/
+          retention-days: 7
+
   report_results:
     name: 💬 Post test results
     runs-on: ubuntu-latest
@@ -138,6 +212,7 @@ jobs:
     if: always()
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: 📁 Checkout code
@@ -145,6 +220,26 @@ jobs:
 
       - name: 📥 Download test outputs
         uses: actions/download-artifact@v4
+
+      - name: 📦 Prepare reports and history directories
+        if: "!cancelled()"
+        run: |
+          mkdir -p deploy/reports/${{ github.run_id }}/be-unit
+          mkdir -p deploy/reports/${{ github.run_id }}/be-integration
+          mkdir -p deploy/history/be-unit
+          mkdir -p deploy/history/be-integration
+          [ -d be-unit-allure-report ]        && cp -r be-unit-allure-report/.        deploy/reports/${{ github.run_id }}/be-unit/        || true
+          [ -d be-integration-allure-report ] && cp -r be-integration-allure-report/. deploy/reports/${{ github.run_id }}/be-integration/ || true
+          [ -d be-unit-allure-report/history ]        && cp -r be-unit-allure-report/history/.        deploy/history/be-unit/        || true
+          [ -d be-integration-allure-report/history ] && cp -r be-integration-allure-report/history/. deploy/history/be-integration/ || true
+
+      - name: 🚀 Deploy BE reports to GitHub Pages
+        if: "!cancelled()"
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
+          keep_files: true
 
       - name: 📤 Post BE test results
         uses: ./.github/actions/post-be-test-results

@@ -1,30 +1,47 @@
-import { test, expect } from './fixtures';
+import { test } from '@playwright/test';
+import { MealPlannerPage } from './pages/meal-planner.page';
+import {
+  MOCK_ENTRY,
+  mockAddMealPlanEntry,
+  mockDeleteMealPlanEntry,
+  mockMealPlanEntries,
+  mockRecipes,
+} from './mocks/meal-planner.mocks';
 
-test.describe('Meal Planner calendar', () => {
-  test('adds a recipe to the calendar via search', async ({
-    mealPlannerPage,
-  }) => {
-    /* Arrange */
-    await test.step('Click Monday to add new breakfast', async () => {
-      await mealPlannerPage.openMealSlot('breakfast', 0);
-      await expect(mealPlannerPage.recipeOptions).toHaveCount(3);
-    });
+test.describe('Meal Planner - Add and remove a meal', () => {
+  let mealPlanner: MealPlannerPage;
 
-    await test.step("Partial type to seach for 'Turkish eggs'", async () => {
-      await mealPlannerPage.searchRecipes('turk');
-      await expect(mealPlannerPage.recipeOptions).toHaveCount(1);
-    });
+  test.beforeEach(async ({ page }) => {
+    await mockRecipes(page);
+    await mockMealPlanEntries(page, []);
 
-    /* Act */
-    await test.step("Add 'Turkish eggs' recipe to breakfast", async () => {
-      await mealPlannerPage.selectRecipe(/Turkish eggs/i);
-    });
+    mealPlanner = new MealPlannerPage(page);
+    await mealPlanner.goto();
+  });
 
-    /* Assert */
-    await test.step("Check 'Turkish eggs' was added to calendar as breakfast", async () => {
-      await expect(mealPlannerPage.mealCell('breakfast', 0)).toContainText(
-        'Turkish eggs'
+  test.afterEach(async ({ page }) => {
+    await mockDeleteMealPlanEntry(page);
+    await mealPlanner.removeRecipe('Scrambled Eggs');
+    await mealPlanner.assertRecipeNotInSlot('Scrambled Eggs');
+  });
+
+  test('Add a breakfast for the first day of the week', async ({ page }) => {
+    await test.step('Click + to add breakfast recipe', async () => {
+      await mealPlanner.openMealSlot(0);
+      await mealPlanner.assertOnlyMatchingRecipes(
+        'Scrambled Eggs',
+        'Grilled Chicken'
       );
+    });
+
+    await test.step('Select Scrambled Eggs', async () => {
+      await mockAddMealPlanEntry(page, MOCK_ENTRY);
+      await mealPlanner.selectRecipe(/Scrambled Eggs/i);
+      await mealPlanner.assertSelectorClosed();
+    });
+
+    await test.step('Verify recipe appears in right slot', async () => {
+      await mealPlanner.assertRecipeInSlot('Scrambled Eggs');
     });
   });
 });

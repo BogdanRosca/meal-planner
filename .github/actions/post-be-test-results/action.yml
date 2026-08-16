@@ -35,6 +35,12 @@ runs:
           const beUnitSummary = parsePytestSummary(unitOutput);
           const beIntegrationSummary = parsePytestSummary(integrationOutput);
 
+          // Construct GitHub Pages report URLs
+          const pagesBase = `https://${context.repo.owner.toLowerCase()}.github.io/${context.repo.repo}`;
+          const reportsBase = `${pagesBase}/reports/${context.runId}`;
+          const beUnitAllureUrl = `${reportsBase}/be-unit`;
+          const beIntegrationAllureUrl = `${reportsBase}/be-integration`;
+
           // Find existing comment
           const comments = await github.rest.issues.listComments({
             issue_number: context.issue.number,
@@ -64,17 +70,39 @@ runs:
           ${beIntegrationSummary}
           \`\`\``;
 
+          // Build BE reports block (owns BE allure links)
+          const beReportLinks = [
+            beUnitAllureUrl && `• [📊 Unit Tests Allure Report](${beUnitAllureUrl})`,
+            beIntegrationAllureUrl && `• [📊 Integration Tests Allure Report](${beIntegrationAllureUrl})`,
+          ].filter(Boolean).join('\n          ');
+          const beReportsBlock = `<!-- be-reports -->
+          **BE Reports**
+          ${beReportLinks || '_No BE reports available yet_'}
+          <!-- /be-reports -->`;
+
           if (existingComment) {
-            // Extract FE results if they exist
+            // Extract FE results section (stop before BE or end)
             const feMatch = existingComment.body.match(/(### FE Test Results[\s\S]*?)(?=### BE|$)/);
             const feSection = feMatch ? feMatch[1].trim() : '### FE Test Results\n_Waiting for frontend tests to complete..._';
+
+            // Preserve FE reports block if already posted by FE workflow
+            const feReportsMatch = existingComment.body.match(/<!-- fe-reports -->([\s\S]*?)<!-- \/fe-reports -->/);
+            const feReportsBlock = feReportsMatch
+              ? `<!-- fe-reports -->${feReportsMatch[1]}<!-- /fe-reports -->`
+              : `<!-- fe-reports -->\n          _FE reports not available yet_\n          <!-- /fe-reports -->`;
+
+            const reportsSection = `### Test Reports
+          ${feReportsBlock}
+          ${beReportsBlock}`;
 
             const body = `<!-- test-results-summary -->
             ## Test Results Summary
 
             ${feSection}
 
-            ${beBody}`;
+            ${beBody}
+
+            ${reportsSection}`;
 
             await github.rest.issues.updateComment({
               comment_id: existingComment.id,
@@ -83,6 +111,12 @@ runs:
               body: body
             });
           } else {
+            const reportsSection = `### Test Reports
+          <!-- fe-reports -->
+          _FE reports not available yet_
+          <!-- /fe-reports -->
+          ${beReportsBlock}`;
+
             // Create new comment with placeholder for FE results
             const body = `<!-- test-results-summary -->
             ## Test Results Summary
@@ -90,7 +124,9 @@ runs:
             ### FE Test Results
             _Frontend tests were not executed or still running..._
 
-            ${beBody}`;
+            ${beBody}
+
+            ${reportsSection}`;
 
             await github.rest.issues.createComment({
               issue_number: context.issue.number,

@@ -57,9 +57,40 @@ jobs:
       - name: 🧪 Run unit tests
         run: |
           set -o pipefail
-          npm test -- --coverage --watchAll=false --testTimeout=10000 2>&1 | tee unit-test-output.txt
+          npm test -- --coverage --watchAll=false --testTimeout=10000 --reporters=default --reporters=jest-junit 2>&1 | tee unit-test-output.txt
         env:
           CI: true
+          JEST_JUNIT_OUTPUT_DIR: allure-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
+
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/fe-unit
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p frontend/allure-results/history
+          [ -d gh-pages-history/history/fe-unit ] && \
+            cp -r gh-pages-history/history/fe-unit/. frontend/allure-results/history/ || true
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
 
       - name: 📤 Upload unit test output
         if: "!cancelled()"
@@ -68,6 +99,14 @@ jobs:
           name: unit-test-output
           path: frontend/unit-test-output.txt
           retention-days: 1
+
+      - name: 📤 Upload unit Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-unit-allure-report
+          path: frontend/allure-report/
+          retention-days: 7
 
   integration_tests:
     name: ⚙️ Run integration tests
@@ -121,10 +160,12 @@ jobs:
         run: |
           set -o pipefail
           # Run a focused subset of tests that verify app integration with running server
-          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 2>&1 | tee integration-test-output.txt
+          npm test -- --testPathPattern="(services|hooks)" --watchAll=false --testTimeout=10000 --reporters=default --reporters=jest-junit 2>&1 | tee integration-test-output.txt
         env:
           CI: true
           REACT_APP_API_URL: http://localhost:3000
+          JEST_JUNIT_OUTPUT_DIR: allure-results
+          JEST_JUNIT_OUTPUT_NAME: junit.xml
 
       - name: 🛑 Stop React application
         if: always()
@@ -134,6 +175,35 @@ jobs:
             rm app.pid
           fi
 
+      - name: 📚 Fetch Allure history
+        if: "!cancelled()"
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-history
+          sparse-checkout: history/fe-integration
+          sparse-checkout-cone-mode: false
+
+      - name: 📁 Restore Allure history
+        if: "!cancelled()"
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir -p frontend/allure-results/history
+          [ -d gh-pages-history/history/fe-integration ] && \
+            cp -r gh-pages-history/history/fe-integration/. frontend/allure-results/history/ || true
+
+      - name: 🔧 Setup Allure CLI
+        if: "!cancelled()"
+        run: |
+          curl -sLo /tmp/allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -xzf /tmp/allure.tgz -C /tmp
+          echo "/tmp/allure-2.27.0/bin" >> $GITHUB_PATH
+
+      - name: 📊 Generate Allure report
+        if: "!cancelled()"
+        run: allure generate allure-results -o allure-report --clean
+
       - name: 📤 Upload integration test output
         if: "!cancelled()"
         uses: actions/upload-artifact@v4
@@ -142,26 +212,21 @@ jobs:
           path: frontend/integration-test-output.txt
           retention-days: 1
 
+      - name: 📤 Upload integration Allure report
+        if: "!cancelled()"
+        uses: actions/upload-artifact@v4
+        with:
+          name: fe-integration-allure-report
+          path: frontend/allure-report/
+          retention-days: 7
+
   e2e_tests:
-    name: 🎭 Run e2e tests
+    name: 🎭 Run Playwright e2e tests
     runs-on: ubuntu-latest
     needs: lint
-    env:
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: supermarket
-          POSTGRES_USER: chubby.user
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
       - name: 📁 Checkout code
@@ -174,64 +239,25 @@ jobs:
           cache: "npm"
           cache-dependency-path: "./frontend/package-lock.json"
 
-      - name: 🐍 Set up Python 3.13.7
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.13.7"
-
-      - name: 🏗️ Install backend dependencies
-        working-directory: ./backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 💿 Setup database
-        uses: ./.github/actions/setup-database
-        with:
-          working-directory: "./backend"
-
-      - name: ▶️ Start backend server in background
-        working-directory: ./backend
-        run: |
-          uvicorn app.main:app --host 127.0.0.1 --port 8000 &
-          echo $! > backend.pid
-
-      - name: ⏳ Wait for backend to be ready
-        run: |
-          timeout 60 bash -c 'until curl -f http://127.0.0.1:8000/health; do sleep 2; done'
-          echo "Backend is ready!"
-
-      - name: 📥 Install frontend dependencies
-        working-directory: ./frontend
+      - name: 📥 Install dependencies
         run: npm ci
 
       - name: 🎭 Install Playwright browsers
-        working-directory: ./frontend
         run: npx playwright install --with-deps chromium
 
-      - name: 🧪 Run e2e tests
-        working-directory: ./frontend
+      - name: 🎭 Run Playwright e2e tests
         run: |
           set -o pipefail
           npm run test:e2e 2>&1 | tee e2e-test-output.txt
         env:
           CI: true
 
-      - name: 🛑 Stop backend server
-        if: always()
-        working-directory: ./backend
-        run: |
-          if [ -f backend.pid ]; then
-            kill $(cat backend.pid) || true
-            rm backend.pid
-          fi
-
-      - name: 📤 Upload Playwright HTML report
+      - name: 📤 Upload Playwright report
         if: "!cancelled()"
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: frontend/playwright-report
+          path: frontend/playwright-report/
           retention-days: 7
 
       - name: 📤 Upload e2e test output
@@ -249,6 +275,7 @@ jobs:
     if: always()
     permissions:
       pull-requests: write
+      contents: write
 
     steps:
       - name: 📁 Checkout code
@@ -256,6 +283,28 @@ jobs:
 
       - name: 📥 Download test outputs
         uses: actions/download-artifact@v4
+
+      - name: 📦 Prepare reports and history directories
+        if: "!cancelled()"
+        run: |
+          mkdir -p deploy/reports/${{ github.run_id }}/fe-unit
+          mkdir -p deploy/reports/${{ github.run_id }}/fe-integration
+          mkdir -p deploy/reports/${{ github.run_id }}/playwright
+          mkdir -p deploy/history/fe-unit
+          mkdir -p deploy/history/fe-integration
+          [ -d fe-unit-allure-report ]        && cp -r fe-unit-allure-report/.        deploy/reports/${{ github.run_id }}/fe-unit/        || true
+          [ -d fe-integration-allure-report ] && cp -r fe-integration-allure-report/. deploy/reports/${{ github.run_id }}/fe-integration/ || true
+          [ -d playwright-report ]            && cp -r playwright-report/.            deploy/reports/${{ github.run_id }}/playwright/     || true
+          [ -d fe-unit-allure-report/history ]        && cp -r fe-unit-allure-report/history/.        deploy/history/fe-unit/        || true
+          [ -d fe-integration-allure-report/history ] && cp -r fe-integration-allure-report/history/. deploy/history/fe-integration/ || true
+
+      - name: 🚀 Deploy FE reports to GitHub Pages
+        if: "!cancelled()"
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
+          keep_files: true
 
       - name: 📤 Post FE test results
         uses: ./.github/actions/post-fe-test-results

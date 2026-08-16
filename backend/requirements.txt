@@ -5,3 +5,4 @@ httpx==0.25.2
 psycopg2-binary==2.9.10
 python-dotenv==1.0.0
 flake8==6.1.0
+allure-pytest==2.13.5

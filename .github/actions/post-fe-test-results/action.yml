@@ -40,17 +40,25 @@ runs:
             ).join('\n') || 'No results available';
           };
 
-          // Parse Playwright summary (e.g. "3 passed (12.4s)" / "1 failed")
-          const parseE2eSummary = (output) => {
+          // Parse Playwright summary
+          const parsePlaywrightSummary = (output) => {
             const lines = output.split('\n');
             return lines.filter(line =>
-              /^\s*\d+\s+(passed|failed|flaky|skipped)/.test(line)
+              /\d+\s+(passed|failed|skipped)/.test(line) ||
+              /Running \d+ test/.test(line)
             ).join('\n') || 'No results available';
           };
 
           const feUnitSummary = parseSummary(unitOutput);
           const feIntegrationSummary = parseSummary(integrationOutput);
-          const feE2eSummary = parseE2eSummary(e2eOutput);
+          const feE2eSummary = parsePlaywrightSummary(e2eOutput);
+
+          // Construct GitHub Pages report URLs
+          const pagesBase = `https://${context.repo.owner.toLowerCase()}.github.io/${context.repo.repo}`;
+          const reportsBase = `${pagesBase}/reports/${context.runId}`;
+          const playwrightReportUrl = `${reportsBase}/playwright`;
+          const feUnitAllureUrl = `${reportsBase}/fe-unit`;
+          const feIntegrationAllureUrl = `${reportsBase}/fe-integration`;
 
           // Find existing comment or create placeholder
           const comments = await github.rest.issues.listComments({
@@ -72,8 +80,6 @@ runs:
           const integrationIcon = hasIntegrationFailure ? '❌' : '✅';
           const e2eIcon = hasE2eFailure ? '❌' : '✅';
 
-          const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-
           let feBody = `### FE Test Results
           **Unit Tests** ${unitIcon}
           \`\`\`
@@ -88,20 +94,42 @@ runs:
           **E2E Tests** ${e2eIcon}
           \`\`\`
           ${feE2eSummary}
-          \`\`\`
-          [Full Playwright report](${runUrl})`;
+          \`\`\``;
+
+          // Build FE reports block (owns playwright + FE allure links)
+          const feReportLinks = [
+            feUnitAllureUrl && `• [📊 Unit Tests Allure Report](${feUnitAllureUrl})`,
+            feIntegrationAllureUrl && `• [📊 Integration Tests Allure Report](${feIntegrationAllureUrl})`,
+            playwrightReportUrl && `• [🎭 E2E Tests Playwright Report](${playwrightReportUrl})`,
+          ].filter(Boolean).join('\n          ');
+          const feReportsBlock = `<!-- fe-reports -->
+          **FE Reports**
+          ${feReportLinks || '_No FE reports available yet_'}
+          <!-- /fe-reports -->`;
 
           if (existingComment) {
-            // Extract BE results if they exist in the comment
-            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### FE|$)/);
+            // Extract BE results section (stop before Test Reports or end)
+            const beMatch = existingComment.body.match(/(### BE Test Results[\s\S]*?)(?=### Test Reports|$)/);
             const beSection = beMatch ? beMatch[1].trim() : '';
+
+            // Preserve BE reports block if already posted by BE workflow
+            const beReportsMatch = existingComment.body.match(/<!-- be-reports -->([\s\S]*?)<!-- \/be-reports -->/);
+            const beReportsBlock = beReportsMatch
+              ? `<!-- be-reports -->${beReportsMatch[1]}<!-- /be-reports -->`
+              : `<!-- be-reports -->\n          _BE reports not available yet_\n          <!-- /be-reports -->`;
+
+            const reportsSection = `### Test Reports
+          ${feReportsBlock}
+          ${beReportsBlock}`;
 
             const body = `<!-- test-results-summary -->
             ## Test Results Summary
 
             ${feBody}
 
-            ${beSection}`;
+            ${beSection}
+
+            ${reportsSection}`;
 
             await github.rest.issues.updateComment({
               comment_id: existingComment.id,
@@ -110,6 +138,12 @@ runs:
               body: body
             });
           } else {
+            const reportsSection = `### Test Reports
+          ${feReportsBlock}
+          <!-- be-reports -->
+          _BE reports not available yet_
+          <!-- /be-reports -->`;
+
             // Create new comment with placeholder for BE results
             const body = `<!-- test-results-summary -->
             ## Test Results Summary
@@ -117,7 +151,9 @@ runs:
             ${feBody}
 
             ### BE Test Results
-            _Backend tests were not executed or still running..._`;
+            _Backend tests were not executed or still running..._
+
+            ${reportsSection}`;
 
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
