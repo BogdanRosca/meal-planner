@@ -6,4 +6,5 @@ export const API_ENDPOINTS = {
   RECIPES: `${API_BASE_URL}/recipes`,
   MEAL_PLANS: `${API_BASE_URL}/meal-plans`,
   SHOPPING_LIST: `${API_BASE_URL}/shopping-list`,
+  RECIPE_IMPORT_YOUTUBE: `${API_BASE_URL}/recipes/import/youtube`,
 };

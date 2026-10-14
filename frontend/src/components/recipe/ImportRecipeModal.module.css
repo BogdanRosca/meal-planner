@@ -1,0 +1,128 @@
+.overlay {
+  composes: modal-overlay from './AddRecipeModal.module.css';
+}
+
+.modal {
+  composes: add-recipe-modal from './AddRecipeModal.module.css';
+  max-width: 560px;
+}
+
+.header {
+  composes: modal-header from './AddRecipeModal.module.css';
+}
+
+.header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #5b8266;
+  font-weight: 600;
+}
+
+.close-button {
+  composes: close-button from './AddRecipeModal.module.css';
+}
+
+.form {
+  composes: add-recipe-form from './AddRecipeModal.module.css';
+}
+
+.form-group {
+  composes: form-group from './AddRecipeModal.module.css';
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
+}
+
+.input {
+  composes: form-input from './AddRecipeModal.module.css';
+}
+
+.input[aria-invalid='true'] {
+  border-color: #e74c3c;
+}
+
+.field-error {
+  margin: 6px 0 0;
+  color: #c0392b;
+  font-size: 14px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  color: #5b8266;
+  font-weight: 500;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.request-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 8px;
+  background: rgba(231, 76, 60, 0.08);
+  color: #c0392b;
+}
+
+.request-error p {
+  margin: 0;
+}
+
+.manual-btn {
+  composes: add-btn from './AddRecipeModal.module.css';
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.actions {
+  composes: form-actions from './AddRecipeModal.module.css';
+  margin-top: 10px;
+}
+
+.cancel-btn {
+  composes: cancel-btn from './AddRecipeModal.module.css';
+}
+
+.submit-btn {
+  composes: submit-btn from './AddRecipeModal.module.css';
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.close-button:focus-visible,
+.cancel-btn:focus-visible,
+.submit-btn:focus-visible,
+.manual-btn:focus-visible {
+  outline: 2px solid #5b8266;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

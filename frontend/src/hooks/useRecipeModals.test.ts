@@ -329,4 +329,21 @@ describe('useRecipeModals hook', () => {
       expect(result.current.deleteConfirmation.isOpen).toBe(false);
     });
   });
+
+  describe('Import Modal', () => {
+    it('should open and close the import modal', () => {
+      const { result } = renderHook(() => useRecipeModals());
+      expect(result.current.isImportModalOpen).toBe(false);
+
+      act(() => {
+        result.current.openImportModal();
+      });
+      expect(result.current.isImportModalOpen).toBe(true);
+
+      act(() => {
+        result.current.closeImportModal();
+      });
+      expect(result.current.isImportModalOpen).toBe(false);
+    });
+  });
 });

@@ -41,6 +41,29 @@
   transform: translateY(0);
 }
 
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.import-recipe-button {
+  composes: add-recipe-button;
+  background-color: white;
+  color: #5b8266;
+  border: 1px solid #5b8266;
+}
+
+.import-recipe-button:hover {
+  background-color: #f0f5f1;
+}
+
+.add-recipe-button:focus-visible,
+.import-recipe-button:focus-visible {
+  outline: 2px solid #294936;
+  outline-offset: 2px;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .recipes-action-bar {

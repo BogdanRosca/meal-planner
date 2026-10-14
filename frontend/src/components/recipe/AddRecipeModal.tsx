@@ -1,37 +1,113 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, BookOpen } from 'lucide-react';
-import { Recipe, Ingredient } from '../../types/recipe';
+import {
+  X,
+  Plus,
+  Trash2,
+  BookOpen,
+  AlertTriangle,
+  Sparkles,
+} from 'lucide-react';
+import {
+  Recipe,
+  Ingredient,
+  FieldFlags,
+  RecipeDraftField,
+  DuplicateRecipe,
+} from '../../types/recipe';
+import {
+  INGREDIENT_UNITS,
+  RECIPE_CATEGORIES,
+} from '../../config/recipeOptions';
 import styles from './AddRecipeModal.module.css';
+
+export type RecipeFormValues = Partial<{
+  [K in keyof Omit<Recipe, 'id'>]: Omit<Recipe, 'id'>[K] | null;
+}>;
 
 interface AddRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddRecipe: (_recipe: Omit<Recipe, 'id'>) => void;
+  initialValues?: RecipeFormValues;
+  fieldFlags?: FieldFlags;
+  duplicateOf?: DuplicateRecipe | null;
 }
+
+const FLAG_HINTS = {
+  missing: 'Missing — please fill in',
+  estimated: 'Estimated — please check',
+} as const;
+
+const EMPTY_INGREDIENT: Ingredient = { name: '', unit: 'g', quantity: 0 };
 
 const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   isOpen,
   onClose,
   onAddRecipe,
+  initialValues,
+  fieldFlags,
+  duplicateOf,
 }) => {
-  const [name, setName] = useState<string>('');
-  const [category, setCategory] = useState<string>('dinner');
-  const [instructions, setInstructions] = useState<string>('');
-  const [prepTime, setPrepTime] = useState<number>(15);
-  const [portions, setPortions] = useState<number>(2);
-  const [fotoUrl, setFotoUrl] = useState<string>('');
-  const [videoUrl, setVideoUrl] = useState<string>('');
-  const [mainIngredients, setMainIngredients] = useState<Ingredient[]>([
-    { name: '', unit: 'g', quantity: 0 },
-  ]);
+  // Initial values are read once on mount; render with a fresh `key` per draft
+  const [name, setName] = useState<string>(initialValues?.name ?? '');
+  const [category, setCategory] = useState<string>(
+    initialValues?.category ?? 'dinner'
+  );
+  const [instructions, setInstructions] = useState<string>(
+    initialValues?.instructions ?? ''
+  );
+  const [prepTime, setPrepTime] = useState<number | ''>(
+    initialValues ? initialValues.prep_time ?? '' : 15
+  );
+  const [portions, setPortions] = useState<number | ''>(
+    initialValues ? initialValues.portions ?? '' : 2
+  );
+  const [fotoUrl, setFotoUrl] = useState<string>(initialValues?.foto_url ?? '');
+  const [videoUrl, setVideoUrl] = useState<string>(
+    initialValues?.video_url ?? ''
+  );
+  const [mainIngredients, setMainIngredients] = useState<Ingredient[]>(
+    initialValues?.main_ingredients?.length
+      ? initialValues.main_ingredients
+      : [EMPTY_INGREDIENT]
+  );
   const [commonIngredient, setCommonIngredient] = useState<string>('');
-  const [commonIngredients, setCommonIngredients] = useState<string[]>([]);
+  const [commonIngredients, setCommonIngredients] = useState<string[]>(
+    initialValues?.common_ingredients ?? []
+  );
+  const [flags, setFlags] = useState<FieldFlags>(fieldFlags ?? {});
+
+  const clearFlag = (field: RecipeDraftField) => {
+    if (flags[field]) {
+      setFlags(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const hintId = (field: RecipeDraftField) =>
+    flags[field] ? `${field}-flag-hint` : undefined;
+
+  const renderFlagHint = (field: RecipeDraftField) => {
+    const flag = flags[field];
+    if (!flag) return null;
+    return (
+      <span
+        id={`${field}-flag-hint`}
+        className={`${styles['flag-hint']} ${styles[`flag-${flag}`]}`}
+      >
+        {FLAG_HINTS[flag]}
+      </span>
+    );
+  };
+
+  const toNumberOrEmpty = (value: string): number | '' =>
+    value === '' ? '' : Number(value);
 
   const handleAddMainIngredient = () => {
-    setMainIngredients([
-      ...mainIngredients,
-      { name: '', unit: 'g', quantity: 0 },
-    ]);
+    setMainIngredients([...mainIngredients, EMPTY_INGREDIENT]);
   };
 
   const handleMainIngredientChange = (
@@ -39,6 +115,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
     field: keyof Ingredient,
     value: string | number
   ) => {
+    clearFlag('main_ingredients');
     const updatedIngredients = [...mainIngredients];
 
     if (field === 'quantity') {
@@ -57,6 +134,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   };
 
   const handleRemoveMainIngredient = (index: number) => {
+    clearFlag('main_ingredients');
     const updatedIngredients = [...mainIngredients];
     updatedIngredients.splice(index, 1);
     setMainIngredients(updatedIngredients);
@@ -64,12 +142,14 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
 
   const handleAddCommonIngredient = () => {
     if (commonIngredient.trim()) {
+      clearFlag('common_ingredients');
       setCommonIngredients([...commonIngredients, commonIngredient.trim()]);
       setCommonIngredient('');
     }
   };
 
   const handleRemoveCommonIngredient = (index: number) => {
+    clearFlag('common_ingredients');
     const updatedIngredients = [...commonIngredients];
     updatedIngredients.splice(index, 1);
     setCommonIngredients(updatedIngredients);
@@ -87,8 +167,8 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
       name,
       category,
       instructions,
-      prep_time: prepTime,
-      portions,
+      prep_time: Number(prepTime),
+      portions: Number(portions),
       main_ingredients: filteredMainIngredients,
       common_ingredients: commonIngredients,
       foto_url: fotoUrl.trim() || null,
@@ -118,17 +198,39 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className={styles['add-recipe-form']}>
+          {initialValues && (
+            <div className={styles['import-banner']} role="status">
+              <Sparkles size={18} aria-hidden />
+              Prefilled from YouTube — please review before saving.
+            </div>
+          )}
+
+          {duplicateOf && (
+            <div className={styles['duplicate-warning']} role="note">
+              <AlertTriangle size={18} aria-hidden />
+              <span>
+                You already have <em>{duplicateOf.name}</em> from this video.
+              </span>
+            </div>
+          )}
+
           <div className={styles['form-group']}>
             <label htmlFor="recipe-name">Recipe Name</label>
             <input
               id="recipe-name"
               type="text"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={e => {
+                setName(e.target.value);
+                clearFlag('name');
+              }}
               required
+              maxLength={255}
               placeholder="Enter recipe name"
               className={styles['form-input']}
+              aria-describedby={hintId('name')}
             />
+            {renderFlagHint('name')}
           </div>
 
           <div className={styles['form-group']}>
@@ -136,14 +238,20 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             <select
               id="recipe-category"
               value={category}
-              onChange={e => setCategory(e.target.value)}
+              onChange={e => {
+                setCategory(e.target.value);
+                clearFlag('category');
+              }}
               className={styles['form-select']}
+              aria-describedby={hintId('category')}
             >
-              <option value="breakfast">Breakfast</option>
-              <option value="lunch">Lunch</option>
-              <option value="dinner">Dinner</option>
-              <option value="snack">Snack</option>
+              {RECIPE_CATEGORIES.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
+            {renderFlagHint('category')}
           </div>
 
           <div className={styles['form-group']}>
@@ -152,14 +260,20 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               id="recipe-foto-url"
               type="url"
               value={fotoUrl}
-              onChange={e => setFotoUrl(e.target.value)}
+              onChange={e => {
+                setFotoUrl(e.target.value);
+                clearFlag('foto_url');
+              }}
+              aria-describedby={hintId('foto_url')}
               placeholder="https://example.com/recipe-photo.jpg"
               className={styles['form-input']}
             />
+            {renderFlagHint('foto_url')}
           </div>
 
           <div className={styles['form-group']}>
             <label>Main Ingredients</label>
+            {renderFlagHint('main_ingredients')}
             {mainIngredients.map((ingredient, index) => (
               <div key={index} className={styles['ingredient-row']}>
                 <input
@@ -171,6 +285,9 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                   placeholder="Ingredient name"
                   className={styles['ingredient-name']}
                   required={index === 0}
+                  aria-describedby={
+                    index === 0 ? hintId('main_ingredients') : undefined
+                  }
                 />
                 <input
                   type="number"
@@ -195,12 +312,11 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                   }
                   className={styles['ingredient-unit']}
                 >
-                  <option value="g">g</option>
-                  <option value="ml">ml</option>
-                  <option value="pcs">pcs</option>
-                  <option value="tbsp">tbsp</option>
-                  <option value="cup">cup</option>
-                  <option value="slice">slice</option>
+                  {INGREDIENT_UNITS.map(unit => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
                 </select>
                 {index > 0 && (
                   <button
@@ -226,6 +342,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
 
           <div className={styles['form-group']}>
             <label>Common Ingredients</label>
+            {renderFlagHint('common_ingredients')}
             <div className={styles['common-ingredients-container']}>
               <div className={styles['common-ingredient-input']}>
                 <input
@@ -267,12 +384,17 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
             <textarea
               id="recipe-instructions"
               value={instructions}
-              onChange={e => setInstructions(e.target.value)}
+              onChange={e => {
+                setInstructions(e.target.value);
+                clearFlag('instructions');
+              }}
               required
               placeholder="Enter cooking instructions"
               className={styles['form-textarea']}
-              rows={4}
+              rows={initialValues ? 8 : 4}
+              aria-describedby={hintId('instructions')}
             />
+            {renderFlagHint('instructions')}
           </div>
 
           <div className={styles['form-group']}>
@@ -281,10 +403,15 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
               id="recipe-video-url"
               type="url"
               value={videoUrl}
-              onChange={e => setVideoUrl(e.target.value)}
+              onChange={e => {
+                setVideoUrl(e.target.value);
+                clearFlag('video_url');
+              }}
               placeholder="https://youtube.com/watch?v=..."
               className={styles['form-input']}
+              aria-describedby={hintId('video_url')}
             />
+            {renderFlagHint('video_url')}
           </div>
 
           <div className={styles['form-row']}>
@@ -294,11 +421,16 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                 id="recipe-preptime"
                 type="number"
                 value={prepTime}
-                onChange={e => setPrepTime(Number(e.target.value))}
+                onChange={e => {
+                  setPrepTime(toNumberOrEmpty(e.target.value));
+                  clearFlag('prep_time');
+                }}
                 min="1"
                 required
                 className={styles['form-input']}
+                aria-describedby={hintId('prep_time')}
               />
+              {renderFlagHint('prep_time')}
             </div>
 
             <div className={`${styles['form-group']} ${styles.half}`}>
@@ -307,11 +439,16 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
                 id="recipe-portions"
                 type="number"
                 value={portions}
-                onChange={e => setPortions(Number(e.target.value))}
+                onChange={e => {
+                  setPortions(toNumberOrEmpty(e.target.value));
+                  clearFlag('portions');
+                }}
                 min="1"
                 required
                 className={styles['form-input']}
+                aria-describedby={hintId('portions')}
               />
+              {renderFlagHint('portions')}
             </div>
           </div>
 
