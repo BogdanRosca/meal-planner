@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Plus, Youtube } from 'lucide-react';
 import styles from './Recipes.module.css';
 import { Recipe } from '../../types/recipe';
 import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
 import AddRecipeModal from '../../components/recipe/AddRecipeModal';
 import EditRecipeModal from '../../components/recipe/EditRecipeModal';
+import ImportRecipeModal from '../../components/recipe/ImportRecipeModal';
 import ConfirmationPopup from '../../components/popup/ConfirmationPopup';
 import SearchBar from '../../components/recipes/SearchBar';
 import RecipeGrid from '../../components/recipes/RecipeGrid';
@@ -12,9 +14,18 @@ import StatusMessage from '../../components/recipes/StatusMessage';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 import { useSelectedCategory } from '../../hooks/useSelectedCategory';
+import { useRecipeImport } from '../../hooks/useRecipeImport';
+
+const hasOpenImportFlag = (state: unknown): boolean =>
+  typeof state === 'object' &&
+  state !== null &&
+  'openImport' in state &&
+  state.openImport === true;
 
 const Recipes: React.FC = () => {
   const selectedCategory = useSelectedCategory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { recipes, loading, error, addRecipe, updateRecipe, deleteRecipe } =
     useRecipes();
@@ -26,16 +37,40 @@ const Recipes: React.FC = () => {
     isAddRecipeModalOpen,
     isEditRecipeModalOpen,
     recipeToEdit,
+    isImportModalOpen,
     deleteConfirmation,
     openDetailModal,
     closeDetailModal,
     openAddRecipeModal,
     closeAddRecipeModal,
+    openImportModal,
+    closeImportModal,
     openEditRecipeModal,
     closeEditRecipeModal,
     openDeleteConfirmation,
     closeDeleteConfirmation,
   } = useRecipeModals();
+
+  const {
+    importRecipe,
+    draft: importedDraft,
+    phase: importPhase,
+    error: importError,
+    cancel: cancelImport,
+    reset: resetImport,
+  } = useRecipeImport();
+  // Bumped per draft so the review form mounts fresh with the new initial values
+  const [draftFormKey, setDraftFormKey] = useState<number>(0);
+
+  // The "Import from YouTube" quick action navigates here with { openImport: true }
+  useEffect(() => {
+    if (hasOpenImportFlag(location.state)) {
+      resetImport();
+      openImportModal();
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -70,6 +105,37 @@ const Recipes: React.FC = () => {
     }
   };
 
+  const handleOpenImport = () => {
+    resetImport();
+    openImportModal();
+  };
+
+  const handleImport = async (url: string) => {
+    const draft = await importRecipe(url);
+    if (draft) {
+      setDraftFormKey(key => key + 1);
+      closeImportModal();
+    }
+  };
+
+  const handleCloseImport = () => {
+    cancelImport();
+    closeImportModal();
+  };
+
+  const handleImportAddManually = () => {
+    handleCloseImport();
+    resetImport();
+    openAddRecipeModal();
+  };
+
+  const handleSaveImportedRecipe = async (newRecipe: Omit<Recipe, 'id'>) => {
+    const success = await addRecipe(newRecipe);
+    if (success) {
+      resetImport();
+    }
+  };
+
   const handleEditRecipe = (recipe: Recipe) => {
     closeDetailModal();
     openEditRecipeModal(recipe);
@@ -96,13 +162,23 @@ const Recipes: React.FC = () => {
               onSearchChange={handleSearchChange}
               onSearchSubmit={handleSearchSubmit}
             />
-            <button
-              className={styles['add-recipe-button']}
-              onClick={openAddRecipeModal}
-            >
-              <Plus size={18} />
-              Add recipe
-            </button>
+            <div className={styles['action-buttons']}>
+              <button
+                type="button"
+                className={styles['import-recipe-button']}
+                onClick={handleOpenImport}
+              >
+                <Youtube size={18} />
+                Import from YouTube
+              </button>
+              <button
+                className={styles['add-recipe-button']}
+                onClick={openAddRecipeModal}
+              >
+                <Plus size={18} />
+                Add recipe
+              </button>
+            </div>
           </div>
 
           <RecipeGrid
@@ -145,6 +221,28 @@ const Recipes: React.FC = () => {
             onCancel={closeDeleteConfirmation}
           />
         </>
+      )}
+
+      <ImportRecipeModal
+        isOpen={isImportModalOpen}
+        phase={importPhase}
+        error={importError}
+        onImport={handleImport}
+        onCancel={cancelImport}
+        onClose={handleCloseImport}
+        onAddManually={handleImportAddManually}
+      />
+
+      {importedDraft && (
+        <AddRecipeModal
+          key={draftFormKey}
+          isOpen
+          onClose={resetImport}
+          onAddRecipe={handleSaveImportedRecipe}
+          initialValues={importedDraft}
+          fieldFlags={importedDraft.field_flags}
+          duplicateOf={importedDraft.duplicate_of}
+        />
       )}
     </div>
   );

@@ -1,8 +1,9 @@
 """
 Pydantic models for request/response validation
 """
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, field_validator
+from typing import Optional, List, Dict, Literal
+from .services.youtube_client import parse_video_id
 
 
 class Ingredient(BaseModel):
@@ -71,3 +72,41 @@ class MealPlanEntryResponse(BaseModel):
     recipe_name: str
     recipe_category: str
     recipe_foto_url: Optional[str] = None
+
+
+class YoutubeImportRequest(BaseModel):
+    url: str
+
+    @field_validator("url")
+    @classmethod
+    def must_be_youtube_video_url(cls, value: str) -> str:
+        if not parse_video_id(value):
+            raise ValueError("Not a valid YouTube video URL")
+        return value.strip()
+
+
+class DuplicateRecipe(BaseModel):
+    id: int
+    name: str
+
+
+class ImportSource(BaseModel):
+    video_id: str
+    title: str
+    channel: str
+    transcript_used: bool
+
+
+class RecipeDraftResponse(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    main_ingredients: Optional[List[Ingredient]] = None
+    common_ingredients: Optional[List[str]] = None
+    instructions: Optional[str] = None
+    prep_time: Optional[int] = None
+    portions: Optional[int] = None
+    foto_url: Optional[str] = None
+    video_url: Optional[str] = None
+    field_flags: Dict[str, Literal["missing", "estimated"]] = {}
+    duplicate_of: Optional[DuplicateRecipe] = None
+    source: ImportSource

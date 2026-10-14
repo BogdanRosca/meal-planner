@@ -169,6 +169,24 @@ class DatabaseClient:
         cursor.close()
         return recipe
 
+    def find_recipes_by_video_id(self, video_id: str) -> List[Dict[str, Any]]:
+        """Find recipes whose video_url mentions the given YouTube video ID.
+        Callers must confirm the match, since stored URLs come in several formats."""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute("""
+            SELECT id, name, video_url
+            FROM recipes
+            WHERE video_url LIKE %s
+            ORDER BY id
+        """, (f"%{video_id}%",))
+
+        matches = [{'id': row[0], 'name': row[1], 'video_url': row[2]} for row in cursor.fetchall()]
+        cursor.close()
+        return matches
+
     def delete_recipe(self, recipe_id: int) -> bool:
         """Delete a recipe from the database by ID"""
         if not self.is_connected():

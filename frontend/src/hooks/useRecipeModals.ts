@@ -9,6 +9,7 @@ export const useRecipeModals = () => {
   const [isEditRecipeModalOpen, setIsEditRecipeModalOpen] =
     useState<boolean>(false);
   const [recipeToEdit, setRecipeToEdit] = useState<Recipe | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     isOpen: boolean;
     recipeId: number | null;
@@ -35,6 +36,14 @@ export const useRecipeModals = () => {
 
   const closeAddRecipeModal = () => {
     setIsAddRecipeModalOpen(false);
+  };
+
+  const openImportModal = () => {
+    setIsImportModalOpen(true);
+  };
+
+  const closeImportModal = () => {
+    setIsImportModalOpen(false);
   };
 
   const openEditRecipeModal = (recipe: Recipe) => {
@@ -69,11 +78,14 @@ export const useRecipeModals = () => {
     isAddRecipeModalOpen,
     isEditRecipeModalOpen,
     recipeToEdit,
+    isImportModalOpen,
     deleteConfirmation,
     openDetailModal,
     closeDetailModal,
     openAddRecipeModal,
     closeAddRecipeModal,
+    openImportModal,
+    closeImportModal,
     openEditRecipeModal,
     closeEditRecipeModal,
     openDeleteConfirmation,

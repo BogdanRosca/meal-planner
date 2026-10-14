@@ -12,7 +12,12 @@ import { ROUTES } from './config/routes';
 const QUICK_ACTION_ROUTES: Record<string, string> = {
   'Plan Meals': ROUTES.MEAL_PLANNER,
   'Add Recipe': ROUTES.RECIPES,
+  'Import from YouTube': ROUTES.RECIPES,
   'Shopping List': ROUTES.SHOPPING_LIST,
+};
+
+const QUICK_ACTION_STATE: Record<string, { openImport: boolean }> = {
+  'Import from YouTube': { openImport: true },
 };
 
 function App() {
@@ -24,7 +29,9 @@ function App() {
   };
 
   const handleQuickAction = (action: string) => {
-    navigate(QUICK_ACTION_ROUTES[action] ?? ROUTES.MEAL_PLANNER);
+    navigate(QUICK_ACTION_ROUTES[action] ?? ROUTES.MEAL_PLANNER, {
+      state: QUICK_ACTION_STATE[action],
+    });
     setIsMobileMenuOpen(false);
   };
 

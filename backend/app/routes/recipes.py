@@ -4,7 +4,7 @@ Recipe-related endpoints
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 from ..database_client import DatabaseClient
-from ..models import RecipeCreate, RecipeUpdate, RecipeResponse, NewRecipeResponse
+from ..models import RecipeCreate, RecipeUpdate, RecipeResponse
 
 # Create router for recipe endpoints
 router = APIRouter(prefix="/recipes", tags=["recipes"])
@@ -69,7 +69,7 @@ def get_recipe_by_id(recipe_id: int):
         db_client.disconnect()
 
 
-@router.post("", response_model=NewRecipeResponse)
+@router.post("", response_model=RecipeResponse, status_code=status.HTTP_201_CREATED)
 def create_recipe(recipe: RecipeCreate):
     """Create a new recipe in the database"""
     # Create database client
@@ -84,7 +84,7 @@ def create_recipe(recipe: RecipeCreate):
         # Convert Pydantic Ingredient objects to dictionaries
         main_ingredients_dicts = [ingredient.model_dump() for ingredient in recipe.main_ingredients]
 
-        db_client.add_recipe(
+        created_recipe = db_client.add_recipe(
             name=recipe.name,
             category=recipe.category,
             main_ingredients=main_ingredients_dicts,
@@ -98,13 +98,11 @@ def create_recipe(recipe: RecipeCreate):
 
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,
+            # Return the full stored recipe (incl. id) so clients can render it without refetching
             content={
                 "status": "success",
                 "message": "Recipe created successfully",
-                "name": recipe.name,
-                "category": recipe.category,
-                "prep_time": recipe.prep_time,
-                "portions": recipe.portions
+                **created_recipe
             }
         )
 

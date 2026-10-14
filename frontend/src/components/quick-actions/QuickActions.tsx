@@ -21,6 +21,12 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       description: 'Create a new recipe',
     },
     {
+      id: 'import-youtube',
+      title: 'Import from YouTube',
+      icon: '▶️',
+      description: 'Prefill a recipe from a video',
+    },
+    {
       id: 'plan-meals',
       title: 'Plan Meals',
       icon: '📅',
