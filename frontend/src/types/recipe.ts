@@ -38,7 +38,7 @@ export type RecipeDraftField = keyof Omit<Recipe, 'id'>;
 
 export type FieldFlag = 'missing' | 'estimated';
 
-export type ImportPlatform = 'youtube' | 'instagram';
+export type ImportPlatform = 'youtube' | 'instagram' | 'facebook';
 
 export type FieldFlags = Partial<Record<RecipeDraftField, FieldFlag>>;
 

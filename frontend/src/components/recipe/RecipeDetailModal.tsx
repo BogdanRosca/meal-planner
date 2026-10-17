@@ -41,8 +41,18 @@ const getInstagramEmbedUrl = (url: string): string | null => {
   return match ? `https://www.instagram.com/reel/${match[1]}/embed` : null;
 };
 
+// Facebook's video plugin embeds public reels/videos from their page URL
+const getFacebookEmbedUrl = (url: string): string | null =>
+  /^https?:\/\/(?:[\w-]+\.)?(?:facebook\.com|fb\.watch)\//.test(url)
+    ? `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
+        url
+      )}&show_text=false`
+    : null;
+
 const getEmbedUrl = (url: string): string | null =>
-  getYouTubeEmbedUrl(url) ?? getInstagramEmbedUrl(url);
+  getYouTubeEmbedUrl(url) ??
+  getInstagramEmbedUrl(url) ??
+  getFacebookEmbedUrl(url);
 
 const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   recipe,

@@ -8,8 +8,8 @@ from typing import Any, Callable, Dict, Optional
 from fastapi import APIRouter, HTTPException
 
 from ..database_client import DatabaseClient
-from ..models import InstagramImportRequest, RecipeDraftResponse, YoutubeImportRequest
-from ..services import instagram_client, recipe_importer, youtube_client
+from ..models import FacebookImportRequest, InstagramImportRequest, RecipeDraftResponse, YoutubeImportRequest
+from ..services import facebook_client, instagram_client, recipe_importer, youtube_client
 from ..services.recipe_extractor import ExtractionError, ExtractionTimeoutError, NotARecipeError
 from ..services.source_errors import SourceFetchError, SourceTimeoutError, VideoNotFoundError
 
@@ -41,11 +41,12 @@ def _find_duplicate(source_id: str, parse_id: Callable[[str], Optional[str]]) ->
         db_client.disconnect()
 
 
-def _run_import(import_fn: Callable[[str], Dict[str, Any]], source_id: str,
+def _run_import(import_fn: Callable[[str], Dict[str, Any]], source_ref: str,
                 parse_id: Callable[[str], Optional[str]]) -> Dict[str, Any]:
-    """Run a platform import and map its failures onto HTTP errors with a stable code"""
+    """Run a platform import and map its failures onto HTTP errors with a stable code.
+    `parse_id` extracts the platform's video ID from stored recipe URLs for the duplicate check."""
     try:
-        draft = import_fn(source_id)
+        draft = import_fn(source_ref)
     except recipe_importer.MissingConfigError as e:
         raise _error(503, "not_configured", str(e))
     except VideoNotFoundError:
@@ -53,16 +54,17 @@ def _run_import(import_fn: Callable[[str], Dict[str, Any]], source_id: str,
     except NotARecipeError:
         raise _error(422, "not_a_recipe", "We couldn't find a recipe in this video.")
     except (SourceTimeoutError, ExtractionTimeoutError) as e:
-        logger.error("Import timed out for %s: %s", source_id, e)
+        logger.error("Import timed out for %s: %s", source_ref, e)
         raise _error(504, "timeout", IMPORT_FAILED_MESSAGE)
     except (SourceFetchError, ExtractionError) as e:
-        logger.error("Import failed for %s: %s", source_id, e)
+        logger.error("Import failed for %s: %s", source_ref, e)
         raise _error(502, "upstream_error", IMPORT_FAILED_MESSAGE)
     except Exception as e:
-        logger.exception("Unexpected import error for %s", source_id)
+        logger.exception("Unexpected import error for %s", source_ref)
         raise _error(500, "internal_error", f"Error importing recipe: {str(e)}")
 
-    draft["duplicate_of"] = _find_duplicate(source_id, parse_id)
+    # The importer reports the resolved ID (short links only resolve during the import)
+    draft["duplicate_of"] = _find_duplicate(draft["source"]["video_id"], parse_id)
     return {"status": "success", "draft": RecipeDraftResponse.model_validate(draft).model_dump()}
 
 
@@ -78,3 +80,10 @@ def import_recipe_from_instagram(request: InstagramImportRequest):
     """Fetch an Instagram reel's caption + thumbnail and return an AI-extracted recipe draft"""
     shortcode = instagram_client.parse_shortcode(request.url)
     return _run_import(recipe_importer.import_from_instagram, shortcode, instagram_client.parse_shortcode)
+
+
+@router.post("/facebook")
+def import_recipe_from_facebook(request: FacebookImportRequest):
+    """Fetch a Facebook reel's post text + thumbnail and return an AI-extracted recipe draft"""
+    reference = facebook_client.parse_reference(request.url)
+    return _run_import(recipe_importer.import_from_facebook, reference, facebook_client.parse_video_id)

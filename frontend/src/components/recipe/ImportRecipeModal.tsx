@@ -3,6 +3,7 @@ import { X, Link, Loader2, ArrowLeft } from 'lucide-react';
 import { ImportPlatform } from '../../types/recipe';
 import {
   IMPORT_PLATFORMS,
+  ImportPlatformConfig,
   getImportPlatform,
 } from '../../config/importPlatforms';
 import {
@@ -44,15 +45,14 @@ const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
   const loading = phase !== 'idle';
   const platform = platformId ? getImportPlatform(platformId) : null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent, selected: ImportPlatformConfig) => {
     e.preventDefault();
-    if (!platform) return;
-    if (!platform.parse(url)) {
-      setUrlError(platform.invalidUrlMessage);
+    if (!selected.parse(url)) {
+      setUrlError(selected.invalidUrlMessage);
       return;
     }
     setUrlError(null);
-    onImport(platform.id, url.trim());
+    onImport(selected.id, url.trim());
   };
 
   const handleClose = () => {
@@ -133,7 +133,11 @@ const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className={styles.form} noValidate>
+          <form
+            onSubmit={e => handleSubmit(e, platform)}
+            className={styles.form}
+            noValidate
+          >
             <button
               type="button"
               className={styles['back-btn']}

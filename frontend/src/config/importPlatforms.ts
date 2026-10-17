@@ -1,7 +1,8 @@
-import { Instagram, LucideIcon, Youtube } from 'lucide-react';
+import { Facebook, Instagram, LucideIcon, Youtube } from 'lucide-react';
 import { ImportPlatform } from '../types/recipe';
 import { parseYoutubeVideoId } from '../utils/youtube';
 import { parseInstagramShortcode } from '../utils/instagram';
+import { parseFacebookVideoRef } from '../utils/facebook';
 
 export interface ImportPlatformConfig {
   id: ImportPlatform;
@@ -37,12 +38,24 @@ const PLATFORMS: Record<ImportPlatform, ImportPlatformConfig> = {
     parse: parseInstagramShortcode,
     Icon: Instagram,
   },
+  facebook: {
+    id: 'facebook',
+    label: 'Facebook',
+    description: 'Reels and videos',
+    urlLabel: 'Facebook reel URL',
+    placeholder: 'https://www.facebook.com/reel/...',
+    invalidUrlMessage:
+      'Enter a Facebook reel or video link, e.g. https://www.facebook.com/reel/…',
+    parse: parseFacebookVideoRef,
+    Icon: Facebook,
+  },
 };
 
 // Display order of the platform cards
 export const IMPORT_PLATFORMS: ImportPlatformConfig[] = [
   PLATFORMS.youtube,
   PLATFORMS.instagram,
+  PLATFORMS.facebook,
 ];
 
 export const getImportPlatform = (id: ImportPlatform): ImportPlatformConfig =>

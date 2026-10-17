@@ -93,7 +93,7 @@ def _mock_ydl(mock_ydl_class, info=None, error=None):
 
 
 class TestFetchReelMetadata:
-    @patch("app.services.instagram_client.yt_dlp.YoutubeDL")
+    @patch("app.services.ytdlp_client.yt_dlp.YoutubeDL")
     def test_maps_reel_info(self, mock_ydl_class):
         ydl = _mock_ydl(mock_ydl_class, info=REEL_INFO)
 
@@ -113,7 +113,7 @@ class TestFetchReelMetadata:
         assert options["cookiefile"] == "/tmp/cookies.txt"
         assert options["skip_download"] is True
 
-    @patch("app.services.instagram_client.yt_dlp.YoutubeDL")
+    @patch("app.services.ytdlp_client.yt_dlp.YoutubeDL")
     def test_falls_back_when_caption_and_thumbnails_are_missing(self, mock_ydl_class):
         _mock_ydl(mock_ydl_class, info={"title": "Video by chef_anna", "uploader_id": "chef_anna",
                                         "thumbnail": "https://cdn.example.com/fallback.jpg"})
@@ -132,28 +132,28 @@ class TestFetchReelMetadata:
         "ERROR: HTTP Error 404: Not Found",
         "ERROR: login required to view this post",
     ])
-    @patch("app.services.instagram_client.yt_dlp.YoutubeDL")
+    @patch("app.services.ytdlp_client.yt_dlp.YoutubeDL")
     def test_missing_or_private_reel_is_not_found(self, mock_ydl_class, message):
         _mock_ydl(mock_ydl_class, error=DownloadError(message))
 
         with pytest.raises(VideoNotFoundError):
             instagram_client.fetch_reel_metadata("DAbcdEFghiJ", 10)
 
-    @patch("app.services.instagram_client.yt_dlp.YoutubeDL")
+    @patch("app.services.ytdlp_client.yt_dlp.YoutubeDL")
     def test_empty_result_is_not_found(self, mock_ydl_class):
         _mock_ydl(mock_ydl_class, info=None)
 
         with pytest.raises(VideoNotFoundError):
             instagram_client.fetch_reel_metadata("DAbcdEFghiJ", 10)
 
-    @patch("app.services.instagram_client.yt_dlp.YoutubeDL")
+    @patch("app.services.ytdlp_client.yt_dlp.YoutubeDL")
     def test_other_download_errors_are_fetch_errors(self, mock_ydl_class):
         _mock_ydl(mock_ydl_class, error=DownloadError("ERROR: HTTP Error 429: Too Many Requests"))
 
         with pytest.raises(SourceFetchError):
             instagram_client.fetch_reel_metadata("DAbcdEFghiJ", 10)
 
-    @patch("app.services.instagram_client._extract_info")
+    @patch("app.services.ytdlp_client._extract_info")
     def test_slow_lookup_times_out(self, mock_extract):
         def slow(*_args):
             import time

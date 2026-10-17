@@ -28,7 +28,7 @@ EXTRACTION_JSON = {
     "name": "Spaghetti Aglio e Olio",
     "category": "dinner",
     "category_is_guess": False,
-    "main_ingredients": [{"name": "spaghetti", "quantity": 200, "unit": "g"}],
+    "main_ingredients": [{"name": "spaghetti", "quantity": 200, "unit": "g", "quantity_is_estimate": False}],
     "common_ingredients": ["salt"],
     "steps": ["Boil pasta", "Toss with garlic oil"],
     "prep_time_minutes": 20,
@@ -67,12 +67,12 @@ class TestCleanVideoTitle:
 class TestNormalizeIngredients:
     def test_converts_units_and_rounds(self):
         main, moved, guessed = normalize_ingredients([
-            ExtractedIngredient(name="butter", quantity=4, unit="oz"),
-            ExtractedIngredient(name="vanilla", quantity=2, unit="tsp"),
-            ExtractedIngredient(name="flour", quantity=1, unit="lb"),
-            ExtractedIngredient(name="milk", quantity=1, unit="fl oz"),
-            ExtractedIngredient(name="garlic", quantity=3, unit="Cloves"),
-            ExtractedIngredient(name="stock", quantity=0.5, unit="l"),
+            ExtractedIngredient(name="butter", quantity=4, unit="oz", quantity_is_estimate=False),
+            ExtractedIngredient(name="vanilla", quantity=2, unit="tsp", quantity_is_estimate=False),
+            ExtractedIngredient(name="flour", quantity=1, unit="lb", quantity_is_estimate=False),
+            ExtractedIngredient(name="milk", quantity=1, unit="fl oz", quantity_is_estimate=False),
+            ExtractedIngredient(name="garlic", quantity=3, unit="Cloves", quantity_is_estimate=False),
+            ExtractedIngredient(name="stock", quantity=0.5, unit="l", quantity_is_estimate=False),
         ])
 
         assert main == [
@@ -88,14 +88,32 @@ class TestNormalizeIngredients:
 
     def test_moves_unquantified_items_and_flags_unknown_units(self):
         main, moved, guessed = normalize_ingredients([
-            ExtractedIngredient(name="saffron", quantity=0, unit=""),
-            ExtractedIngredient(name="  ", quantity=1, unit="g"),
-            ExtractedIngredient(name="basil", quantity=1, unit="handful"),
+            ExtractedIngredient(name="saffron", quantity=0, unit="", quantity_is_estimate=False),
+            ExtractedIngredient(name="  ", quantity=1, unit="g", quantity_is_estimate=False),
+            ExtractedIngredient(name="basil", quantity=1, unit="handful", quantity_is_estimate=False),
         ])
 
         assert main == [{"name": "basil", "quantity": 1, "unit": "pcs"}]
         assert moved == ["saffron"]
         assert guessed is True
+
+
+class TestEstimatedQuantities:
+    def test_estimated_quantity_flags_main_ingredients(self):
+        draft, flags = build_draft(_extraction(main_ingredients=[
+            {"name": "sausage", "quantity": 300, "unit": "g", "quantity_is_estimate": True},
+            {"name": "orecchiette", "quantity": 200, "unit": "g", "quantity_is_estimate": False},
+        ]), METADATA)
+
+        assert [i["name"] for i in draft["main_ingredients"]] == ["sausage", "orecchiette"]
+        assert flags["main_ingredients"] == "estimated"
+
+    def test_schema_requires_the_estimate_flag(self):
+        ingredient_schema = recipe_extractor.OUTPUT_SCHEMA["$defs"]["ExtractedIngredient"]
+        assert "quantity_is_estimate" in ingredient_schema["required"]
+
+    def test_prompt_keeps_core_ingredients_out_of_common(self):
+        assert "Never put a core ingredient here" in recipe_extractor.SYSTEM_PROMPT
 
 
 class TestBuildDraft:
@@ -125,7 +143,7 @@ class TestBuildDraft:
             main_ingredients=[],
             steps=[" "],
             prep_time_minutes=0,
-            portions=None,
+            portions=0,
         ), {**METADATA, "thumbnail_url": None})
 
         assert draft["name"] == "Pasta"
@@ -146,7 +164,7 @@ class TestBuildDraft:
             category_is_guess=True,
             prep_time_is_estimate=True,
             portions_is_estimate=True,
-            main_ingredients=[{"name": "basil", "quantity": 1, "unit": "bunch"}],
+            main_ingredients=[{"name": "basil", "quantity": 1, "unit": "bunch", "quantity_is_estimate": False}],
         ), METADATA)
 
         assert flags == {
@@ -165,8 +183,8 @@ class TestBuildDraft:
     def test_deduplicates_common_ingredients(self):
         draft, _ = build_draft(_extraction(
             common_ingredients=["Salt", "salt ", "pepper"],
-            main_ingredients=[{"name": "pepper", "quantity": 0, "unit": ""},
-                              {"name": "spaghetti", "quantity": 200, "unit": "g"}],
+            main_ingredients=[{"name": "pepper", "quantity": 0, "unit": "", "quantity_is_estimate": False},
+                              {"name": "spaghetti", "quantity": 200, "unit": "g", "quantity_is_estimate": False}],
         ), METADATA)
 
         assert draft["common_ingredients"] == ["Salt", "pepper"]

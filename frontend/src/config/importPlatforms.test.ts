@@ -1,10 +1,11 @@
 import { IMPORT_PLATFORMS, getImportPlatform } from './importPlatforms';
 
 describe('importPlatforms', () => {
-  it('lists YouTube then Instagram', () => {
+  it('lists YouTube, Instagram then Facebook', () => {
     expect(IMPORT_PLATFORMS.map(platform => platform.id)).toEqual([
       'youtube',
       'instagram',
+      'facebook',
     ]);
   });
 
@@ -17,6 +18,11 @@ describe('importPlatforms', () => {
         'https://www.instagram.com/reel/DAbcdEFghiJ/'
       )
     ).toBe('DAbcdEFghiJ');
+    expect(
+      getImportPlatform('facebook').parse(
+        'https://www.facebook.com/reel/1234567890123456'
+      )
+    ).toBe('1234567890123456');
     expect(
       getImportPlatform('instagram').parse('https://youtu.be/dQw4w9WgXcQ')
     ).toBeNull();

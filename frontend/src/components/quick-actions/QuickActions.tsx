@@ -24,7 +24,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       id: 'import-link',
       title: 'Import from link',
       icon: '🔗',
-      description: 'YouTube or Instagram video',
+      description: 'YouTube, Instagram or Facebook video',
     },
     {
       id: 'plan-meals',

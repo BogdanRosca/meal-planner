@@ -52,8 +52,8 @@ runs:
           instructions TEXT NOT NULL,
           prep_time INTEGER,
           portions INTEGER,
-          foto_url VARCHAR(255),
-          video_url VARCHAR(255)
+          foto_url TEXT,
+          video_url TEXT
         );"
 
         # Create meal_plans table

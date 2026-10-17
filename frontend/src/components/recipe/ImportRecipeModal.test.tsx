@@ -6,6 +6,7 @@ import { ImportPhase, RecipeImportFailure } from '../../hooks/useRecipeImport';
 
 const VIDEO_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 const REEL_URL = 'https://www.instagram.com/reel/DAbcdEFghiJ/?igsh=abc';
+const FB_URL = 'https://www.facebook.com/share/r/1AbCdEfGh/';
 
 describe('ImportRecipeModal', () => {
   const onImport = jest.fn();
@@ -57,6 +58,9 @@ describe('ImportRecipeModal', () => {
       expect(
         screen.getByRole('button', { name: /Instagram Reels/ })
       ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /Facebook Reels and videos/ })
+      ).toBeInTheDocument();
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 
@@ -84,6 +88,7 @@ describe('ImportRecipeModal', () => {
   describe.each([
     ['YouTube', /YouTube/, 'youtube', 'YouTube video URL', VIDEO_URL],
     ['Instagram', /Instagram/, 'instagram', 'Instagram reel URL', REEL_URL],
+    ['Facebook', /Facebook/, 'facebook', 'Facebook reel URL', FB_URL],
   ] as const)('%s URL step', (label, cardName, platformId, urlLabel, url) => {
     it('shows the platform-specific URL input', async () => {
       const user = userEvent.setup();

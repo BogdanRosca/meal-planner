@@ -6,13 +6,15 @@ import os
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from typing import Any, Dict, Optional
 
-from . import instagram_client, transcript_client, youtube_client
+from . import facebook_client, instagram_client, transcript_client, youtube_client
 from .recipe_extractor import DEFAULT_MODEL, build_draft, call_llm
 
 # Budget split for the 30 s end-to-end limit
 YOUTUBE_TIMEOUT_SECONDS = 6.0
 TRANSCRIPT_TIMEOUT_SECONDS = 6.0
 INSTAGRAM_TIMEOUT_SECONDS = 10.0
+FACEBOOK_RESOLVE_TIMEOUT_SECONDS = 4.0
+FACEBOOK_TIMEOUT_SECONDS = 10.0
 LLM_TIMEOUT_SECONDS = 20.0
 
 
@@ -76,3 +78,14 @@ def import_from_instagram(shortcode: str) -> Dict[str, Any]:
     # Reels have no downloadable captions; the post caption is the only text source
     return _draft_from(metadata, None, "instagram", shortcode,
                        instagram_client.canonical_reel_url(shortcode), anthropic_key)
+
+
+def import_from_facebook(reference: str) -> Dict[str, Any]:
+    anthropic_key = _require_env("ANTHROPIC_API_KEY")
+    cookies_file = os.getenv("FACEBOOK_COOKIES_FILE", "").strip() or None
+
+    video_id = facebook_client.resolve_video_id(reference, FACEBOOK_RESOLVE_TIMEOUT_SECONDS)
+    metadata = facebook_client.fetch_video_metadata(video_id, FACEBOOK_TIMEOUT_SECONDS, cookies_file)
+    # Like Instagram, Facebook has no downloadable captions; the post text is the only text source
+    return _draft_from(metadata, None, "facebook", video_id,
+                       facebook_client.canonical_video_url(video_id), anthropic_key)

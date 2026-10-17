@@ -9,6 +9,7 @@ jest.mock('../config/api', () => ({
     RECIPES: 'http://localhost:8000/recipes',
     RECIPE_IMPORT_YOUTUBE: 'http://localhost:8000/recipes/import/youtube',
     RECIPE_IMPORT_INSTAGRAM: 'http://localhost:8000/recipes/import/instagram',
+    RECIPE_IMPORT_FACEBOOK: 'http://localhost:8000/recipes/import/facebook',
   },
 }));
 
@@ -80,6 +81,22 @@ describe('recipeService.importFromLink', () => {
         body: JSON.stringify({ url: 'https://youtu.be/dQw4w9WgXcQ' }),
         signal: controller.signal,
       }
+    );
+  });
+
+  it('posts Facebook links to the Facebook endpoint', async () => {
+    mockFetch.mockResolvedValue(jsonResponse(200, draftResponse));
+
+    await recipeService.importFromLink(
+      'facebook',
+      'https://fb.watch/abcDEF123/'
+    );
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8000/recipes/import/facebook',
+      expect.objectContaining({
+        body: JSON.stringify({ url: 'https://fb.watch/abcDEF123/' }),
+      })
     );
   });
 
