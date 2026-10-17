@@ -19,8 +19,10 @@ const QUICK_ACTION_ROUTES: Record<string, string> = {
   'Shopping List': ROUTES.SHOPPING_LIST,
 };
 
-const QUICK_ACTION_STATE: Record<string, { openImport: boolean }> = {
-  'Import from link': { openImport: true },
+// Tells the Recipes page which modal to open on arrival
+const QUICK_ACTION_STATE: Record<string, { openModal: 'add' | 'import' }> = {
+  'Add Recipe': { openModal: 'add' },
+  'Import from link': { openModal: 'import' },
 };
 
 function AppShell() {
