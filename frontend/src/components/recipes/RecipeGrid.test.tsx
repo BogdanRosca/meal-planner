@@ -33,6 +33,7 @@ const mockRecipes: Recipe[] = [
 describe('RecipeGrid Component', () => {
   const mockOnRecipeClick = jest.fn();
   const mockOnDeleteClick = jest.fn();
+  const mockOnRateRecipe = jest.fn();
 
   beforeEach(() => {
     mockOnRecipeClick.mockClear();
@@ -47,6 +48,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -62,6 +64,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -76,6 +79,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -91,6 +95,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -107,6 +112,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -122,6 +128,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -137,6 +144,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 
@@ -152,6 +160,7 @@ describe('RecipeGrid Component', () => {
         selectedCategory="All Categories"
         onRecipeClick={mockOnRecipeClick}
         onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
       />
     );
 

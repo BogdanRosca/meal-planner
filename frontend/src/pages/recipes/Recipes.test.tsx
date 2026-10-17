@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import Recipes from './Recipes';
@@ -607,6 +613,32 @@ describe('Recipes Component', () => {
       expect(screen.getByText('Add New Recipe')).toBeInTheDocument();
 
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('Rating', () => {
+    it('saves a new rating for the recipe', async () => {
+      const mockUpdateRecipe =
+        recipeService.updateRecipe as jest.MockedFunction<
+          typeof recipeService.updateRecipe
+        >;
+      mockGetAllRecipes.mockResolvedValue(mockRecipes);
+      mockUpdateRecipe.mockResolvedValue({ ...mockRecipes[0], rating: 5 });
+      renderRecipes();
+
+      const ratingGroup = await screen.findByRole('group', {
+        name: 'Rating for Pancakes',
+      });
+      fireEvent.click(
+        within(ratingGroup).getByRole('button', { name: '5 stars' })
+      );
+
+      expect(mockUpdateRecipe).toHaveBeenCalledWith(1, { rating: 5 });
+      await waitFor(() => {
+        expect(
+          within(ratingGroup).getByRole('button', { name: '5 stars' })
+        ).toHaveAttribute('aria-pressed', 'true');
+      });
     });
   });
 

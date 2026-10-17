@@ -90,6 +90,10 @@ const Recipes: React.FC = () => {
     openDeleteConfirmation(recipe);
   };
 
+  const handleRateRecipe = (recipe: Recipe, rating: number | null) => {
+    updateRecipe(recipe.id, { rating });
+  };
+
   const handleConfirmDelete = async () => {
     if (deleteConfirmation.recipeId) {
       const success = await deleteRecipe(deleteConfirmation.recipeId);
@@ -188,6 +192,7 @@ const Recipes: React.FC = () => {
             selectedCategory={selectedCategory}
             onRecipeClick={handleRecipeClick}
             onDeleteClick={handleDeleteClick}
+            onRateRecipe={handleRateRecipe}
           />
 
           {selectedRecipe && (

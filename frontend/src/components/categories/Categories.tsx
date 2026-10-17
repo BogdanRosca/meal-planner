@@ -1,18 +1,18 @@
 import React, { useMemo } from 'react';
-import { Apple, Coffee, LucideIcon, Moon, Sun, Utensils } from 'lucide-react';
 import styles from './Categories.module.css';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useSelectedCategory } from '../../hooks/useSelectedCategory';
+import { getCategoryIcon } from '../../config/categoryIcons';
 
 interface CategoriesProps {
   onCategoryClick?: (_category: string) => void;
 }
 
-const CATEGORY_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
-  Breakfast: { icon: Coffee, color: '#5b8266' },
-  Snack: { icon: Apple, color: '#294936' },
-  Lunch: { icon: Sun, color: '#3e6259' },
-  Dinner: { icon: Moon, color: '#212922' },
+const CATEGORY_COLORS: Record<string, string> = {
+  Breakfast: '#5b8266',
+  Snack: '#294936',
+  Lunch: '#3e6259',
+  Dinner: '#212922',
 };
 
 const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
@@ -42,9 +42,9 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
       return {
         id: name.toLowerCase(),
         name: normalizedName,
-        icon: CATEGORY_ICONS[normalizedName]?.icon || Utensils,
+        icon: getCategoryIcon(name),
         count,
-        color: CATEGORY_ICONS[normalizedName]?.color || '#666',
+        color: CATEGORY_COLORS[normalizedName] || '#666',
       };
     });
   }, [recipes]);

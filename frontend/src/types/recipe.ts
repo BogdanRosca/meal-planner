@@ -15,6 +15,8 @@ export interface Recipe {
   portions: number;
   foto_url?: string | null;
   video_url?: string | null;
+  // 1-5 stars; null/absent means not rated yet
+  rating?: number | null;
 }
 
 export interface RecipesResponse {

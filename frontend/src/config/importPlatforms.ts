@@ -60,3 +60,10 @@ export const IMPORT_PLATFORMS: ImportPlatformConfig[] = [
 
 export const getImportPlatform = (id: ImportPlatform): ImportPlatformConfig =>
   PLATFORMS[id];
+
+// Platform a saved recipe's video link points to, if any
+export const getRecipeSource = (
+  videoUrl: string | null | undefined
+): ImportPlatformConfig | null =>
+  (videoUrl && IMPORT_PLATFORMS.find(platform => platform.parse(videoUrl))) ||
+  null;

@@ -184,7 +184,10 @@ export const recipeService = {
   /**
    * Update an existing recipe
    */
-  async updateRecipe(id: number, recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
+  async updateRecipe(
+    id: number,
+    recipe: Partial<Omit<Recipe, 'id'>>
+  ): Promise<Recipe> {
     try {
       const response = await apiFetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
         method: 'PATCH',

@@ -10,6 +10,7 @@ interface RecipeGridProps {
   selectedCategory: string;
   onRecipeClick: (_recipe: Recipe) => void;
   onDeleteClick: (_e: React.MouseEvent, _recipe: Recipe) => void;
+  onRateRecipe: (_recipe: Recipe, _rating: number | null) => void;
 }
 
 const RecipeGrid: React.FC<RecipeGridProps> = ({
@@ -18,6 +19,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
   selectedCategory,
   onRecipeClick,
   onDeleteClick,
+  onRateRecipe,
 }) => {
   // Filter recipes based on search query and category
   const filteredRecipes = recipes.filter(recipe => {
@@ -51,6 +53,7 @@ const RecipeGrid: React.FC<RecipeGridProps> = ({
           _recipe={recipe}
           onRecipeClick={onRecipeClick}
           onDeleteClick={onDeleteClick}
+          onRateRecipe={onRateRecipe}
         />
       ))}
     </div>
