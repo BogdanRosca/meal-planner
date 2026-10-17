@@ -199,15 +199,21 @@ describe('Recipes – import from YouTube', () => {
   });
 
   it('opens the import modal from the quick action navigation state', async () => {
-    renderRecipes({ openImport: true });
+    renderRecipes({ openModal: 'import' });
 
     expect(
       await screen.findByRole('dialog', { name: 'Import from link' })
     ).toBeInTheDocument();
   });
 
-  it.each([[null], [{ category: 'lunch' }], [{ openImport: 'yes' }]])(
-    'does not open the import modal for state %p',
+  it('opens the add recipe modal from the quick action navigation state', async () => {
+    renderRecipes({ openModal: 'add' });
+
+    expect(await screen.findByText('Add New Recipe')).toBeInTheDocument();
+  });
+
+  it.each([[null], [{ category: 'lunch' }], [{ openModal: 'edit' }]])(
+    'does not open a modal for state %p',
     async state => {
       renderRecipes(state);
       await screen.findByText(/Pancakes|No recipes/);

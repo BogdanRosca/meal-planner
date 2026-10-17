@@ -1,7 +1,7 @@
 """
 Pydantic models for request/response validation
 """
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Literal
 from .services.facebook_client import parse_reference as parse_facebook_reference
 from .services.instagram_client import parse_shortcode
@@ -37,6 +37,7 @@ class RecipeResponse(BaseModel):
     portions: int
     foto_url: Optional[str] = None
     video_url: Optional[str] = None
+    rating: Optional[int] = None
 
 
 class NewRecipeResponse(BaseModel):
@@ -54,8 +55,10 @@ class RecipeUpdate(BaseModel):
     instructions: Optional[str] = None
     prep_time: Optional[int] = None
     portions: Optional[int] = None
-    foto_url: Optional[str] = None   
-    video_url: Optional[str] = None   
+    foto_url: Optional[str] = None
+    video_url: Optional[str] = None
+    # null clears the rating
+    rating: Optional[int] = Field(default=None, ge=1, le=5)
 
 
 class LoginRequest(BaseModel):

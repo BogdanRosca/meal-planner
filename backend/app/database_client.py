@@ -66,7 +66,7 @@ class DatabaseClient:
 
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url, rating
             FROM recipes
             WHERE user_id = %s
             ORDER BY id
@@ -84,7 +84,8 @@ class DatabaseClient:
                 'prep_time': row[6],
                 'portions': row[7],
                 'foto_url': row[8],
-                'video_url': row[9]
+                'video_url': row[9],
+                'rating': row[10]
             }
             recipes.append(recipe)
 
@@ -98,7 +99,7 @@ class DatabaseClient:
 
         cursor = self._connection.cursor()
         cursor.execute("""
-            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
+            SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url, rating
             FROM recipes
             WHERE id = %s AND user_id = %s
         """, (recipe_id, user_id))
@@ -119,7 +120,8 @@ class DatabaseClient:
             'prep_time': row[6],
             'portions': row[7],
             'foto_url': row[8],
-            'video_url': row[9]
+            'video_url': row[9],
+            'rating': row[10]
         }
 
         return recipe
@@ -148,7 +150,7 @@ class DatabaseClient:
         cursor.execute("""
             INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url, user_id)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
+            RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url, rating
         """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url, video_url,
               user_id))
 
@@ -164,7 +166,8 @@ class DatabaseClient:
             'prep_time': row[6],
             'portions': row[7],
             'foto_url': row[8],
-            'video_url': row[9]
+            'video_url': row[9],
+            'rating': row[10]
         }
 
         # Commit the transaction
@@ -231,7 +234,7 @@ class DatabaseClient:
         values = []
 
         for field, value in updates.items():
-            if field in ['name', 'category', 'instructions', 'prep_time', 'portions', 'foto_url', 'video_url']:
+            if field in ['name', 'category', 'instructions', 'prep_time', 'portions', 'foto_url', 'video_url', 'rating']:
                 set_clauses.append(f"{field} = %s")
                 values.append(value)
             elif field == 'main_ingredients':
@@ -257,7 +260,7 @@ class DatabaseClient:
         # Get the updated recipe
         cursor.execute("""
             SELECT id, name, category, main_ingredients, common_ingredients, 
-                   instructions, prep_time, portions, foto_url, video_url 
+                   instructions, prep_time, portions, foto_url, video_url, rating
             FROM recipes WHERE id = %s
         """, (recipe_id,))
 
@@ -276,7 +279,8 @@ class DatabaseClient:
             'prep_time': row[6],
             'portions': row[7],
             'foto_url': row[8],
-            'video_url': row[9]
+            'video_url': row[9],
+            'rating': row[10]
         }
 
         # Commit the transaction

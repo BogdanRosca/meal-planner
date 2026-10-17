@@ -17,11 +17,16 @@ import { useSelectedCategory } from '../../hooks/useSelectedCategory';
 import { useRecipeImport } from '../../hooks/useRecipeImport';
 import { getImportPlatform } from '../../config/importPlatforms';
 
-const hasOpenImportFlag = (state: unknown): boolean =>
-  typeof state === 'object' &&
-  state !== null &&
-  'openImport' in state &&
-  state.openImport === true;
+type QuickActionModal = 'add' | 'import';
+
+const getQuickActionModal = (state: unknown): QuickActionModal | null => {
+  if (typeof state !== 'object' || state === null || !('openModal' in state)) {
+    return null;
+  }
+  return state.openModal === 'add' || state.openModal === 'import'
+    ? state.openModal
+    : null;
+};
 
 const Recipes: React.FC = () => {
   const selectedCategory = useSelectedCategory();
@@ -63,11 +68,17 @@ const Recipes: React.FC = () => {
   // Bumped per draft so the review form mounts fresh with the new initial values
   const [draftFormKey, setDraftFormKey] = useState<number>(0);
 
-  // The "Import from link" quick action navigates here with { openImport: true }
+  // The "Add Recipe" / "Import from link" quick actions navigate here with
+  // { openModal }; state is cleared so a refresh doesn't reopen the modal
   useEffect(() => {
-    if (hasOpenImportFlag(location.state)) {
+    const modal = getQuickActionModal(location.state);
+    if (modal === 'import') {
       resetImport();
       openImportModal();
+    } else if (modal === 'add') {
+      openAddRecipeModal();
+    }
+    if (modal) {
       navigate(location.pathname, { replace: true, state: null });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,6 +99,10 @@ const Recipes: React.FC = () => {
   const handleDeleteClick = (e: React.MouseEvent, recipe: Recipe) => {
     e.stopPropagation();
     openDeleteConfirmation(recipe);
+  };
+
+  const handleRateRecipe = (recipe: Recipe, rating: number | null) => {
+    updateRecipe(recipe.id, { rating });
   };
 
   const handleConfirmDelete = async () => {
@@ -188,6 +203,7 @@ const Recipes: React.FC = () => {
             selectedCategory={selectedCategory}
             onRecipeClick={handleRecipeClick}
             onDeleteClick={handleDeleteClick}
+            onRateRecipe={handleRateRecipe}
           />
 
           {selectedRecipe && (

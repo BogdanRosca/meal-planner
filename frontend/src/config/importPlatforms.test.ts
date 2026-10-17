@@ -1,4 +1,8 @@
-import { IMPORT_PLATFORMS, getImportPlatform } from './importPlatforms';
+import {
+  IMPORT_PLATFORMS,
+  getImportPlatform,
+  getRecipeSource,
+} from './importPlatforms';
 
 describe('importPlatforms', () => {
   it('lists YouTube, Instagram then Facebook', () => {
@@ -26,5 +30,22 @@ describe('importPlatforms', () => {
     expect(
       getImportPlatform('instagram').parse('https://youtu.be/dQw4w9WgXcQ')
     ).toBeNull();
+  });
+
+  describe('getRecipeSource', () => {
+    it.each([
+      ['https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'youtube'],
+      ['https://www.instagram.com/reel/C1a2b3c4d5/', 'instagram'],
+      ['https://www.facebook.com/reel/1234567890', 'facebook'],
+    ])('detects the platform of %s', (url, platform) => {
+      expect(getRecipeSource(url)?.id).toBe(platform);
+    });
+
+    it.each([null, undefined, '', 'https://example.com/video'])(
+      'returns null for %p',
+      url => {
+        expect(getRecipeSource(url)).toBeNull();
+      }
+    );
   });
 });

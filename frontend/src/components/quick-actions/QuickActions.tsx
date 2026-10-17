@@ -1,4 +1,11 @@
 import React from 'react';
+import {
+  ArrowRight,
+  CalendarDays,
+  ChefHat,
+  Link,
+  ShoppingCart,
+} from 'lucide-react';
 import styles from './QuickActions.module.css';
 import Categories from '../categories/Categories';
 
@@ -17,25 +24,25 @@ const QuickActions: React.FC<QuickActionsProps> = ({
     {
       id: 'add-recipe',
       title: 'Add Recipe',
-      icon: '🍳',
+      icon: ChefHat,
       description: 'Create a new recipe',
     },
     {
       id: 'import-link',
       title: 'Import from link',
-      icon: '🔗',
+      icon: Link,
       description: 'YouTube, Instagram or Facebook video',
     },
     {
       id: 'plan-meals',
       title: 'Plan Meals',
-      icon: '📅',
+      icon: CalendarDays,
       description: 'Plan your weekly meals',
     },
     {
       id: 'shopping-list',
       title: 'Shopping List',
-      icon: '🛒',
+      icon: ShoppingCart,
       description: 'Create shopping list',
     },
   ];
@@ -63,12 +70,16 @@ const QuickActions: React.FC<QuickActionsProps> = ({
             className={styles['quick-action-item']}
             onClick={() => handleActionClick(action.title)}
           >
-            <div className={styles['action-icon']}>{action.icon}</div>
+            <div className={styles['action-icon']} aria-hidden="true">
+              <action.icon />
+            </div>
             <div className={styles['action-content']}>
               <h4>{action.title}</h4>
               <p>{action.description}</p>
             </div>
-            <div className={styles['action-arrow']}>→</div>
+            <div className={styles['action-arrow']} aria-hidden="true">
+              <ArrowRight />
+            </div>
           </button>
         ))}
       </div>

@@ -6,6 +6,7 @@
   height: calc(100vh - 64px);
   background: linear-gradient(180deg, #294936 0%, #212922 100%);
   padding: 24px 16px;
+  box-sizing: border-box;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 999;
   overflow-y: auto;
@@ -60,9 +61,15 @@
 }
 
 .action-icon {
-  font-size: 24px;
+  display: flex;
   flex-shrink: 0;
+  color: white;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.action-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .action-content {
@@ -86,11 +93,15 @@
 }
 
 .action-arrow {
+  display: flex;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 18px;
-  font-weight: bold;
   flex-shrink: 0;
   transition: all 0.3s ease;
+}
+
+.action-arrow svg {
+  width: 18px;
+  height: 18px;
 }
 
 .quick-action-item:hover .action-arrow {
@@ -110,8 +121,9 @@
     gap: 10px;
   }
 
-  .action-icon {
-    font-size: 20px;
+  .action-icon svg {
+    width: 20px;
+    height: 20px;
   }
 
   .action-content h4 {

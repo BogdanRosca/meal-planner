@@ -21,6 +21,7 @@ describe('RecipeCard', () => {
 
   const mockOnRecipeClick = jest.fn();
   const mockOnDeleteClick = jest.fn();
+  const mockOnRateRecipe = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -33,6 +34,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -50,6 +52,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -62,6 +65,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -77,6 +81,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -89,6 +94,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -103,6 +109,7 @@ describe('RecipeCard', () => {
           _recipe={singlePortionRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -115,6 +122,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -132,6 +140,7 @@ describe('RecipeCard', () => {
           _recipe={breakfastRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -147,6 +156,7 @@ describe('RecipeCard', () => {
           _recipe={lunchRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -162,6 +172,7 @@ describe('RecipeCard', () => {
           _recipe={dinnerRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -177,6 +188,7 @@ describe('RecipeCard', () => {
           _recipe={snackRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -192,6 +204,7 @@ describe('RecipeCard', () => {
           _recipe={unknownRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -207,6 +220,7 @@ describe('RecipeCard', () => {
           _recipe={upperCaseRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -223,6 +237,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -239,6 +254,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -260,6 +276,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -279,6 +296,7 @@ describe('RecipeCard', () => {
           _recipe={zeroTimeRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -292,6 +310,7 @@ describe('RecipeCard', () => {
           _recipe={longTimeRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -308,6 +327,7 @@ describe('RecipeCard', () => {
           _recipe={recipeWithFoto}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -326,6 +346,7 @@ describe('RecipeCard', () => {
           _recipe={mockRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -342,6 +363,7 @@ describe('RecipeCard', () => {
           _recipe={recipeWithoutFoto}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -362,6 +384,7 @@ describe('RecipeCard', () => {
           _recipe={longNameRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
@@ -375,10 +398,76 @@ describe('RecipeCard', () => {
           _recipe={zeroPortionsRecipe}
           onRecipeClick={mockOnRecipeClick}
           onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
         />
       );
 
       expect(screen.getByText(/0 portions/)).toBeInTheDocument();
     });
+  });
+
+  describe('Source', () => {
+    it.each([
+      ['https://youtu.be/dQw4w9WgXcQ', 'YouTube'],
+      ['https://www.instagram.com/reel/C1a2b3c4d5/', 'Instagram'],
+      ['https://www.facebook.com/reel/1234567890', 'Facebook'],
+    ])('shows the source platform for %s', (videoUrl, label) => {
+      render(
+        <RecipeCard
+          _recipe={{ ...mockRecipe, video_url: videoUrl }}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
+        />
+      );
+
+      expect(screen.getByText(`Source: ${label}`)).toBeInTheDocument();
+    });
+
+    it('shows no source without a recognised video link', () => {
+      render(
+        <RecipeCard
+          _recipe={{ ...mockRecipe, video_url: 'https://example.com/v' }}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
+        />
+      );
+
+      expect(screen.queryByText(/^Source:/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Rating', () => {
+    it('rates the recipe without opening it', () => {
+      render(
+        <RecipeCard
+          _recipe={mockRecipe}
+          onRecipeClick={mockOnRecipeClick}
+          onDeleteClick={mockOnDeleteClick}
+          onRateRecipe={mockOnRateRecipe}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: '4 stars' }));
+
+      expect(mockOnRateRecipe).toHaveBeenCalledWith(mockRecipe, 4);
+      expect(mockOnRecipeClick).not.toHaveBeenCalled();
+    });
+  });
+
+  it('shows the category icon in the category badge', () => {
+    const { container } = render(
+      <RecipeCard
+        _recipe={mockRecipe}
+        onRecipeClick={mockOnRecipeClick}
+        onDeleteClick={mockOnDeleteClick}
+        onRateRecipe={mockOnRateRecipe}
+      />
+    );
+
+    expect(
+      container.querySelector('.recipe-category-badge svg.lucide-coffee')
+    ).toBeInTheDocument();
   });
 });

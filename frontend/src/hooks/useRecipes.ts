@@ -40,7 +40,7 @@ export const useRecipes = () => {
 
   const updateRecipe = async (
     recipeId: number,
-    updatedRecipe: Omit<Recipe, 'id'>
+    updatedRecipe: Partial<Omit<Recipe, 'id'>>
   ) => {
     try {
       const newRecipe = await recipeService.updateRecipe(

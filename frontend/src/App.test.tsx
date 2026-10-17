@@ -373,4 +373,24 @@ describe('App Component', () => {
       await waitFor(() => expect(mockLogout).toHaveBeenCalledTimes(1));
     });
   });
+
+  describe('Quick actions', () => {
+    it('opens the Add Recipe modal on the recipes page', async () => {
+      renderApp();
+
+      fireEvent.click(screen.getByRole('button', { name: /^Add Recipe/ }));
+
+      expect(await screen.findByText('Add New Recipe')).toBeInTheDocument();
+    });
+
+    it('opens the import modal on the recipes page', async () => {
+      renderApp();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: /^Import from link/ })
+      );
+
+      expect(await screen.findByText('Choose a platform')).toBeInTheDocument();
+    });
+  });
 });

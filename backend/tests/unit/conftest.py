@@ -125,14 +125,14 @@ SAMPLE_RECIPE_1_DB_ROW = (
     1, 'Test Recipe', 'dinner',
     [{'quantity': 250, 'unit': 'g', 'name': 'pasta'}],
     ['salt', 'pepper'],
-    'Cook it', 30, 4, 'https://example.com/recipe1.jpg', None
+    'Cook it', 30, 4, 'https://example.com/recipe1.jpg', None, 4
 )
 
 SAMPLE_RECIPE_2_DB_ROW = (
     123, 'New Recipe', 'lunch',
     [{'quantity': 200, 'unit': 'g', 'name': 'rice'}],
     ['salt'],
-    'Cook rice', 20, 2, None, None
+    'Cook rice', 20, 2, None, None, None
 )
 
 # Database test data for add_recipe method
@@ -160,7 +160,7 @@ UPDATED_RECIPE_DB_ROW = (
     1, 'Test Recipe', 'dinner',
     [{'quantity': 200, 'unit': 'g', 'name': 'rice'}],
     ['garlic', 'onion'],
-    'Cook rice', 25, 2, 'https://example.com/recipe1.jpg', None
+    'Cook rice', 25, 2, 'https://example.com/recipe1.jpg', None, None
 )
 
 # Edge case test data
@@ -247,7 +247,7 @@ EMPTY_RECIPE_DATA = {
 
 # Database row for empty recipe
 EMPTY_RECIPE_DB_ROW = (
-    1, 'Empty Recipe', 'snack', [], [], 'No cooking', 0, 1, None, None
+    1, 'Empty Recipe', 'snack', [], [], 'No cooking', 0, 1, None, None, None
 )
 
 

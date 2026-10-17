@@ -1,18 +1,23 @@
 import React from 'react';
 import { Trash2, Clock, Users } from 'lucide-react';
 import { Recipe } from '../../types/recipe';
+import { getRecipeSource } from '../../config/importPlatforms';
+import { getCategoryIcon } from '../../config/categoryIcons';
+import StarRating from './StarRating';
 import styles from './RecipeCard.module.css';
 
 interface RecipeCardProps {
   _recipe: Recipe;
   onRecipeClick: (_recipe: Recipe) => void;
   onDeleteClick: (_e: React.MouseEvent, _recipe: Recipe) => void;
+  onRateRecipe: (_recipe: Recipe, _rating: number | null) => void;
 }
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
   _recipe,
   onRecipeClick,
   onDeleteClick,
+  onRateRecipe,
 }) => {
   // Category emoji mapping
   const getCategoryEmoji = (category: string): string => {
@@ -26,6 +31,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   };
 
   const categoryClass = styles[`category-${_recipe.category.toLowerCase()}`];
+  const source = getRecipeSource(_recipe.video_url);
+  const CategoryIcon = getCategoryIcon(_recipe.category);
 
   return (
     <div className={styles['recipe-card']}>
@@ -45,6 +52,17 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               {getCategoryEmoji(_recipe.category)}
             </div>
           )}
+          {source && (
+            <span
+              className={styles['recipe-source-badge']}
+              title={`From ${source.label}`}
+            >
+              <source.Icon size={16} aria-hidden />
+              <span className={styles['visually-hidden']}>
+                Source: {source.label}
+              </span>
+            </span>
+          )}
         </div>
         <div className={styles['recipe-card-content']}>
           <div className={styles['recipe-title-container']}>
@@ -58,12 +76,20 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               <Trash2 size={16} />
             </button>
           </div>
-          <div
-            className={[styles['recipe-category-badge'], categoryClass ?? '']
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {_recipe.category}
+          <div className={styles['recipe-meta-row']}>
+            <div
+              className={[styles['recipe-category-badge'], categoryClass ?? '']
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <CategoryIcon size={12} aria-hidden />
+              {_recipe.category}
+            </div>
+            <StarRating
+              rating={_recipe.rating ?? null}
+              recipeName={_recipe.name}
+              onRate={rating => onRateRecipe(_recipe, rating)}
+            />
           </div>
           <div className={styles['recipe-card-footer']}>
             <span className={styles['recipe-time']}>

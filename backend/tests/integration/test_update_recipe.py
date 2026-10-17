@@ -260,3 +260,47 @@ class TestUpdateRecipeEndpointIntegration:
         assert response.status_code == 422  # Unprocessable Entity
         json_response = response.json()
         assert "detail" in json_response
+
+    def _create_recipe(self):
+        recipe = self.db_client.add_recipe(
+            name="Rated Recipe",
+            category="lunch",
+            main_ingredients=[{"quantity": 100, "unit": "g", "name": "rice"}],
+            common_ingredients=[],
+            instructions="Cook it",
+            prep_time=10,
+            portions=1,
+            foto_url=None,
+            video_url=None,
+            user_id=self.user_id
+        )
+        self.created_recipe_ids.append(recipe['id'])
+        return recipe
+
+    def test_new_recipe_is_unrated(self):
+        """Recipes start without a rating"""
+        recipe = self._create_recipe()
+
+        assert recipe['rating'] is None
+
+    def test_patch_recipe_sets_and_clears_rating(self):
+        """Rating can be set and then cleared with null"""
+        recipe_id = self._create_recipe()['id']
+
+        set_response = client.patch(f"/recipes/{recipe_id}", json={"rating": 4})
+        assert set_response.status_code == 200
+        assert set_response.json()["rating"] == 4
+        assert self.db_client.get_recipe_by_id(recipe_id, self.user_id)['rating'] == 4
+
+        clear_response = client.patch(f"/recipes/{recipe_id}", json={"rating": None})
+        assert clear_response.status_code == 200
+        assert clear_response.json()["rating"] is None
+
+    @pytest.mark.parametrize("rating", [0, 6])
+    def test_patch_recipe_rejects_out_of_range_rating(self, rating):
+        """Ratings outside 1-5 are rejected"""
+        recipe_id = self._create_recipe()['id']
+
+        response = client.patch(f"/recipes/{recipe_id}", json={"rating": rating})
+
+        assert response.status_code == 422

@@ -10,13 +10,28 @@
 }
 
 .top-bar-container {
-  max-width: 1400px;
-  margin: 0 auto;
   height: 100%;
   display: flex;
   align-items: center;
+}
+
+/* Mirrors App-main's horizontal padding beside the sidebar */
+.top-bar-main {
+  flex: 1;
+  min-width: 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Mirrors the page content box so nav lines up with page content */
+.top-bar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 0 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
   gap: 32px;
 }
 
@@ -40,8 +55,11 @@
 .logo-section {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex-shrink: 0;
+  /* Matches the QuickActions sidebar width so the logo sits centered above it */
+  width: 280px;
 }
 
 .logo-icon {
@@ -193,6 +211,10 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .logo-section {
+    width: 240px;
+  }
+
   .user-name {
     display: none;
   }
@@ -215,6 +237,19 @@
   .top-bar-container {
     padding: 0 16px;
     gap: 16px;
+  }
+
+  .logo-section {
+    width: auto;
+  }
+
+  .top-bar-main,
+  .top-bar-content {
+    padding: 0;
+  }
+
+  .top-bar-content {
+    justify-content: flex-end;
   }
 
   .logo-text {

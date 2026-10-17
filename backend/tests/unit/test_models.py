@@ -3,7 +3,7 @@ Unit tests for Pydantic models
 """
 import pytest
 from pydantic import ValidationError
-from app.models import Ingredient, RecipeCreate, RecipeResponse
+from app.models import Ingredient, RecipeCreate, RecipeResponse, RecipeUpdate
 
 
 class TestIngredientModel:
@@ -188,3 +188,23 @@ class TestRecipeResponseModel:
         print(errors)
         assert len(errors) == 1
         assert "id" in errors[0]["loc"]
+
+
+class TestRecipeUpdateRating:
+    """Test rating validation on RecipeUpdate"""
+
+    @pytest.mark.parametrize("rating", [1, 3, 5])
+    def test_accepts_ratings_in_range(self, rating):
+        assert RecipeUpdate(rating=rating).rating == rating
+
+    @pytest.mark.parametrize("rating", [0, 6, -1])
+    def test_rejects_ratings_out_of_range(self, rating):
+        with pytest.raises(ValidationError) as exc_info:
+            RecipeUpdate(rating=rating)
+
+        assert "rating" in exc_info.value.errors()[0]["loc"]
+
+    def test_explicit_null_clears_rating(self):
+        update = RecipeUpdate(rating=None)
+
+        assert update.model_dump(exclude_unset=True) == {"rating": None}

@@ -2,16 +2,17 @@ import React, { useMemo } from 'react';
 import styles from './Categories.module.css';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useSelectedCategory } from '../../hooks/useSelectedCategory';
+import { getCategoryIcon } from '../../config/categoryIcons';
 
 interface CategoriesProps {
   onCategoryClick?: (_category: string) => void;
 }
 
-const CATEGORY_ICONS: Record<string, { icon: string; color: string }> = {
-  Breakfast: { icon: '☕️', color: '#5b8266' },
-  Snack: { icon: '🍎', color: '#294936' },
-  Lunch: { icon: '☀️', color: '#3e6259' },
-  Dinner: { icon: '🌙', color: '#212922' },
+const CATEGORY_COLORS: Record<string, string> = {
+  Breakfast: '#5b8266',
+  Snack: '#294936',
+  Lunch: '#3e6259',
+  Dinner: '#212922',
 };
 
 const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
@@ -41,9 +42,9 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
       return {
         id: name.toLowerCase(),
         name: normalizedName,
-        icon: CATEGORY_ICONS[normalizedName]?.icon || '🍽️',
+        icon: getCategoryIcon(name),
         count,
-        color: CATEGORY_ICONS[normalizedName]?.color || '#666',
+        color: CATEGORY_COLORS[normalizedName] || '#666',
       };
     });
   }, [recipes]);
@@ -82,7 +83,9 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
                 }
               >
                 <div className={styles['category-content']}>
-                  <div className={styles['category-icon']}>{category.icon}</div>
+                  <div className={styles['category-icon']} aria-hidden="true">
+                    <category.icon />
+                  </div>
                   <span className={styles['category-name']}>
                     {category.name}
                   </span>
