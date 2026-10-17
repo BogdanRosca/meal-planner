@@ -515,6 +515,25 @@ describe('RecipeDetailModal Component', () => {
     );
   });
 
+  it.each([
+    'https://www.facebook.com/watch/?v=1234567890123456',
+    'https://fb.watch/abcDEF123/',
+  ])('should display Facebook video plugin iframe for %s', videoUrl => {
+    render(
+      <RecipeDetailModal
+        recipe={{ ...mockRecipe, video_url: videoUrl }}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    expect(screen.getByTitle(`${mockRecipe.name} video`)).toHaveAttribute(
+      'src',
+      `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
+        videoUrl
+      )}&show_text=false`
+    );
+  });
+
   it('should display YouTube iframe for youtu.be short URL', () => {
     const recipeWithYoutuBe = {
       ...mockRecipe,

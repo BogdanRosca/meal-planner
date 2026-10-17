@@ -8,4 +8,5 @@ export const API_ENDPOINTS = {
   SHOPPING_LIST: `${API_BASE_URL}/shopping-list`,
   RECIPE_IMPORT_YOUTUBE: `${API_BASE_URL}/recipes/import/youtube`,
   RECIPE_IMPORT_INSTAGRAM: `${API_BASE_URL}/recipes/import/instagram`,
+  RECIPE_IMPORT_FACEBOOK: `${API_BASE_URL}/recipes/import/facebook`,
 };

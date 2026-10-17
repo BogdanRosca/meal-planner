@@ -10,6 +10,7 @@ import {
 const IMPORT_ENDPOINTS: Record<ImportPlatform, string> = {
   youtube: API_ENDPOINTS.RECIPE_IMPORT_YOUTUBE,
   instagram: API_ENDPOINTS.RECIPE_IMPORT_INSTAGRAM,
+  facebook: API_ENDPOINTS.RECIPE_IMPORT_FACEBOOK,
 };
 
 const IMPORT_ERROR_CODES: RecipeImportErrorCode[] = [
