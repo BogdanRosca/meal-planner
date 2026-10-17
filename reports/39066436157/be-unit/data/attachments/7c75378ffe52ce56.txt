@@ -1,0 +1,1 @@
+WARNING  app.services.ytdlp_client:ytdlp_client.py:65 Video 1 is missing or needs login (set X_COOKIES_FILE if the video is public but requires a session): ERROR: login required
