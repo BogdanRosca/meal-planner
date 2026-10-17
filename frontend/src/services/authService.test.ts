@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from '../config/api';
 import { authService, InvalidCredentialsError } from './authService';
 
 const USER = { id: 7, email: 'cook@example.com' };
@@ -23,7 +24,7 @@ describe('authService', () => {
       );
 
       await expect(authService.me()).resolves.toEqual(USER);
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/auth/me', {
+      expect(mockFetch).toHaveBeenCalledWith(API_ENDPOINTS.AUTH_ME, {
         credentials: 'include',
       });
     });
@@ -62,18 +63,15 @@ describe('authService', () => {
       await expect(
         authService.login('cook@example.com', 'secret')
       ).resolves.toEqual(USER);
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8000/auth/login',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: 'cook@example.com',
-            password: 'secret',
-          }),
-          credentials: 'include',
-        }
-      );
+      expect(mockFetch).toHaveBeenCalledWith(API_ENDPOINTS.AUTH_LOGIN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'cook@example.com',
+          password: 'secret',
+        }),
+        credentials: 'include',
+      });
     });
 
     it('throws InvalidCredentialsError on 401', async () => {
@@ -97,10 +95,10 @@ describe('authService', () => {
 
       await authService.logout();
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8000/auth/logout',
-        { method: 'POST', credentials: 'include' }
-      );
+      expect(mockFetch).toHaveBeenCalledWith(API_ENDPOINTS.AUTH_LOGOUT, {
+        method: 'POST',
+        credentials: 'include',
+      });
     });
   });
 });
