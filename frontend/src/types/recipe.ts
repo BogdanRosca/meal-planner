@@ -38,6 +38,8 @@ export type RecipeDraftField = keyof Omit<Recipe, 'id'>;
 
 export type FieldFlag = 'missing' | 'estimated';
 
+export type ImportPlatform = 'youtube' | 'instagram';
+
 export type FieldFlags = Partial<Record<RecipeDraftField, FieldFlag>>;
 
 export interface DuplicateRecipe {
@@ -58,6 +60,7 @@ export interface RecipeDraft {
   field_flags: FieldFlags;
   duplicate_of: DuplicateRecipe | null;
   source: {
+    platform: ImportPlatform;
     video_id: string;
     title: string;
     channel: string;

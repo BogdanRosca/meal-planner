@@ -7,23 +7,13 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx
 
+from .source_errors import SourceFetchError, SourceTimeoutError, VideoNotFoundError
+
 YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos"
 VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
 YOUTUBE_HOSTS = {"youtube.com", "www.youtube.com", "m.youtube.com"}
 SHORT_HOSTS = {"youtu.be", "www.youtu.be"}
 THUMBNAIL_PREFERENCE = ("maxres", "high", "medium", "default")
-
-
-class VideoNotFoundError(Exception):
-    """Video is private, deleted or does not exist"""
-
-
-class YoutubeApiError(Exception):
-    """YouTube Data API is unreachable or returned an error"""
-
-
-class YoutubeTimeoutError(YoutubeApiError):
-    """YouTube Data API did not answer in time"""
 
 
 def parse_video_id(url: str) -> Optional[str]:
@@ -76,12 +66,12 @@ def fetch_video_metadata(video_id: str, api_key: str, timeout: float) -> Dict[st
             timeout=timeout,
         )
     except httpx.TimeoutException as e:
-        raise YoutubeTimeoutError("YouTube API timed out") from e
+        raise SourceTimeoutError("YouTube API timed out") from e
     except httpx.HTTPError as e:
-        raise YoutubeApiError(f"YouTube API request failed: {e}") from e
+        raise SourceFetchError(f"YouTube API request failed: {e}") from e
 
     if response.status_code != 200:
-        raise YoutubeApiError(f"YouTube API returned HTTP {response.status_code}")
+        raise SourceFetchError(f"YouTube API returned HTTP {response.status_code}")
 
     items = response.json().get("items") or []
     if not items:

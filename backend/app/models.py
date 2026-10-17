@@ -3,6 +3,7 @@ Pydantic models for request/response validation
 """
 from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict, Literal
+from .services.instagram_client import parse_shortcode
 from .services.youtube_client import parse_video_id
 
 
@@ -85,12 +86,24 @@ class YoutubeImportRequest(BaseModel):
         return value.strip()
 
 
+class InstagramImportRequest(BaseModel):
+    url: str
+
+    @field_validator("url")
+    @classmethod
+    def must_be_instagram_post_url(cls, value: str) -> str:
+        if not parse_shortcode(value):
+            raise ValueError("Not a valid Instagram reel URL")
+        return value.strip()
+
+
 class DuplicateRecipe(BaseModel):
     id: int
     name: str
 
 
 class ImportSource(BaseModel):
+    platform: Literal["youtube", "instagram"]
     video_id: str
     title: str
     channel: str

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Youtube } from 'lucide-react';
+import { Plus, Link } from 'lucide-react';
 import styles from './Recipes.module.css';
-import { Recipe } from '../../types/recipe';
+import { ImportPlatform, Recipe } from '../../types/recipe';
 import RecipeDetailModal from '../../components/recipe/RecipeDetailModal';
 import AddRecipeModal from '../../components/recipe/AddRecipeModal';
 import EditRecipeModal from '../../components/recipe/EditRecipeModal';
@@ -15,6 +15,7 @@ import { useRecipes } from '../../hooks/useRecipes';
 import { useRecipeModals } from '../../hooks/useRecipeModals';
 import { useSelectedCategory } from '../../hooks/useSelectedCategory';
 import { useRecipeImport } from '../../hooks/useRecipeImport';
+import { getImportPlatform } from '../../config/importPlatforms';
 
 const hasOpenImportFlag = (state: unknown): boolean =>
   typeof state === 'object' &&
@@ -62,7 +63,7 @@ const Recipes: React.FC = () => {
   // Bumped per draft so the review form mounts fresh with the new initial values
   const [draftFormKey, setDraftFormKey] = useState<number>(0);
 
-  // The "Import from YouTube" quick action navigates here with { openImport: true }
+  // The "Import from link" quick action navigates here with { openImport: true }
   useEffect(() => {
     if (hasOpenImportFlag(location.state)) {
       resetImport();
@@ -110,8 +111,8 @@ const Recipes: React.FC = () => {
     openImportModal();
   };
 
-  const handleImport = async (url: string) => {
-    const draft = await importRecipe(url);
+  const handleImport = async (platform: ImportPlatform, url: string) => {
+    const draft = await importRecipe(platform, url);
     if (draft) {
       setDraftFormKey(key => key + 1);
       closeImportModal();
@@ -168,8 +169,8 @@ const Recipes: React.FC = () => {
                 className={styles['import-recipe-button']}
                 onClick={handleOpenImport}
               >
-                <Youtube size={18} />
-                Import from YouTube
+                <Link size={18} />
+                Import from link
               </button>
               <button
                 className={styles['add-recipe-button']}
@@ -223,15 +224,17 @@ const Recipes: React.FC = () => {
         </>
       )}
 
-      <ImportRecipeModal
-        isOpen={isImportModalOpen}
-        phase={importPhase}
-        error={importError}
-        onImport={handleImport}
-        onCancel={cancelImport}
-        onClose={handleCloseImport}
-        onAddManually={handleImportAddManually}
-      />
+      {isImportModalOpen && (
+        <ImportRecipeModal
+          phase={importPhase}
+          error={importError}
+          onImport={handleImport}
+          onCancel={cancelImport}
+          onClose={handleCloseImport}
+          onBack={resetImport}
+          onAddManually={handleImportAddManually}
+        />
+      )}
 
       {importedDraft && (
         <AddRecipeModal
@@ -242,6 +245,9 @@ const Recipes: React.FC = () => {
           initialValues={importedDraft}
           fieldFlags={importedDraft.field_flags}
           duplicateOf={importedDraft.duplicate_of}
+          importSourceLabel={
+            getImportPlatform(importedDraft.source.platform).label
+          }
         />
       )}
     </div>

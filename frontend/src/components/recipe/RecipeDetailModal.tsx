@@ -34,6 +34,16 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
   return null;
 };
 
+const getInstagramEmbedUrl = (url: string): string | null => {
+  const match = url.match(
+    /instagr(?:am\.com|\.am)\/(?:[\w.]+\/)?(?:reels?|p|tv)\/([A-Za-z0-9_-]{5,40})/
+  );
+  return match ? `https://www.instagram.com/reel/${match[1]}/embed` : null;
+};
+
+const getEmbedUrl = (url: string): string | null =>
+  getYouTubeEmbedUrl(url) ?? getInstagramEmbedUrl(url);
+
 const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
   recipe,
   isOpen,
@@ -191,9 +201,9 @@ const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 Video
               </h3>
               <div className={styles['recipe-video-container']}>
-                {getYouTubeEmbedUrl(recipe.video_url) ? (
+                {getEmbedUrl(recipe.video_url) ? (
                   <iframe
-                    src={getYouTubeEmbedUrl(recipe.video_url)!}
+                    src={getEmbedUrl(recipe.video_url)!}
                     title={`${recipe.name} video`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen

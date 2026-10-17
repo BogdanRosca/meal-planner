@@ -8,3 +8,4 @@ flake8==6.1.0
 allure-pytest==2.13.5
 anthropic==0.125.0
 youtube-transcript-api==1.2.4
+yt-dlp==2026.8.19

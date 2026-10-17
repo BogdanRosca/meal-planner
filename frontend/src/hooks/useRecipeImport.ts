@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { RecipeDraft, RecipeImportErrorCode } from '../types/recipe';
+import {
+  ImportPlatform,
+  RecipeDraft,
+  RecipeImportErrorCode,
+} from '../types/recipe';
 import { RecipeImportError, recipeService } from '../services/recipeService';
 
 export type ImportPhase = 'idle' | 'fetching' | 'extracting';
@@ -58,7 +62,10 @@ export const useRecipeImport = () => {
     []
   );
 
-  const importRecipe = async (url: string): Promise<RecipeDraft | null> => {
+  const importRecipe = async (
+    platform: ImportPlatform,
+    url: string
+  ): Promise<RecipeDraft | null> => {
     cancel();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -71,7 +78,8 @@ export const useRecipeImport = () => {
     );
 
     try {
-      const { draft: result } = await recipeService.importFromYoutube(
+      const { draft: result } = await recipeService.importFromLink(
+        platform,
         url,
         controller.signal
       );

@@ -12,12 +12,12 @@ import { ROUTES } from './config/routes';
 const QUICK_ACTION_ROUTES: Record<string, string> = {
   'Plan Meals': ROUTES.MEAL_PLANNER,
   'Add Recipe': ROUTES.RECIPES,
-  'Import from YouTube': ROUTES.RECIPES,
+  'Import from link': ROUTES.RECIPES,
   'Shopping List': ROUTES.SHOPPING_LIST,
 };
 
 const QUICK_ACTION_STATE: Record<string, { openImport: boolean }> = {
-  'Import from YouTube': { openImport: true },
+  'Import from link': { openImport: true },
 };
 
 function App() {
