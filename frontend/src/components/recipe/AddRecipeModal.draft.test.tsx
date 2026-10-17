@@ -48,6 +48,7 @@ describe('AddRecipeModal with an imported draft', () => {
         initialValues={values}
         fieldFlags={flags}
         duplicateOf={duplicateOf}
+        importSourceLabel="YouTube"
       />
     );
 
@@ -79,6 +80,21 @@ describe('AddRecipeModal with an imported draft', () => {
     expect(screen.getAllByPlaceholderText('Ingredient name')).toHaveLength(2);
     expect(screen.getByDisplayValue('guanciale')).toBeInTheDocument();
     expect(screen.getByText('black pepper')).toBeInTheDocument();
+  });
+
+  it('names a generic source when no label is given', () => {
+    render(
+      <AddRecipeModal
+        isOpen
+        onClose={onClose}
+        onAddRecipe={onAddRecipe}
+        initialValues={initialValues}
+      />
+    );
+
+    expect(
+      screen.getByText('Prefilled from link — please review before saving.')
+    ).toBeInTheDocument();
   });
 
   it('does not show the banner or duplicate warning for a manual recipe', () => {

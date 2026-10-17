@@ -584,3 +584,26 @@ class TestUpdateRecipeMethod:
         mock_cursor.close.assert_called()
         mock_connection.commit.assert_called_once()
         mock_cursor.close.assert_called()
+
+
+class TestFindRecipesByVideoId:
+    """Test the duplicate-check lookup used by recipe imports"""
+
+    def test_returns_matching_recipes(self):
+        client = DatabaseClient()
+        client._connection = Mock()
+        cursor = client._connection.cursor.return_value
+        cursor.fetchall.return_value = [(5, "Old pasta", "https://youtu.be/dQw4w9WgXcQ")]
+
+        with patch.object(client, 'is_connected', return_value=True):
+            matches = client.find_recipes_by_video_id("dQw4w9WgXcQ")
+
+        assert matches == [{'id': 5, 'name': 'Old pasta', 'video_url': 'https://youtu.be/dQw4w9WgXcQ'}]
+        assert cursor.execute.call_args[0][1] == ("%dQw4w9WgXcQ%",)
+        cursor.close.assert_called_once()
+
+    def test_requires_connection(self):
+        client = DatabaseClient()
+
+        with pytest.raises(Exception, match="Not connected to database"):
+            client.find_recipes_by_video_id("dQw4w9WgXcQ")

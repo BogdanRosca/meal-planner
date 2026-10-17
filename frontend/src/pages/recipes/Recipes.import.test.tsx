@@ -38,6 +38,7 @@ const draft: RecipeDraft = {
   field_flags: { portions: 'missing' },
   duplicate_of: { id: 1, name: 'Pancakes' },
   source: {
+    platform: 'youtube',
     video_id: 'dQw4w9WgXcQ',
     title: 'Carbonara!!',
     channel: 'Chef',
@@ -55,7 +56,8 @@ const renderRecipes = (state?: unknown) =>
 const openImportAndSubmit = async (
   user: ReturnType<typeof userEvent.setup>
 ) => {
-  await user.click(screen.getByRole('button', { name: 'Import from YouTube' }));
+  await user.click(screen.getByRole('button', { name: 'Import from link' }));
+  await user.click(screen.getByRole('button', { name: /YouTube/ }));
   await user.type(screen.getByLabelText('YouTube video URL'), VIDEO_URL);
   await user.click(screen.getByRole('button', { name: 'Import' }));
 };
@@ -68,7 +70,7 @@ describe('Recipes – import from YouTube', () => {
 
   it('imports a video, shows the prefilled form and saves it', async () => {
     const user = userEvent.setup();
-    mockService.importFromYoutube.mockResolvedValue({
+    mockService.importFromLink.mockResolvedValue({
       status: 'success',
       draft,
     });
@@ -90,7 +92,8 @@ describe('Recipes – import from YouTube', () => {
     expect(
       screen.queryByLabelText('YouTube video URL')
     ).not.toBeInTheDocument();
-    expect(mockService.importFromYoutube).toHaveBeenCalledWith(
+    expect(mockService.importFromLink).toHaveBeenCalledWith(
+      'youtube',
       VIDEO_URL,
       expect.any(AbortSignal)
     );
@@ -121,7 +124,7 @@ describe('Recipes – import from YouTube', () => {
 
   it('keeps the prefilled form open when saving fails', async () => {
     const user = userEvent.setup();
-    mockService.importFromYoutube.mockResolvedValue({
+    mockService.importFromLink.mockResolvedValue({
       status: 'success',
       draft: { ...draft, portions: 2, field_flags: {} },
     });
@@ -140,7 +143,7 @@ describe('Recipes – import from YouTube', () => {
 
   it('discards the draft when the prefilled form is cancelled', async () => {
     const user = userEvent.setup();
-    mockService.importFromYoutube.mockResolvedValue({
+    mockService.importFromLink.mockResolvedValue({
       status: 'success',
       draft,
     });
@@ -158,7 +161,7 @@ describe('Recipes – import from YouTube', () => {
 
   it('offers an empty manual form when the import fails', async () => {
     const user = userEvent.setup();
-    mockService.importFromYoutube.mockRejectedValue(new Error('502'));
+    mockService.importFromLink.mockRejectedValue(new Error('502'));
     renderRecipes();
     await screen.findByText('Pancakes');
 
@@ -181,7 +184,7 @@ describe('Recipes – import from YouTube', () => {
 
   it('closes the import modal while an import is running', async () => {
     const user = userEvent.setup();
-    mockService.importFromYoutube.mockReturnValue(new Promise(() => {}));
+    mockService.importFromLink.mockReturnValue(new Promise(() => {}));
     renderRecipes();
     await screen.findByText('Pancakes');
 
@@ -199,7 +202,7 @@ describe('Recipes – import from YouTube', () => {
     renderRecipes({ openImport: true });
 
     expect(
-      await screen.findByLabelText('YouTube video URL')
+      await screen.findByRole('dialog', { name: 'Import from link' })
     ).toBeInTheDocument();
   });
 
@@ -209,9 +212,59 @@ describe('Recipes – import from YouTube', () => {
       renderRecipes(state);
       await screen.findByText(/Pancakes|No recipes/);
 
-      expect(
-        screen.queryByLabelText('YouTube video URL')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     }
   );
+
+  it('imports an Instagram reel', async () => {
+    const user = userEvent.setup();
+    const reelUrl = 'https://www.instagram.com/reel/DAbcdEFghiJ/?igsh=abc';
+    mockService.importFromLink.mockResolvedValue({
+      status: 'success',
+      draft: {
+        ...draft,
+        duplicate_of: null,
+        video_url: 'https://www.instagram.com/reel/DAbcdEFghiJ/',
+        source: { ...draft.source, platform: 'instagram' },
+      },
+    });
+    renderRecipes();
+    await screen.findByText('Pancakes');
+
+    await user.click(screen.getByRole('button', { name: 'Import from link' }));
+    await user.click(screen.getByRole('button', { name: /Instagram/ }));
+    expect(
+      screen.getByRole('dialog', { name: 'Import from Instagram' })
+    ).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Instagram reel URL'), reelUrl);
+    await user.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(
+      await screen.findByText(
+        'Prefilled from Instagram — please review before saving.'
+      )
+    ).toBeInTheDocument();
+    expect(mockService.importFromLink).toHaveBeenCalledWith(
+      'instagram',
+      reelUrl,
+      expect.any(AbortSignal)
+    );
+  });
+
+  it('Back returns to the platform step and clears the import error', async () => {
+    const user = userEvent.setup();
+    mockService.importFromLink.mockRejectedValue(new Error('502'));
+    renderRecipes();
+    await screen.findByText('Pancakes');
+
+    await openImportAndSubmit(user);
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByText('Choose a platform')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /YouTube/ }));
+    expect(screen.getByLabelText('YouTube video URL')).toHaveValue('');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });

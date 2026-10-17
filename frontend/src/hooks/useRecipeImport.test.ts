@@ -7,12 +7,12 @@ jest.mock('../services/recipeService', () => {
   const actual = jest.requireActual('../services/recipeService');
   return {
     ...actual,
-    recipeService: { importFromYoutube: jest.fn() },
+    recipeService: { importFromLink: jest.fn() },
   };
 });
 
-const mockImport = recipeService.importFromYoutube as jest.MockedFunction<
-  typeof recipeService.importFromYoutube
+const mockImport = recipeService.importFromLink as jest.MockedFunction<
+  typeof recipeService.importFromLink
 >;
 
 const draft: RecipeDraft = {
@@ -28,6 +28,7 @@ const draft: RecipeDraft = {
   field_flags: {},
   duplicate_of: null,
   source: {
+    platform: 'youtube',
     video_id: 'dQw4w9WgXcQ',
     title: 'Pasta',
     channel: 'Chef',
@@ -36,7 +37,11 @@ const draft: RecipeDraft = {
 };
 
 // Resolves never; rejects with an AbortError when the signal aborts, like fetch
-const pendingUntilAborted = (_url: string, signal?: AbortSignal) =>
+const pendingUntilAborted = (
+  _platform: string,
+  _url: string,
+  signal?: AbortSignal
+) =>
   new Promise<never>((_resolve, reject) => {
     signal?.addEventListener('abort', () =>
       reject(new DOMException('Aborted', 'AbortError'))
@@ -67,13 +72,17 @@ describe('useRecipeImport', () => {
 
     let returned: RecipeDraft | null = null;
     await act(async () => {
-      returned = await result.current.importRecipe('https://youtu.be/x');
+      returned = await result.current.importRecipe(
+        'youtube',
+        'https://youtu.be/x'
+      );
     });
 
     expect(returned).toEqual(draft);
     expect(result.current.draft).toEqual(draft);
     expect(result.current.loading).toBe(false);
     expect(mockImport).toHaveBeenCalledWith(
+      'youtube',
       'https://youtu.be/x',
       expect.any(AbortSignal)
     );
@@ -85,7 +94,7 @@ describe('useRecipeImport', () => {
     const { result } = renderHook(() => useRecipeImport());
 
     act(() => {
-      result.current.importRecipe('https://youtu.be/x');
+      result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
     expect(result.current.phase).toBe('fetching');
     expect(result.current.loading).toBe(true);
@@ -112,7 +121,7 @@ describe('useRecipeImport', () => {
     const { result } = renderHook(() => useRecipeImport());
 
     await act(async () => {
-      await result.current.importRecipe('https://youtu.be/x');
+      await result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
 
     expect(result.current.error).toEqual({
@@ -128,7 +137,7 @@ describe('useRecipeImport', () => {
     const { result } = renderHook(() => useRecipeImport());
 
     await act(async () => {
-      await result.current.importRecipe('https://youtu.be/x');
+      await result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
 
     expect(result.current.error).toEqual({
@@ -143,7 +152,7 @@ describe('useRecipeImport', () => {
 
     let pending: Promise<RecipeDraft | null> = Promise.resolve(null);
     act(() => {
-      pending = result.current.importRecipe('https://youtu.be/x');
+      pending = result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
     act(() => {
       result.current.cancel();
@@ -162,10 +171,10 @@ describe('useRecipeImport', () => {
 
     let first: Promise<RecipeDraft | null> = Promise.resolve(null);
     act(() => {
-      first = result.current.importRecipe('https://youtu.be/first');
+      first = result.current.importRecipe('youtube', 'https://youtu.be/first');
     });
     await act(async () => {
-      await result.current.importRecipe('https://youtu.be/second');
+      await result.current.importRecipe('youtube', 'https://youtu.be/second');
     });
 
     await expect(first).resolves.toBeNull();
@@ -178,7 +187,7 @@ describe('useRecipeImport', () => {
     const { result } = renderHook(() => useRecipeImport());
 
     await act(async () => {
-      await result.current.importRecipe('https://youtu.be/x');
+      await result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
     act(() => {
       result.current.reset();
@@ -191,14 +200,14 @@ describe('useRecipeImport', () => {
   it('aborts the in-flight request on unmount', async () => {
     jest.useFakeTimers();
     let capturedSignal: AbortSignal | undefined;
-    mockImport.mockImplementation((url, signal) => {
+    mockImport.mockImplementation((platform, url, signal) => {
       capturedSignal = signal;
-      return pendingUntilAborted(url, signal);
+      return pendingUntilAborted(platform, url, signal);
     });
     const { result, unmount } = renderHook(() => useRecipeImport());
 
     act(() => {
-      result.current.importRecipe('https://youtu.be/x');
+      result.current.importRecipe('youtube', 'https://youtu.be/x');
     });
     unmount();
 

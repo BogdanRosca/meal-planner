@@ -497,6 +497,24 @@ describe('RecipeDetailModal Component', () => {
     expect(container.querySelector('video')).not.toBeInTheDocument();
   });
 
+  it.each([
+    'https://www.instagram.com/reel/DAbcdEFghiJ/',
+    'https://www.instagram.com/p/DAbcdEFghiJ/?igsh=abc',
+    'https://www.instagram.com/chef_anna/reel/DAbcdEFghiJ/',
+  ])('should display Instagram embed iframe for %s', videoUrl => {
+    render(
+      <RecipeDetailModal
+        recipe={{ ...mockRecipe, video_url: videoUrl }}
+        isOpen={true}
+        onClose={mockOnClose}
+      />
+    );
+    expect(screen.getByTitle(`${mockRecipe.name} video`)).toHaveAttribute(
+      'src',
+      'https://www.instagram.com/reel/DAbcdEFghiJ/embed'
+    );
+  });
+
   it('should display YouTube iframe for youtu.be short URL', () => {
     const recipeWithYoutuBe = {
       ...mockRecipe,

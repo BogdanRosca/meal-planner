@@ -8,6 +8,7 @@ jest.mock('../config/api', () => ({
   API_ENDPOINTS: {
     RECIPES: 'http://localhost:8000/recipes',
     RECIPE_IMPORT_YOUTUBE: 'http://localhost:8000/recipes/import/youtube',
+    RECIPE_IMPORT_INSTAGRAM: 'http://localhost:8000/recipes/import/instagram',
   },
 }));
 
@@ -28,6 +29,7 @@ const draftResponse: RecipeDraftResponse = {
     field_flags: { portions: 'estimated' },
     duplicate_of: null,
     source: {
+      platform: 'youtube',
       video_id: 'dQw4w9WgXcQ',
       title: 'Pasta!!',
       channel: 'Chef',
@@ -54,7 +56,7 @@ const expectImportError = async (
   expect(error).toMatchObject({ status, code, message });
 };
 
-describe('recipeService.importFromYoutube', () => {
+describe('recipeService.importFromLink', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -63,7 +65,8 @@ describe('recipeService.importFromYoutube', () => {
     mockFetch.mockResolvedValue(jsonResponse(200, draftResponse));
     const controller = new AbortController();
 
-    const result = await recipeService.importFromYoutube(
+    const result = await recipeService.importFromLink(
+      'youtube',
       'https://youtu.be/dQw4w9WgXcQ',
       controller.signal
     );
@@ -80,6 +83,24 @@ describe('recipeService.importFromYoutube', () => {
     );
   });
 
+  it('posts Instagram links to the Instagram endpoint', async () => {
+    mockFetch.mockResolvedValue(jsonResponse(200, draftResponse));
+
+    await recipeService.importFromLink(
+      'instagram',
+      'https://www.instagram.com/reel/DAbcdEFghiJ/'
+    );
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8000/recipes/import/instagram',
+      expect.objectContaining({
+        body: JSON.stringify({
+          url: 'https://www.instagram.com/reel/DAbcdEFghiJ/',
+        }),
+      })
+    );
+  });
+
   it.each([
     [404, 'video_not_found', 'Video not found or not public.'],
     [422, 'not_a_recipe', "We couldn't find a recipe in this video."],
@@ -91,7 +112,7 @@ describe('recipeService.importFromYoutube', () => {
     );
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ'),
       status,
       code,
       message
@@ -104,10 +125,10 @@ describe('recipeService.importFromYoutube', () => {
     );
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/x'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/x'),
       422,
       'invalid_url',
-      'Enter a valid YouTube video URL.'
+      'Enter a valid video URL.'
     );
   });
 
@@ -117,7 +138,7 @@ describe('recipeService.importFromYoutube', () => {
     );
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ'),
       500,
       'upstream_error',
       'Import failed, try again or add manually.'
@@ -128,7 +149,7 @@ describe('recipeService.importFromYoutube', () => {
     mockFetch.mockResolvedValue(jsonResponse(504, 'Gateway Timeout'));
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ'),
       504,
       'upstream_error',
       'Import failed, try again or add manually.'
@@ -143,7 +164,7 @@ describe('recipeService.importFromYoutube', () => {
     } as unknown as Response);
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ'),
       502,
       'upstream_error',
       'Import failed, try again or add manually.'
@@ -154,7 +175,7 @@ describe('recipeService.importFromYoutube', () => {
     mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
 
     await expectImportError(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ'),
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ'),
       0,
       'network_error',
       'Import failed, try again or add manually.'
@@ -166,7 +187,7 @@ describe('recipeService.importFromYoutube', () => {
     mockFetch.mockRejectedValue(abortError);
 
     await expect(
-      recipeService.importFromYoutube('https://youtu.be/dQw4w9WgXcQ')
+      recipeService.importFromLink('youtube', 'https://youtu.be/dQw4w9WgXcQ')
     ).rejects.toBe(abortError);
   });
 });

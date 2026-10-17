@@ -31,6 +31,7 @@ interface AddRecipeModalProps {
   initialValues?: RecipeFormValues;
   fieldFlags?: FieldFlags;
   duplicateOf?: DuplicateRecipe | null;
+  importSourceLabel?: string;
 }
 
 const FLAG_HINTS = {
@@ -47,6 +48,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
   initialValues,
   fieldFlags,
   duplicateOf,
+  importSourceLabel = 'link',
 }) => {
   // Initial values are read once on mount; render with a fresh `key` per draft
   const [name, setName] = useState<string>(initialValues?.name ?? '');
@@ -201,7 +203,7 @@ const AddRecipeModal: React.FC<AddRecipeModalProps> = ({
           {initialValues && (
             <div className={styles['import-banner']} role="status">
               <Sparkles size={18} aria-hidden />
-              Prefilled from YouTube — please review before saving.
+              Prefilled from {importSourceLabel} — please review before saving.
             </div>
           )}
 

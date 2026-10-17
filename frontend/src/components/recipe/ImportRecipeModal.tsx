@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { X, Youtube, Loader2 } from 'lucide-react';
-import { parseYoutubeVideoId } from '../../utils/youtube';
+import { X, Link, Loader2, ArrowLeft } from 'lucide-react';
+import { ImportPlatform } from '../../types/recipe';
+import {
+  IMPORT_PLATFORMS,
+  getImportPlatform,
+} from '../../config/importPlatforms';
 import {
   ImportPhase,
   RecipeImportFailure,
@@ -9,12 +13,12 @@ import {
 import styles from './ImportRecipeModal.module.css';
 
 interface ImportRecipeModalProps {
-  isOpen: boolean;
   phase: ImportPhase;
   error: RecipeImportFailure | null;
-  onImport: (_url: string) => void;
+  onImport: (_platform: ImportPlatform, _url: string) => void;
   onCancel: () => void;
   onClose: () => void;
+  onBack: () => void;
   onAddManually: () => void;
 }
 
@@ -24,31 +28,31 @@ const PHASE_LABELS: Record<ImportPhase, string> = {
   extracting: 'Extracting recipe…',
 };
 
+// Mounted only while open, so every open starts at the platform step
 const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
-  isOpen,
   phase,
   error,
   onImport,
   onCancel,
   onClose,
+  onBack,
   onAddManually,
 }) => {
+  const [platformId, setPlatformId] = useState<ImportPlatform | null>(null);
   const [url, setUrl] = useState<string>('');
   const [urlError, setUrlError] = useState<string | null>(null);
   const loading = phase !== 'idle';
-
-  if (!isOpen) return null;
+  const platform = platformId ? getImportPlatform(platformId) : null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!parseYoutubeVideoId(url)) {
-      setUrlError(
-        'Enter a YouTube video link, e.g. https://www.youtube.com/watch?v=…'
-      );
+    if (!platform) return;
+    if (!platform.parse(url)) {
+      setUrlError(platform.invalidUrlMessage);
       return;
     }
     setUrlError(null);
-    onImport(url.trim());
+    onImport(platform.id, url.trim());
   };
 
   const handleClose = () => {
@@ -56,9 +60,17 @@ const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
     onClose();
   };
 
+  const handleBack = () => {
+    onBack();
+    setPlatformId(null);
+    setUrl('');
+    setUrlError(null);
+  };
+
   const fieldError =
     urlError ?? (error?.code === 'invalid_url' ? error.message : null);
   const requestError = error && error.code !== 'invalid_url' ? error : null;
+  const HeaderIcon = platform ? platform.Icon : Link;
 
   return (
     <div className={styles.overlay}>
@@ -70,8 +82,8 @@ const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
       >
         <div className={styles.header}>
           <h2 id="import-recipe-title">
-            <Youtube size={24} />
-            Import from YouTube
+            <HeaderIcon size={24} aria-hidden />
+            {platform ? `Import from ${platform.label}` : 'Import from link'}
           </h2>
           <button
             type="button"
@@ -83,69 +95,117 @@ const ImportRecipeModal: React.FC<ImportRecipeModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles['form-group']}>
-            <label htmlFor="youtube-url">YouTube video URL</label>
-            <input
-              id="youtube-url"
-              type="url"
-              value={url}
-              onChange={e => {
-                setUrl(e.target.value);
-                setUrlError(null);
-              }}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className={styles.input}
-              disabled={loading}
-              aria-invalid={fieldError ? true : undefined}
-              aria-describedby={fieldError ? 'youtube-url-error' : undefined}
-            />
-            {fieldError && (
-              <p id="youtube-url-error" className={styles['field-error']}>
-                {fieldError}
-              </p>
-            )}
-          </div>
-
-          {loading && (
-            <p className={styles.status} role="status">
-              <Loader2 size={18} className={styles.spinner} aria-hidden />
-              {PHASE_LABELS[phase]}
+        {!platform ? (
+          <div className={styles.form}>
+            <p className={styles['step-title']} id="import-platform-heading">
+              Choose a platform
             </p>
-          )}
-
-          {requestError && (
-            <div className={styles['request-error']} role="alert">
-              <p>{requestError.message}</p>
-              {canAddManually(requestError) && (
+            <div
+              className={styles['platform-list']}
+              role="group"
+              aria-labelledby="import-platform-heading"
+            >
+              {IMPORT_PLATFORMS.map(option => (
                 <button
+                  key={option.id}
                   type="button"
-                  className={styles['manual-btn']}
-                  onClick={onAddManually}
+                  className={styles['platform-card']}
+                  onClick={() => setPlatformId(option.id)}
                 >
-                  Add manually
+                  <option.Icon size={28} aria-hidden />
+                  <span className={styles['platform-label']}>
+                    {option.label}
+                  </span>
+                  <span className={styles['platform-description']}>
+                    {option.description}
+                  </span>
                 </button>
-              )}
+              ))}
             </div>
-          )}
-
-          <div className={styles.actions}>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={styles['cancel-btn']}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <button
               type="button"
-              onClick={loading ? onCancel : handleClose}
-              className={styles['cancel-btn']}
+              className={styles['back-btn']}
+              onClick={handleBack}
             >
-              Cancel
+              <ArrowLeft size={16} aria-hidden />
+              Back
             </button>
-            <button
-              type="submit"
-              className={styles['submit-btn']}
-              disabled={loading}
-            >
-              Import
-            </button>
-          </div>
-        </form>
+
+            <div className={styles['form-group']}>
+              <label htmlFor="import-url">{platform.urlLabel}</label>
+              <input
+                id="import-url"
+                type="url"
+                value={url}
+                onChange={e => {
+                  setUrl(e.target.value);
+                  setUrlError(null);
+                }}
+                placeholder={platform.placeholder}
+                className={styles.input}
+                disabled={loading}
+                aria-invalid={fieldError ? true : undefined}
+                aria-describedby={fieldError ? 'import-url-error' : undefined}
+              />
+              {fieldError && (
+                <p id="import-url-error" className={styles['field-error']}>
+                  {fieldError}
+                </p>
+              )}
+            </div>
+
+            {loading && (
+              <p className={styles.status} role="status">
+                <Loader2 size={18} className={styles.spinner} aria-hidden />
+                {PHASE_LABELS[phase]}
+              </p>
+            )}
+
+            {requestError && (
+              <div className={styles['request-error']} role="alert">
+                <p>{requestError.message}</p>
+                {canAddManually(requestError) && (
+                  <button
+                    type="button"
+                    className={styles['manual-btn']}
+                    onClick={onAddManually}
+                  >
+                    Add manually
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className={styles.actions}>
+              <button
+                type="button"
+                onClick={loading ? onCancel : handleClose}
+                className={styles['cancel-btn']}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles['submit-btn']}
+                disabled={loading}
+              >
+                Import
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

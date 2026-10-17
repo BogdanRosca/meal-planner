@@ -1,10 +1,16 @@
 import { API_ENDPOINTS } from '../config/api';
 import {
+  ImportPlatform,
   Recipe,
   RecipeDraftResponse,
   RecipeImportErrorCode,
   RecipesResponse,
 } from '../types/recipe';
+
+const IMPORT_ENDPOINTS: Record<ImportPlatform, string> = {
+  youtube: API_ENDPOINTS.RECIPE_IMPORT_YOUTUBE,
+  instagram: API_ENDPOINTS.RECIPE_IMPORT_INSTAGRAM,
+};
 
 const IMPORT_ERROR_CODES: RecipeImportErrorCode[] = [
   'invalid_url',
@@ -59,7 +65,7 @@ const toImportError = async (
     return new RecipeImportError(
       422,
       'invalid_url',
-      'Enter a valid YouTube video URL.'
+      'Enter a valid video URL.'
     );
   }
   return new RecipeImportError(
@@ -97,15 +103,16 @@ export const recipeService = {
   },
 
   /**
-   * Build a recipe draft from a YouTube video. Nothing is saved.
+   * Build a recipe draft from a YouTube video or Instagram reel. Nothing is saved.
    */
-  async importFromYoutube(
+  async importFromLink(
+    platform: ImportPlatform,
     url: string,
     signal?: AbortSignal
   ): Promise<RecipeDraftResponse> {
     let response: Response;
     try {
-      response = await fetch(API_ENDPOINTS.RECIPE_IMPORT_YOUTUBE, {
+      response = await fetch(IMPORT_ENDPOINTS[platform], {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
