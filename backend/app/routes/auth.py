@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from ..auth import (
     SESSION_COOKIE,
     AuthUser,
+    cookie_samesite,
     cookie_secure,
     create_access_token,
     get_current_user,
@@ -41,7 +42,7 @@ def login(credentials: LoginRequest, response: Response):
             max_age=session_max_age_seconds(),
             httponly=True,
             secure=cookie_secure(),
-            samesite="lax",
+            samesite=cookie_samesite(),
             path="/",
         )
         return {"status": "success", "user": {"id": user["id"], "email": user["email"]}}
@@ -58,7 +59,8 @@ def login(credentials: LoginRequest, response: Response):
 @router.post("/logout")
 def logout(response: Response):
     """End the session by clearing the cookie"""
-    response.delete_cookie(key=SESSION_COOKIE, path="/", httponly=True, secure=cookie_secure(), samesite="lax")
+    response.delete_cookie(key=SESSION_COOKIE, path="/", httponly=True, secure=cookie_secure(),
+                           samesite=cookie_samesite())
     return {"status": "success"}
 
 

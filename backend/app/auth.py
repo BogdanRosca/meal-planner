@@ -32,8 +32,17 @@ def session_max_age_seconds() -> int:
     return int(os.getenv("JWT_EXPIRE_DAYS", "30")) * 24 * 60 * 60
 
 
+def cookie_samesite() -> str:
+    # "none" is needed when the frontend and API live on different sites (e.g. two hosting domains)
+    samesite = os.getenv("COOKIE_SAMESITE", "lax").lower()
+    if samesite not in ("lax", "strict", "none"):
+        raise RuntimeError(f"COOKIE_SAMESITE must be lax, strict or none, got {samesite!r}")
+    return samesite
+
+
 def cookie_secure() -> bool:
-    return os.getenv("COOKIE_SECURE", "false").lower() == "true"
+    # Browsers reject SameSite=None cookies that aren't Secure
+    return os.getenv("COOKIE_SECURE", "false").lower() == "true" or cookie_samesite() == "none"
 
 
 def hash_password(password: str) -> str:

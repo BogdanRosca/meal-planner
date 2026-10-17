@@ -153,6 +153,36 @@ class TestLoginEndpoint:
         mock_db.disconnect.assert_called_once()
 
 
+class TestCrossSiteCookie:
+
+    @patch('app.routes.auth.DatabaseClient')
+    def test_samesite_none_forces_secure(self, mock_db_class, monkeypatch):
+        monkeypatch.setenv('COOKIE_SAMESITE', 'none')
+        monkeypatch.delenv('COOKIE_SECURE', raising=False)
+        mock_db = _mock_db(mock_db_class)
+        mock_db.get_user_by_email.return_value = STORED_USER
+
+        response = client.post('/auth/login', json={'email': 'cook@example.com', 'password': 'correct-horse'})
+
+        set_cookie = response.headers['set-cookie'].lower()
+        assert 'samesite=none' in set_cookie
+        assert 'secure' in set_cookie
+
+    def test_logout_uses_same_cookie_attributes(self, monkeypatch):
+        monkeypatch.setenv('COOKIE_SAMESITE', 'none')
+
+        set_cookie = client.post('/auth/logout').headers['set-cookie'].lower()
+
+        assert 'samesite=none' in set_cookie
+        assert 'secure' in set_cookie
+
+    def test_invalid_samesite_is_a_configuration_error(self, monkeypatch):
+        monkeypatch.setenv('COOKIE_SAMESITE', 'sometimes')
+
+        with pytest.raises(RuntimeError, match='COOKIE_SAMESITE'):
+            client.post('/auth/logout')
+
+
 class TestLogoutEndpoint:
 
     def test_logout_expires_cookie(self):
