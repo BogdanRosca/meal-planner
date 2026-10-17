@@ -1,8 +1,6 @@
 -- Adds users and per-user ownership of recipes and meal plans.
 -- Safe to re-run: every step checks whether it has already been applied.
--- Run with: psql -d <database> -v ON_ERROR_STOP=1 -f backend/db/migrations/001_auth.sql
-
-BEGIN;
+-- Apply with backend/db/migrate.sh, which wraps each file in a transaction.
 
 -- Lets passwords be set straight from SQL via crypt(..., gen_salt('bf'))
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -67,5 +65,3 @@ BEGIN
       UNIQUE (user_id, week_start, day_of_week, meal_slot);
   END IF;
 END $$;
-
-COMMIT;

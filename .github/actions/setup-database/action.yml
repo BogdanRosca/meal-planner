@@ -89,10 +89,7 @@ runs:
           'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         ) ON CONFLICT DO NOTHING;"
 
-        # Apply schema migrations (users + per-user ownership of recipes and meal plans)
-        for migration in db/migrations/*.sql; do
-          echo "Applying $migration..."
-          PGPASSWORD="$POSTGRES_PASSWORD" psql -h localhost -U "$POSTGRES_USER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f "$migration"
-        done
+        # Apply schema migrations with the same runner used for production
+        PGHOST=localhost PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" bash db/migrate.sh
 
         echo "Database setup completed successfully!"
