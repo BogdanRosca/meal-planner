@@ -72,7 +72,8 @@ describe('recipeService', () => {
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/recipes'
+        'http://localhost:8000/recipes',
+        { credentials: 'include' }
       );
       expect(result).toEqual(mockRecipesResponse.recipes);
       expect(result.length).toBe(2);
@@ -197,7 +198,8 @@ describe('recipeService', () => {
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/recipes/1'
+        'http://localhost:8000/recipes/1',
+        { credentials: 'include' }
       );
       expect(result).toEqual(mockRecipe);
     });
@@ -213,7 +215,8 @@ describe('recipeService', () => {
       const result = await recipeService.getRecipeById(recipeId);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `http://localhost:8000/recipes/${recipeId}`
+        `http://localhost:8000/recipes/${recipeId}`,
+        { credentials: 'include' }
       );
       expect(result.id).toBe(recipeId);
     });
@@ -318,7 +321,8 @@ describe('recipeService', () => {
       const result = await recipeService.getRecipeById(0);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/recipes/0'
+        'http://localhost:8000/recipes/0',
+        { credentials: 'include' }
       );
       expect(result.id).toBe(0);
     });
@@ -334,7 +338,8 @@ describe('recipeService', () => {
       const result = await recipeService.getRecipeById(largeId);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        `http://localhost:8000/recipes/${largeId}`
+        `http://localhost:8000/recipes/${largeId}`,
+        { credentials: 'include' }
       );
       expect(result.id).toBe(largeId);
     });
@@ -351,7 +356,8 @@ describe('recipeService', () => {
       await recipeService.getAllRecipes();
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/recipes'
+        'http://localhost:8000/recipes',
+        { credentials: 'include' }
       );
     });
 
@@ -365,7 +371,8 @@ describe('recipeService', () => {
       await recipeService.getRecipeById(1);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/recipes/1'
+        'http://localhost:8000/recipes/1',
+        { credentials: 'include' }
       );
     });
   });
@@ -435,6 +442,7 @@ describe('recipeService', () => {
         'http://localhost:8000/recipes',
         {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newRecipe),
         }
@@ -486,6 +494,7 @@ describe('recipeService', () => {
         'http://localhost:8000/recipes/1',
         {
           method: 'DELETE',
+          credentials: 'include',
         }
       );
     });
@@ -546,6 +555,7 @@ describe('recipeService', () => {
         'http://localhost:8000/recipes/1',
         {
           method: 'PATCH',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedRecipe),
         }

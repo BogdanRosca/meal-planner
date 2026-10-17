@@ -9,6 +9,9 @@ from unittest.mock import Mock
 # Load test environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env.test'))
 
+from app.auth import AuthUser, get_current_user  # noqa: E402
+from app.main import app  # noqa: E402
+
 
 # Common test data for recipes
 SAMPLE_RECIPE_1 = {
@@ -273,3 +276,21 @@ def mock_db_client_with_database_error():
     mock_client.connect.return_value = True
     mock_client.disconnect.return_value = None
     return mock_client
+
+
+TEST_USER = AuthUser(id=1, email='tester@example.com')
+
+
+@pytest.fixture(autouse=True)
+def authenticated_user(request):
+    """Log every endpoint test in as TEST_USER; mark a test `unauthenticated` to exercise the real auth path"""
+    if request.node.get_closest_marker('unauthenticated'):
+        yield None
+        return
+    app.dependency_overrides[get_current_user] = lambda: TEST_USER
+    yield TEST_USER
+    app.dependency_overrides.pop(get_current_user, None)
+
+
+def pytest_configure(config):
+    config.addinivalue_line('markers', 'unauthenticated: run without the TEST_USER auth override')

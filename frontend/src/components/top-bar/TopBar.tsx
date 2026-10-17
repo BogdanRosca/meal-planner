@@ -16,11 +16,13 @@ interface TopBarProps {
     avatar?: string;
   };
   onMenuToggle?: () => void;
+  onLogout?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   currentUser = { name: 'John Doe' },
   onMenuToggle,
+  onLogout,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -94,6 +96,15 @@ const TopBar: React.FC<TopBarProps> = ({
             </div>
             <span className={styles['user-name']}>{currentUser.name}</span>
           </div>
+          {onLogout && (
+            <button
+              type="button"
+              className={styles['logout-btn']}
+              onClick={onLogout}
+            >
+              Log out
+            </button>
+          )}
         </div>
       </div>
     </header>

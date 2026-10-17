@@ -1,0 +1,9 @@
+.loading {
+  margin: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #294936;
+  font-size: 16px;
+}

@@ -183,7 +183,7 @@ class TestDeleteRecipeEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.delete_recipe.assert_called_once_with(123)
+        mock_db_client.delete_recipe.assert_called_once_with(123, 1)
         mock_db_client.disconnect.assert_called_once()
 
     @patch('app.routes.recipes.DatabaseClient')
@@ -205,7 +205,7 @@ class TestDeleteRecipeEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.delete_recipe.assert_called_once_with(999)
+        mock_db_client.delete_recipe.assert_called_once_with(999, 1)
         mock_db_client.disconnect.assert_called_once()
 
     @patch('app.routes.recipes.DatabaseClient')
@@ -249,7 +249,7 @@ class TestDeleteRecipeEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.delete_recipe.assert_called_once_with(123)
+        mock_db_client.delete_recipe.assert_called_once_with(123, 1)
         mock_db_client.disconnect.assert_called_once()
 
     def test_delete_recipe_invalid_id(self):
@@ -293,7 +293,7 @@ class TestGetRecipeByIdEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.get_recipe_by_id.assert_called_once_with(1)
+        mock_db_client.get_recipe_by_id.assert_called_once_with(1, 1)
         mock_db_client.disconnect.assert_called_once()
 
     @patch('app.routes.recipes.DatabaseClient')
@@ -315,7 +315,7 @@ class TestGetRecipeByIdEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.get_recipe_by_id.assert_called_once_with(999)
+        mock_db_client.get_recipe_by_id.assert_called_once_with(999, 1)
         mock_db_client.disconnect.assert_called_once()
 
     @patch('app.routes.recipes.DatabaseClient')
@@ -359,7 +359,7 @@ class TestGetRecipeByIdEndpoint:
 
         # Verify mock calls
         mock_db_client.connect.assert_called_once()
-        mock_db_client.get_recipe_by_id.assert_called_once_with(1)
+        mock_db_client.get_recipe_by_id.assert_called_once_with(1, 1)
         mock_db_client.disconnect.assert_called_once()
 
     def test_get_recipe_by_id_invalid_id(self):
@@ -400,8 +400,9 @@ class TestUpdateRecipeEndpoint:
         mock_db_client.update_recipe.assert_called_once()
         call_args = mock_db_client.update_recipe.call_args
         assert call_args[0][0] == 1  # recipe_id
-        assert call_args[0][1]['name'] == 'Updated Recipe Name'
-        assert call_args[0][1]['prep_time'] == 35
+        assert call_args[0][1] == 1  # user_id
+        assert call_args[0][2]['name'] == 'Updated Recipe Name'
+        assert call_args[0][2]['prep_time'] == 35
         mock_db_client.disconnect.assert_called_once()
 
     @patch('app.routes.recipes.DatabaseClient')
@@ -483,11 +484,11 @@ class TestUpdateRecipeEndpoint:
 
         # Verify the ingredients were properly converted to dicts in the call to update_recipe
         call_args = mock_db_client.update_recipe.call_args
-        assert 'main_ingredients' in call_args[0][1]
-        assert isinstance(call_args[0][1]['main_ingredients'], list)
+        assert 'main_ingredients' in call_args[0][2]
+        assert isinstance(call_args[0][2]['main_ingredients'], list)
         # The ingredients should be converted to dicts by the endpoint code
-        assert isinstance(call_args[0][1]['main_ingredients'][0], dict)
-        assert call_args[0][1]['main_ingredients'][0]['name'] == 'rice'
+        assert isinstance(call_args[0][2]['main_ingredients'][0], dict)
+        assert call_args[0][2]['main_ingredients'][0]['name'] == 'rice'
 
     @patch('app.routes.recipes.DatabaseClient')
     def test_update_recipe_database_error(self, mock_db_client_class):

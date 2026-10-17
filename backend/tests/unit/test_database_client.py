@@ -125,7 +125,7 @@ class TestDatabaseClientGetAllRecipes:
 
         # Mock is_connected to return True
         with patch.object(client, 'is_connected', return_value=True):
-            recipes = client.get_all_recipes()
+            recipes = client.get_all_recipes(7)
 
         # Assertions
         assert len(recipes) == 1
@@ -156,7 +156,7 @@ class TestDatabaseClientGetAllRecipes:
         # Mock is_connected to return False
         with patch.object(client, 'is_connected', return_value=False):
             with pytest.raises(Exception) as exc_info:
-                client.get_all_recipes()
+                client.get_all_recipes(7)
 
         assert "Not connected to database" in str(exc_info.value)
 
@@ -179,7 +179,7 @@ class TestDatabaseClientGetRecipeById:
 
         # Mock is_connected to return True
         with patch.object(client, 'is_connected', return_value=True):
-            recipe = client.get_recipe_by_id(1)
+            recipe = client.get_recipe_by_id(1, 7)
 
         # Assertions
         assert recipe['id'] == SAMPLE_RECIPE_1['id']
@@ -197,8 +197,8 @@ class TestDatabaseClientGetRecipeById:
         assert "SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url" in call_args[
             0][0]
         assert "FROM recipes" in call_args[0][0]
-        assert "WHERE id = %s" in call_args[0][0]
-        assert call_args[0][1] == (1,)
+        assert "WHERE id = %s AND user_id = %s" in call_args[0][0]
+        assert call_args[0][1] == (1, 7)
 
         mock_cursor.close.assert_called_once()
 
@@ -217,7 +217,7 @@ class TestDatabaseClientGetRecipeById:
 
         # Mock is_connected to return True
         with patch.object(client, 'is_connected', return_value=True):
-            recipe = client.get_recipe_by_id(999)
+            recipe = client.get_recipe_by_id(999, 7)
 
         # Assertions
         assert recipe is None
@@ -227,8 +227,8 @@ class TestDatabaseClientGetRecipeById:
             """
             SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
-            WHERE id = %s
-        """, (999,)
+            WHERE id = %s AND user_id = %s
+        """, (999, 7)
         )
 
         mock_cursor.close.assert_called_once()
@@ -241,7 +241,7 @@ class TestDatabaseClientGetRecipeById:
         # Mock is_connected to return False
         with patch.object(client, 'is_connected', return_value=False):
             with pytest.raises(Exception) as exc_info:
-                client.get_recipe_by_id(1)
+                client.get_recipe_by_id(1, 7)
 
         assert "Not connected to database" in str(exc_info.value)
 
@@ -264,7 +264,7 @@ class TestDatabaseClientAddRecipe:
 
         # Mock is_connected to return True
         with patch.object(client, 'is_connected', return_value=True):
-            result = client.add_recipe(**ADD_RECIPE_PARAMS)
+            result = client.add_recipe(**ADD_RECIPE_PARAMS, user_id=7)
 
         # Assertions
         assert result['id'] == SAMPLE_RECIPE_2['id']
@@ -307,7 +307,8 @@ class TestDatabaseClientAddRecipe:
                     prep_time=10,
                     portions=1,
                     foto_url="www.my-foto-url.net",
-                    video_url=None
+                    video_url=None,
+                    user_id=7
                 )
 
         assert "Not connected to database" in str(exc_info.value)
@@ -333,7 +334,7 @@ class TestDatabaseClientDeleteRecipe:
             mock_cursor.rowcount = 1  # One row was deleted
 
             # Call delete_recipe
-            result = client.delete_recipe(123)
+            result = client.delete_recipe(123, 7)
 
         # Assertions
         assert result is True
@@ -343,13 +344,13 @@ class TestDatabaseClientDeleteRecipe:
 
         # Check first call (SELECT to verify existence)
         first_call = mock_cursor.execute.call_args_list[0]
-        assert "SELECT id FROM recipes WHERE id = %s" in first_call[0][0]
-        assert first_call[0][1] == (123,)
+        assert "SELECT id FROM recipes WHERE id = %s AND user_id = %s" in first_call[0][0]
+        assert first_call[0][1] == (123, 7)
 
         # Check second call (DELETE)
         second_call = mock_cursor.execute.call_args_list[1]
-        assert "DELETE FROM recipes WHERE id = %s" in second_call[0][0]
-        assert second_call[0][1] == (123,)
+        assert "DELETE FROM recipes WHERE id = %s AND user_id = %s" in second_call[0][0]
+        assert second_call[0][1] == (123, 7)
 
         mock_connection.commit.assert_called_once()
         mock_cursor.close.assert_called_once()
@@ -370,7 +371,7 @@ class TestDatabaseClientDeleteRecipe:
             mock_cursor.fetchone.return_value = None
 
             # Call delete_recipe
-            result = client.delete_recipe(999)
+            result = client.delete_recipe(999, 7)
 
         # Assertions
         assert result is False
@@ -378,8 +379,8 @@ class TestDatabaseClientDeleteRecipe:
         # Verify only SELECT was executed (not DELETE)
         assert mock_cursor.execute.call_count == 1
         select_call = mock_cursor.execute.call_args_list[0]
-        assert "SELECT id FROM recipes WHERE id = %s" in select_call[0][0]
-        assert select_call[0][1] == (999,)
+        assert "SELECT id FROM recipes WHERE id = %s AND user_id = %s" in select_call[0][0]
+        assert select_call[0][1] == (999, 7)
 
         # Commit should not be called since no deletion occurred
         mock_connection.commit.assert_not_called()
@@ -393,7 +394,7 @@ class TestDatabaseClientDeleteRecipe:
         # Mock is_connected to return False
         with patch.object(client, 'is_connected', return_value=False):
             with pytest.raises(Exception) as exc_info:
-                client.delete_recipe(123)
+                client.delete_recipe(123, 7)
 
         assert "Not connected to database" in str(exc_info.value)
 
@@ -414,7 +415,7 @@ class TestDatabaseClientDeleteRecipe:
             mock_cursor.rowcount = 0  # No rows were deleted (edge case)
 
             # Call delete_recipe
-            result = client.delete_recipe(123)
+            result = client.delete_recipe(123, 7)
 
         # Assertions
         assert result is False
@@ -481,7 +482,7 @@ class TestUpdateRecipeMethod:
         ]
 
         # Call method
-        result = client.update_recipe(1, UPDATE_RECIPE_PARAMS)
+        result = client.update_recipe(1, 7, UPDATE_RECIPE_PARAMS)
 
         # Assertions
         assert result is not None
@@ -510,7 +511,7 @@ class TestUpdateRecipeMethod:
         updates = {'name': 'Updated Recipe'}
 
         # Call method
-        result = client.update_recipe(999, updates)
+        result = client.update_recipe(999, 7, updates)
 
         # Assertions
         assert result is None
@@ -529,7 +530,7 @@ class TestUpdateRecipeMethod:
 
         # Call method and expect exception
         with pytest.raises(Exception, match="Not connected to database"):
-            client.update_recipe(1, updates)
+            client.update_recipe(1, 7, updates)
 
     def test_update_recipe_empty_updates(self):
         """Test update with no valid fields to update"""
@@ -547,7 +548,7 @@ class TestUpdateRecipeMethod:
         updates = {'invalid_field': 'value'}
 
         # Call method
-        result = client.update_recipe(1, updates)
+        result = client.update_recipe(1, 7, updates)
 
         # Assertions
         assert result is None
@@ -571,7 +572,7 @@ class TestUpdateRecipeMethod:
         ]
 
         # Call method
-        result = client.update_recipe(1, UPDATE_RECIPE_WITH_INGREDIENTS_PARAMS)
+        result = client.update_recipe(1, 7, UPDATE_RECIPE_WITH_INGREDIENTS_PARAMS)
 
         # Assertions
         assert result is not None
@@ -596,17 +597,17 @@ class TestFindRecipesByVideoId:
         cursor.fetchall.return_value = [(5, "Old pasta", "https://youtu.be/dQw4w9WgXcQ")]
 
         with patch.object(client, 'is_connected', return_value=True):
-            matches = client.find_recipes_by_video_id("dQw4w9WgXcQ")
+            matches = client.find_recipes_by_video_id("dQw4w9WgXcQ", 7)
 
         assert matches == [{'id': 5, 'name': 'Old pasta', 'video_url': 'https://youtu.be/dQw4w9WgXcQ'}]
-        assert cursor.execute.call_args[0][1] == ("%dQw4w9WgXcQ%",)
+        assert cursor.execute.call_args[0][1] == ("%dQw4w9WgXcQ%", 7)
         cursor.close.assert_called_once()
 
     def test_requires_connection(self):
         client = DatabaseClient()
 
         with pytest.raises(Exception, match="Not connected to database"):
-            client.find_recipes_by_video_id("dQw4w9WgXcQ")
+            client.find_recipes_by_video_id("dQw4w9WgXcQ", 7)
 
 
 class TestUpdateRecipeRaceCondition:
@@ -619,7 +620,7 @@ class TestUpdateRecipeRaceCondition:
         cursor.fetchone.side_effect = [(1,), None]
 
         with patch.object(client, 'is_connected', return_value=True):
-            result = client.update_recipe(1, {'name': 'Renamed'})
+            result = client.update_recipe(1, 7, {'name': 'Renamed'})
 
         assert result is None
         cursor.close.assert_called_once()

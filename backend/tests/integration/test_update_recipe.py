@@ -15,8 +15,9 @@ class TestUpdateRecipeEndpointIntegration:
     """Test the PATCH /recipes/{recipe_id} endpoint with real database"""
 
     @pytest.fixture(autouse=True)
-    def setup_and_cleanup(self):
+    def setup_and_cleanup(self, user_id):
         """Setup and cleanup for each test"""
+        self.user_id = user_id
         # This runs before each test
         self.db_client = DatabaseClient()
         self.db_client.connect()
@@ -27,7 +28,7 @@ class TestUpdateRecipeEndpointIntegration:
         # This runs after each test - cleanup any test data
         for recipe_id in self.created_recipe_ids:
             try:
-                self.db_client.delete_recipe(recipe_id)
+                self.db_client.delete_recipe(recipe_id, self.user_id)
             except Exception as e:
                 print(f"Warning: Failed to delete recipe {recipe_id}: {e}")
 
@@ -45,7 +46,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=20,
             portions=4,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -86,7 +88,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=15,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -139,7 +142,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=20,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -167,7 +171,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=20,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -198,7 +203,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=5,
             portions=1,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -234,7 +240,8 @@ class TestUpdateRecipeEndpointIntegration:
             prep_time=20,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']

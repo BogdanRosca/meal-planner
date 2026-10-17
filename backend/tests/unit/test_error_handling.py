@@ -164,7 +164,7 @@ class TestDatabaseClientEdgeCases:
         client._connection = mock_connection
 
         with patch.object(client, 'is_connected', return_value=True):
-            result = client.add_recipe(**EMPTY_RECIPE_DATA)
+            result = client.add_recipe(**EMPTY_RECIPE_DATA, user_id=7)
 
         # Should handle empty ingredients successfully
         assert result['name'] == EMPTY_RECIPE_DATA["name"]

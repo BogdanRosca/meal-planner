@@ -58,6 +58,24 @@ class RecipeUpdate(BaseModel):
     video_url: Optional[str] = None   
 
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        email = value.strip().lower()
+        if "@" not in email:
+            raise ValueError("Enter a valid email address")
+        return email
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+
+
 class MealPlanCreate(BaseModel):
     week_start: str
     day_of_week: int

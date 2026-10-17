@@ -5,6 +5,7 @@ import App from './App';
 import { mealPlanService } from './services/mealPlanService';
 import { recipeService } from './services/recipeService';
 import * as useRecipesModule from './hooks/useRecipes';
+import { AuthContext, AuthContextValue } from './context/AuthContext';
 
 const mockRecipes = [
   { id: 1, name: 'Pancakes', category: 'breakfast' },
@@ -28,11 +29,24 @@ afterAll(() => {
   console.log = originalConsoleLog;
 });
 
-const renderApp = (initialPath = '/meal-planner') =>
+const mockLogout = jest.fn().mockResolvedValue(undefined);
+
+const authenticated: AuthContextValue = {
+  state: {
+    status: 'authenticated',
+    user: { id: 1, email: 'cook@example.com' },
+  },
+  login: jest.fn(),
+  logout: mockLogout,
+};
+
+const renderApp = (initialPath = '/meal-planner', auth = authenticated) =>
   render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <App />
-    </MemoryRouter>
+    <AuthContext.Provider value={auth}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <App />
+      </MemoryRouter>
+    </AuthContext.Provider>
   );
 
 describe('App Component', () => {
@@ -187,7 +201,7 @@ describe('App Component', () => {
     renderApp();
 
     // Check TopBar receives correct user prop
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('cook@example.com')).toBeInTheDocument();
 
     // Check Home component receives search query (initially empty)
     // We can verify this by checking if search results are not shown initially
@@ -330,5 +344,33 @@ describe('App Component', () => {
 
     const shoppingListContent = document.querySelector('.shopping-list');
     expect(shoppingListContent).toBeInTheDocument();
+  });
+
+  describe('authentication', () => {
+    it('shows the login page instead of the app when logged out', () => {
+      renderApp('/recipes', {
+        ...authenticated,
+        state: { status: 'anonymous' },
+      });
+
+      expect(
+        screen.getByRole('heading', { name: 'Log in' })
+      ).toBeInTheDocument();
+      expect(screen.queryByText('Quick Actions')).not.toBeInTheDocument();
+    });
+
+    it('shows the logged-in email in the top bar', () => {
+      renderApp();
+
+      expect(screen.getByText('cook@example.com')).toBeInTheDocument();
+    });
+
+    it('logs out and returns to the login page', async () => {
+      renderApp();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+
+      await waitFor(() => expect(mockLogout).toHaveBeenCalledTimes(1));
+    });
   });
 });

@@ -1,0 +1,103 @@
+.page {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: white;
+  border-radius: 12px;
+  padding: clamp(24px, 5vw, 36px);
+  box-shadow: 0 5px 30px rgba(33, 41, 34, 0.15);
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.brand-icon {
+  font-size: 24px;
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #212922;
+}
+
+.title {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #294936;
+}
+
+.label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #212922;
+}
+
+.input {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #c9d6d0;
+  border-radius: 8px;
+  color: #212922;
+}
+
+.input:focus-visible {
+  outline: 2px solid #5b8266;
+  outline-offset: 1px;
+  border-color: #5b8266;
+}
+
+.input[aria-invalid='true'] {
+  border-color: #c0392b;
+}
+
+.error {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #c0392b;
+}
+
+.submit {
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: #294936;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: #3e6259;
+}
+
+.submit:focus-visible {
+  outline: 2px solid #5b8266;
+  outline-offset: 2px;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

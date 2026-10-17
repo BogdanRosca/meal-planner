@@ -3,6 +3,7 @@ import { MealPlannerPage } from './pages/meal-planner.page';
 import {
   MOCK_ENTRY,
   mockAddMealPlanEntry,
+  mockAuthenticatedUser,
   mockDeleteMealPlanEntry,
   mockMealPlanEntries,
   mockRecipes,
@@ -12,6 +13,7 @@ test.describe('Meal Planner - Add and remove a meal', () => {
   let mealPlanner: MealPlannerPage;
 
   test.beforeEach(async ({ page }) => {
+    await mockAuthenticatedUser(page);
     await mockRecipes(page);
     await mockMealPlanEntries(page, []);
 

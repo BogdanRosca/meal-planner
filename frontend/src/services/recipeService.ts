@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '../config/api';
+import { apiFetch } from './apiClient';
 import {
   ImportPlatform,
   Recipe,
@@ -82,7 +83,7 @@ export const recipeService = {
    */
   async addRecipe(recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
     try {
-      const response = await fetch(API_ENDPOINTS.RECIPES, {
+      const response = await apiFetch(API_ENDPOINTS.RECIPES, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ export const recipeService = {
   ): Promise<RecipeDraftResponse> {
     let response: Response;
     try {
-      response = await fetch(IMPORT_ENDPOINTS[platform], {
+      response = await apiFetch(IMPORT_ENDPOINTS[platform], {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ export const recipeService = {
    */
   async getAllRecipes(): Promise<Recipe[]> {
     try {
-      const response = await fetch(API_ENDPOINTS.RECIPES);
+      const response = await apiFetch(API_ENDPOINTS.RECIPES);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -165,7 +166,7 @@ export const recipeService = {
    */
   async getRecipeById(id: number): Promise<Recipe> {
     try {
-      const response = await fetch(`${API_ENDPOINTS.RECIPES}/${id}`);
+      const response = await apiFetch(`${API_ENDPOINTS.RECIPES}/${id}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -185,7 +186,7 @@ export const recipeService = {
    */
   async updateRecipe(id: number, recipe: Omit<Recipe, 'id'>): Promise<Recipe> {
     try {
-      const response = await fetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
+      const response = await apiFetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +212,7 @@ export const recipeService = {
    */
   async deleteRecipe(id: number): Promise<void> {
     try {
-      const response = await fetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
+      const response = await apiFetch(`${API_ENDPOINTS.RECIPES}/${id}`, {
         method: 'DELETE',
       });
 

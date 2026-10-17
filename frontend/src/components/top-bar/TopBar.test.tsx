@@ -216,4 +216,23 @@ describe('TopBar Component', () => {
       expect(button).toHaveClass('active');
     });
   });
+
+  describe('logout', () => {
+    it('hides the logout button when no handler is given', () => {
+      renderTopBar();
+
+      expect(
+        screen.queryByRole('button', { name: 'Log out' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('calls onLogout when the logout button is clicked', () => {
+      const onLogout = jest.fn();
+      renderTopBar({ onLogout });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Log out' }));
+
+      expect(onLogout).toHaveBeenCalledTimes(1);
+    });
+  });
 });

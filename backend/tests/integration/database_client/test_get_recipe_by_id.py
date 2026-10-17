@@ -8,13 +8,13 @@ from app.database_client import DatabaseClient
 class TestGetRecipeById:
     """Test the get_recipe_by_id functionality"""
 
-    def test_get_recipe_by_id_success(self, db_client):
+    def test_get_recipe_by_id_success(self, db_client, user_id):
         """Test that we can retrieve a specific recipe by ID"""
         # Connect to database
         db_client.connect()
 
         # First, get all recipes to find a valid ID
-        recipes = db_client.get_all_recipes()
+        recipes = db_client.get_all_recipes(user_id)
 
         # Skip test if no recipes exist
         if len(recipes) == 0:
@@ -25,7 +25,7 @@ class TestGetRecipeById:
         recipe_id = first_recipe['id']
 
         # Now test get_recipe_by_id with this valid ID
-        recipe = db_client.get_recipe_by_id(recipe_id)
+        recipe = db_client.get_recipe_by_id(recipe_id, user_id)
 
         # Should return the recipe
         assert recipe is not None
@@ -72,13 +72,13 @@ class TestGetRecipeById:
         if len(recipe['common_ingredients']) > 0:
             assert isinstance(recipe['common_ingredients'][0], str)
 
-    def test_get_recipe_by_id_not_found(self, db_client):
+    def test_get_recipe_by_id_not_found(self, db_client, user_id):
         """Test get_recipe_by_id with non-existent ID"""
         # Connect to database
         db_client.connect()
 
         # Use a very high ID that shouldn't exist
-        recipe = db_client.get_recipe_by_id(999999)
+        recipe = db_client.get_recipe_by_id(999999, user_id)
 
         # Should return None
         assert recipe is None
@@ -89,6 +89,6 @@ class TestGetRecipeById:
         # Don't connect to database
 
         with pytest.raises(Exception) as exc_info:
-            client.get_recipe_by_id(1)
+            client.get_recipe_by_id(1, 1)
 
         assert "Not connected to database" in str(exc_info.value)
