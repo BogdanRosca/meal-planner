@@ -251,6 +251,50 @@ describe('Recipes – import from YouTube', () => {
     );
   });
 
+  it('imports a Facebook reel from a share link', async () => {
+    const user = userEvent.setup();
+    const shareUrl = 'https://www.facebook.com/share/r/1AbCdEfGh/';
+    mockService.importFromLink.mockResolvedValue({
+      status: 'success',
+      draft: {
+        ...draft,
+        duplicate_of: null,
+        portions: 4,
+        field_flags: { main_ingredients: 'estimated', portions: 'estimated' },
+        video_url: 'https://www.facebook.com/watch/?v=1522427766199083',
+        source: {
+          ...draft.source,
+          platform: 'facebook',
+          video_id: '1522427766199083',
+        },
+      },
+    });
+    renderRecipes();
+    await screen.findByText('Pancakes');
+
+    await user.click(screen.getByRole('button', { name: 'Import from link' }));
+    await user.click(screen.getByRole('button', { name: /Facebook/ }));
+    await user.type(screen.getByLabelText('Facebook reel URL'), shareUrl);
+    await user.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(
+      await screen.findByText(
+        'Prefilled from Facebook — please review before saving.'
+      )
+    ).toBeInTheDocument();
+    expect(mockService.importFromLink).toHaveBeenCalledWith(
+      'facebook',
+      shareUrl,
+      expect.any(AbortSignal)
+    );
+    expect(screen.getByLabelText('Portions')).toHaveAccessibleDescription(
+      'Estimated — please check'
+    );
+    expect(screen.getByLabelText('Video URL (optional)')).toHaveValue(
+      'https://www.facebook.com/watch/?v=1522427766199083'
+    );
+  });
+
   it('Back returns to the platform step and clears the import error', async () => {
     const user = userEvent.setup();
     mockService.importFromLink.mockRejectedValue(new Error('502'));

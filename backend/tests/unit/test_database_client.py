@@ -607,3 +607,20 @@ class TestFindRecipesByVideoId:
 
         with pytest.raises(Exception, match="Not connected to database"):
             client.find_recipes_by_video_id("dQw4w9WgXcQ")
+
+
+class TestUpdateRecipeRaceCondition:
+    """A recipe deleted between the UPDATE and the re-SELECT is reported as not found"""
+
+    def test_returns_none_when_row_disappears(self):
+        client = DatabaseClient()
+        client._connection = Mock()
+        cursor = client._connection.cursor.return_value
+        cursor.fetchone.side_effect = [(1,), None]
+
+        with patch.object(client, 'is_connected', return_value=True):
+            result = client.update_recipe(1, {'name': 'Renamed'})
+
+        assert result is None
+        cursor.close.assert_called_once()
+        client._connection.commit.assert_not_called()
