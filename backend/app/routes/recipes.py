@@ -1,8 +1,9 @@
 """
 Recipe-related endpoints
 """
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
+from ..auth import AuthUser, get_current_user
 from ..database_client import DatabaseClient
 from ..models import RecipeCreate, RecipeUpdate, RecipeResponse
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/recipes", tags=["recipes"])
 
 
 @router.get("")
-def get_all_recipes():
+def get_all_recipes(current_user: AuthUser = Depends(get_current_user)):
     """Get all recipes from the database"""
     # Create database client
     db_client = DatabaseClient()
@@ -22,7 +23,7 @@ def get_all_recipes():
             raise HTTPException(status_code=500, detail="Failed to connect to database")
 
         # Get all recipes
-        recipes = db_client.get_all_recipes()
+        recipes = db_client.get_all_recipes(current_user.id)
 
         return {
             "status": "success",
@@ -41,7 +42,7 @@ def get_all_recipes():
 
 
 @router.get("/{recipe_id}", response_model=RecipeResponse)
-def get_recipe_by_id(recipe_id: int):
+def get_recipe_by_id(recipe_id: int, current_user: AuthUser = Depends(get_current_user)):
     """Get a specific recipe by ID"""
     # Create database client
     db_client = DatabaseClient()
@@ -52,7 +53,7 @@ def get_recipe_by_id(recipe_id: int):
             raise HTTPException(status_code=500, detail="Failed to connect to database")
 
         # Get the recipe by ID
-        recipe = db_client.get_recipe_by_id(recipe_id)
+        recipe = db_client.get_recipe_by_id(recipe_id, current_user.id)
 
         if not recipe:
             raise HTTPException(status_code=404, detail=f"Recipe with ID {recipe_id} not found")
@@ -70,7 +71,7 @@ def get_recipe_by_id(recipe_id: int):
 
 
 @router.post("", response_model=RecipeResponse, status_code=status.HTTP_201_CREATED)
-def create_recipe(recipe: RecipeCreate):
+def create_recipe(recipe: RecipeCreate, current_user: AuthUser = Depends(get_current_user)):
     """Create a new recipe in the database"""
     # Create database client
     db_client = DatabaseClient()
@@ -93,7 +94,8 @@ def create_recipe(recipe: RecipeCreate):
             prep_time=recipe.prep_time,
             portions=recipe.portions,
             foto_url=recipe.foto_url,
-            video_url=recipe.video_url
+            video_url=recipe.video_url,
+            user_id=current_user.id
         )
 
         return JSONResponse(
@@ -117,7 +119,8 @@ def create_recipe(recipe: RecipeCreate):
 
 
 @router.patch("/{recipe_id}", response_model=RecipeResponse)
-def update_recipe(recipe_id: int, recipe_update: RecipeUpdate):
+def update_recipe(recipe_id: int, recipe_update: RecipeUpdate,
+                  current_user: AuthUser = Depends(get_current_user)):
     """Update a recipe by ID with partial data"""
     # Create database client
     db_client = DatabaseClient()
@@ -139,7 +142,7 @@ def update_recipe(recipe_id: int, recipe_update: RecipeUpdate):
         # so main_ingredients is already a list of dicts at this point
 
         # Update the recipe
-        updated_recipe = db_client.update_recipe(recipe_id, update_data)
+        updated_recipe = db_client.update_recipe(recipe_id, current_user.id, update_data)
 
         if not updated_recipe:
             raise HTTPException(status_code=404, detail=f"Recipe with ID {recipe_id} not found")
@@ -157,7 +160,7 @@ def update_recipe(recipe_id: int, recipe_update: RecipeUpdate):
 
 
 @router.delete("/{recipe_id}")
-def delete_recipe(recipe_id: int):
+def delete_recipe(recipe_id: int, current_user: AuthUser = Depends(get_current_user)):
     """Delete a recipe by ID"""
     # Create database client
     db_client = DatabaseClient()
@@ -168,7 +171,7 @@ def delete_recipe(recipe_id: int):
             raise HTTPException(status_code=500, detail="Failed to connect to database")
 
         # Attempt to delete the recipe
-        success = db_client.delete_recipe(recipe_id)
+        success = db_client.delete_recipe(recipe_id, current_user.id)
 
         if not success:
             raise HTTPException(status_code=404, detail=f"Recipe with ID {recipe_id} not found")

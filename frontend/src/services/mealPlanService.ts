@@ -1,10 +1,11 @@
 import { API_ENDPOINTS } from '../config/api';
+import { apiFetch } from './apiClient';
 import { MealPlanEntry } from '../types/recipe';
 
 export const mealPlanService = {
   async getMealPlan(weekStart: string): Promise<MealPlanEntry[]> {
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_ENDPOINTS.MEAL_PLANS}?week_start=${weekStart}`
       );
 
@@ -28,7 +29,7 @@ export const mealPlanService = {
     recipe_id: number;
   }): Promise<MealPlanEntry> {
     try {
-      const response = await fetch(API_ENDPOINTS.MEAL_PLANS, {
+      const response = await apiFetch(API_ENDPOINTS.MEAL_PLANS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry),
@@ -49,7 +50,7 @@ export const mealPlanService = {
 
   async deleteMealPlanEntry(id: number): Promise<void> {
     try {
-      const response = await fetch(`${API_ENDPOINTS.MEAL_PLANS}/${id}`, {
+      const response = await apiFetch(`${API_ENDPOINTS.MEAL_PLANS}/${id}`, {
         method: 'DELETE',
       });
 

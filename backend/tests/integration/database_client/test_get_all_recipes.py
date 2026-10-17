@@ -6,13 +6,13 @@ Tests for database client get_all_recipes functionality
 class TestGetAllRecipes:
     """Test the get_all_recipes functionality"""
 
-    def test_get_all_recipes(self, db_client):
+    def test_get_all_recipes(self, db_client, user_id):
         """Test that we can retrieve all recipes"""
         # Connect to database
         db_client.connect()
 
         # Get all recipes
-        recipes = db_client.get_all_recipes()
+        recipes = db_client.get_all_recipes(user_id)
 
         # Should be a list (even if empty)
         assert isinstance(recipes, list)

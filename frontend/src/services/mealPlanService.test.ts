@@ -29,7 +29,8 @@ describe('mealPlanService', () => {
 
       expect(result).toEqual([mockEntry]);
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('week_start=2026-03-02')
+        expect.stringContaining('week_start=2026-03-02'),
+        { credentials: 'include' }
       );
     });
 

@@ -5,8 +5,9 @@ Nothing is saved here; the client saves the reviewed draft through POST /recipes
 import logging
 from typing import Any, Callable, Dict, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from ..auth import AuthUser, get_current_user
 from ..database_client import DatabaseClient
 from ..models import FacebookImportRequest, InstagramImportRequest, RecipeDraftResponse, YoutubeImportRequest
 from ..services import facebook_client, instagram_client, recipe_importer, youtube_client
@@ -24,13 +25,14 @@ def _error(status_code: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code=status_code, detail={"code": code, "message": message})
 
 
-def _find_duplicate(source_id: str, parse_id: Callable[[str], Optional[str]]) -> Optional[Dict[str, Any]]:
+def _find_duplicate(source_id: str, parse_id: Callable[[str], Optional[str]],
+                    user_id: int) -> Optional[Dict[str, Any]]:
     """Duplicate check is best-effort: a database problem must not block the import"""
     db_client = DatabaseClient()
     try:
         if not db_client.connect():
             return None
-        for recipe in db_client.find_recipes_by_video_id(source_id):
+        for recipe in db_client.find_recipes_by_video_id(source_id, user_id):
             if parse_id(recipe["video_url"] or "") == source_id:
                 return {"id": recipe["id"], "name": recipe["name"]}
         return None
@@ -42,7 +44,7 @@ def _find_duplicate(source_id: str, parse_id: Callable[[str], Optional[str]]) ->
 
 
 def _run_import(import_fn: Callable[[str], Dict[str, Any]], source_ref: str,
-                parse_id: Callable[[str], Optional[str]]) -> Dict[str, Any]:
+                parse_id: Callable[[str], Optional[str]], user_id: int) -> Dict[str, Any]:
     """Run a platform import and map its failures onto HTTP errors with a stable code.
     `parse_id` extracts the platform's video ID from stored recipe URLs for the duplicate check."""
     try:
@@ -64,26 +66,28 @@ def _run_import(import_fn: Callable[[str], Dict[str, Any]], source_ref: str,
         raise _error(500, "internal_error", f"Error importing recipe: {str(e)}")
 
     # The importer reports the resolved ID (short links only resolve during the import)
-    draft["duplicate_of"] = _find_duplicate(draft["source"]["video_id"], parse_id)
+    draft["duplicate_of"] = _find_duplicate(draft["source"]["video_id"], parse_id, user_id)
     return {"status": "success", "draft": RecipeDraftResponse.model_validate(draft).model_dump()}
 
 
 @router.post("/youtube")
-def import_recipe_from_youtube(request: YoutubeImportRequest):
+def import_recipe_from_youtube(request: YoutubeImportRequest, current_user: AuthUser = Depends(get_current_user)):
     """Fetch a YouTube video's metadata + transcript and return an AI-extracted recipe draft"""
     video_id = youtube_client.parse_video_id(request.url)
-    return _run_import(recipe_importer.import_from_youtube, video_id, youtube_client.parse_video_id)
+    return _run_import(recipe_importer.import_from_youtube, video_id, youtube_client.parse_video_id, current_user.id)
 
 
 @router.post("/instagram")
-def import_recipe_from_instagram(request: InstagramImportRequest):
+def import_recipe_from_instagram(request: InstagramImportRequest,
+                                 current_user: AuthUser = Depends(get_current_user)):
     """Fetch an Instagram reel's caption + thumbnail and return an AI-extracted recipe draft"""
     shortcode = instagram_client.parse_shortcode(request.url)
-    return _run_import(recipe_importer.import_from_instagram, shortcode, instagram_client.parse_shortcode)
+    return _run_import(recipe_importer.import_from_instagram, shortcode, instagram_client.parse_shortcode, current_user.id)
 
 
 @router.post("/facebook")
-def import_recipe_from_facebook(request: FacebookImportRequest):
+def import_recipe_from_facebook(request: FacebookImportRequest,
+                                current_user: AuthUser = Depends(get_current_user)):
     """Fetch a Facebook reel's post text + thumbnail and return an AI-extracted recipe draft"""
     reference = facebook_client.parse_reference(request.url)
-    return _run_import(recipe_importer.import_from_facebook, reference, facebook_client.parse_video_id)
+    return _run_import(recipe_importer.import_from_facebook, reference, facebook_client.parse_video_id, current_user.id)

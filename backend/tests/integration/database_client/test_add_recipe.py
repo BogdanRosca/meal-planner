@@ -9,8 +9,9 @@ class TestAddRecipe:
     """Test the add_recipe functionality"""
 
     @pytest.fixture(autouse=True)
-    def setup_and_cleanup(self, db_client):
+    def setup_and_cleanup(self, db_client, user_id):
         """Setup and cleanup for each test"""
+        self.user_id = user_id
         # This runs before each test
         self.db_client = db_client
         self.db_client.connect()
@@ -21,14 +22,14 @@ class TestAddRecipe:
         # This runs after each test - cleanup any test data
         for recipe_id in self.created_recipe_ids:
             try:
-                self.db_client.delete_recipe(recipe_id)
+                self.db_client.delete_recipe(recipe_id, self.user_id)
             except Exception as e:
                 print(f"Warning: Failed to delete recipe {recipe_id}: {e}")
 
     def test_add_recipe(self):
         """Test that we can add a new recipe"""
         # Get initial recipe count
-        initial_recipes = self.db_client.get_all_recipes()
+        initial_recipes = self.db_client.get_all_recipes(self.user_id)
         initial_count = len(initial_recipes)
 
         # Add the new recipe
@@ -41,7 +42,8 @@ class TestAddRecipe:
             prep_time=TEST_RECIPE_DATA["prep_time"],
             portions=TEST_RECIPE_DATA["portions"],
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         # Track the created recipe ID for cleanup
@@ -71,7 +73,7 @@ class TestAddRecipe:
         assert set(added_recipe['common_ingredients']) == set(TEST_RECIPE_DATA["common_ingredients"])
 
         # Verify the recipe was actually added to the database
-        updated_recipes = self.db_client.get_all_recipes()
+        updated_recipes = self.db_client.get_all_recipes(self.user_id)
         assert len(updated_recipes) == initial_count + 1
 
         # Find the newly added recipe in the list

@@ -1,8 +1,9 @@
 """
 Meal plan endpoints
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
+from ..auth import AuthUser, get_current_user
 from ..database_client import DatabaseClient
 from ..models import MealPlanCreate
 
@@ -11,7 +12,8 @@ router = APIRouter(prefix="/meal-plans", tags=["meal-plans"])
 
 
 @router.get("")
-def get_meal_plan(week_start: str = Query(..., description="Monday date in YYYY-MM-DD format")):
+def get_meal_plan(week_start: str = Query(..., description="Monday date in YYYY-MM-DD format"),
+                  current_user: AuthUser = Depends(get_current_user)):
     """Get all meal plan entries for a given week"""
     db_client = DatabaseClient()
 
@@ -19,7 +21,7 @@ def get_meal_plan(week_start: str = Query(..., description="Monday date in YYYY-
         if not db_client.connect():
             raise HTTPException(status_code=500, detail="Failed to connect to database")
 
-        entries = db_client.get_meal_plan_by_week(week_start)
+        entries = db_client.get_meal_plan_by_week(week_start, current_user.id)
 
         return {"status": "success", "entries": entries}
 
@@ -33,7 +35,7 @@ def get_meal_plan(week_start: str = Query(..., description="Monday date in YYYY-
 
 
 @router.post("")
-def create_meal_plan_entry(entry: MealPlanCreate):
+def create_meal_plan_entry(entry: MealPlanCreate, current_user: AuthUser = Depends(get_current_user)):
     """Create or update a meal plan entry"""
     db_client = DatabaseClient()
 
@@ -46,7 +48,11 @@ def create_meal_plan_entry(entry: MealPlanCreate):
             day_of_week=entry.day_of_week,
             meal_slot=entry.meal_slot,
             recipe_id=entry.recipe_id,
+            user_id=current_user.id,
         )
+
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"Recipe with ID {entry.recipe_id} not found")
 
         return JSONResponse(status_code=201, content={"status": "success", "entry": result})
 
@@ -60,7 +66,7 @@ def create_meal_plan_entry(entry: MealPlanCreate):
 
 
 @router.delete("/{entry_id}")
-def delete_meal_plan_entry(entry_id: int):
+def delete_meal_plan_entry(entry_id: int, current_user: AuthUser = Depends(get_current_user)):
     """Delete a meal plan entry by ID"""
     db_client = DatabaseClient()
 
@@ -68,7 +74,7 @@ def delete_meal_plan_entry(entry_id: int):
         if not db_client.connect():
             raise HTTPException(status_code=500, detail="Failed to connect to database")
 
-        success = db_client.delete_meal_plan_entry(entry_id)
+        success = db_client.delete_meal_plan_entry(entry_id, current_user.id)
 
         if not success:
             raise HTTPException(status_code=404, detail=f"Meal plan entry with ID {entry_id} not found")

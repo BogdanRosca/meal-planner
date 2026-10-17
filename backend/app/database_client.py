@@ -59,8 +59,8 @@ class DatabaseClient:
         except psycopg2.Error:
             return False
 
-    def get_all_recipes(self) -> List[Dict[str, Any]]:
-        """Get all recipes from the database"""
+    def get_all_recipes(self, user_id: int) -> List[Dict[str, Any]]:
+        """Get all recipes owned by a user"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
@@ -68,8 +68,9 @@ class DatabaseClient:
         cursor.execute("""
             SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
+            WHERE user_id = %s
             ORDER BY id
-        """)
+        """, (user_id,))
 
         recipes = []
         for row in cursor.fetchall():
@@ -90,8 +91,8 @@ class DatabaseClient:
         cursor.close()
         return recipes
 
-    def get_recipe_by_id(self, recipe_id: int) -> Optional[Dict[str, Any]]:
-        """Get a specific recipe by ID from the database"""
+    def get_recipe_by_id(self, recipe_id: int, user_id: int) -> Optional[Dict[str, Any]]:
+        """Get a specific recipe by ID, if it belongs to the user"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
@@ -99,8 +100,8 @@ class DatabaseClient:
         cursor.execute("""
             SELECT id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
             FROM recipes
-            WHERE id = %s
-        """, (recipe_id,))
+            WHERE id = %s AND user_id = %s
+        """, (recipe_id, user_id))
 
         row = cursor.fetchone()
         cursor.close()
@@ -133,8 +134,9 @@ class DatabaseClient:
                    prep_time: int,
                    portions: int,
                    foto_url: str,
-                   video_url) -> Dict[str,
-                                      Any]:
+                   video_url,
+                   user_id: int) -> Dict[str,
+                                         Any]:
         """Add a new recipe to the database"""
         if not self.is_connected():
             raise Exception("Not connected to database")
@@ -144,10 +146,11 @@ class DatabaseClient:
 
         cursor = self._connection.cursor()
         cursor.execute("""
-            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO recipes (name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url, user_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id, name, category, main_ingredients, common_ingredients, instructions, prep_time, portions, foto_url, video_url
-        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url, video_url))
+        """, (name, category, main_ingredients_json, common_ingredients, instructions, prep_time, portions, foto_url, video_url,
+              user_id))
 
         # Fetch the inserted recipe
         row = cursor.fetchone()
@@ -169,7 +172,7 @@ class DatabaseClient:
         cursor.close()
         return recipe
 
-    def find_recipes_by_video_id(self, video_id: str) -> List[Dict[str, Any]]:
+    def find_recipes_by_video_id(self, video_id: str, user_id: int) -> List[Dict[str, Any]]:
         """Find recipes whose video_url mentions the given YouTube video ID.
         Callers must confirm the match, since stored URLs come in several formats."""
         if not self.is_connected():
@@ -179,29 +182,29 @@ class DatabaseClient:
         cursor.execute("""
             SELECT id, name, video_url
             FROM recipes
-            WHERE video_url LIKE %s
+            WHERE video_url LIKE %s AND user_id = %s
             ORDER BY id
-        """, (f"%{video_id}%",))
+        """, (f"%{video_id}%", user_id))
 
         matches = [{'id': row[0], 'name': row[1], 'video_url': row[2]} for row in cursor.fetchall()]
         cursor.close()
         return matches
 
-    def delete_recipe(self, recipe_id: int) -> bool:
-        """Delete a recipe from the database by ID"""
+    def delete_recipe(self, recipe_id: int, user_id: int) -> bool:
+        """Delete a recipe by ID, if it belongs to the user"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
         cursor = self._connection.cursor()
 
         # First check if the recipe exists
-        cursor.execute("SELECT id FROM recipes WHERE id = %s", (recipe_id,))
+        cursor.execute("SELECT id FROM recipes WHERE id = %s AND user_id = %s", (recipe_id, user_id))
         if not cursor.fetchone():
             cursor.close()
             return False
 
         # Delete the recipe
-        cursor.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
+        cursor.execute("DELETE FROM recipes WHERE id = %s AND user_id = %s", (recipe_id, user_id))
 
         # Commit the transaction
         self._connection.commit()
@@ -210,15 +213,15 @@ class DatabaseClient:
 
         return rows_affected > 0
 
-    def update_recipe(self, recipe_id: int, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Update a recipe in the database with partial data"""
+    def update_recipe(self, recipe_id: int, user_id: int, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Update a recipe owned by the user with partial data"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
         cursor = self._connection.cursor()
 
         # First check if the recipe exists
-        cursor.execute("SELECT id FROM recipes WHERE id = %s", (recipe_id,))
+        cursor.execute("SELECT id FROM recipes WHERE id = %s AND user_id = %s", (recipe_id, user_id))
         if not cursor.fetchone():
             cursor.close()
             return None
@@ -245,10 +248,10 @@ class DatabaseClient:
             return None
 
         # Add recipe_id to values for WHERE clause
-        values.append(recipe_id)
+        values.extend([recipe_id, user_id])
 
         # Execute update query
-        update_query = f"UPDATE recipes SET {', '.join(set_clauses)} WHERE id = %s"
+        update_query = f"UPDATE recipes SET {', '.join(set_clauses)} WHERE id = %s AND user_id = %s"
         cursor.execute(update_query, values)
 
         # Get the updated recipe
@@ -283,7 +286,7 @@ class DatabaseClient:
 
     # ── Meal Plan operations ──
 
-    def get_meal_plan_by_week(self, week_start: str) -> List[Dict[str, Any]]:
+    def get_meal_plan_by_week(self, week_start: str, user_id: int) -> List[Dict[str, Any]]:
         """Get all meal plan entries for a given week, joined with recipe info"""
         if not self.is_connected():
             raise Exception("Not connected to database")
@@ -294,9 +297,9 @@ class DatabaseClient:
                    mp.recipe_id, r.name, r.category, r.foto_url
             FROM meal_plans mp
             JOIN recipes r ON mp.recipe_id = r.id
-            WHERE mp.week_start = %s
+            WHERE mp.week_start = %s AND mp.user_id = %s
             ORDER BY mp.day_of_week, mp.meal_slot
-        """, (week_start,))
+        """, (week_start, user_id))
 
         entries = []
         for row in cursor.fetchall():
@@ -315,19 +318,24 @@ class DatabaseClient:
         return entries
 
     def add_meal_plan_entry(self, week_start: str, day_of_week: int,
-                            meal_slot: str, recipe_id: int) -> Dict[str, Any]:
-        """Add or replace a meal plan entry (upsert)"""
+                            meal_slot: str, recipe_id: int, user_id: int) -> Optional[Dict[str, Any]]:
+        """Add or replace a meal plan entry (upsert). Returns None if the recipe isn't the user's"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
         cursor = self._connection.cursor()
+        cursor.execute("SELECT id FROM recipes WHERE id = %s AND user_id = %s", (recipe_id, user_id))
+        if not cursor.fetchone():
+            cursor.close()
+            return None
+
         cursor.execute("""
-            INSERT INTO meal_plans (week_start, day_of_week, meal_slot, recipe_id)
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (week_start, day_of_week, meal_slot)
+            INSERT INTO meal_plans (week_start, day_of_week, meal_slot, recipe_id, user_id)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (user_id, week_start, day_of_week, meal_slot)
             DO UPDATE SET recipe_id = EXCLUDED.recipe_id
             RETURNING id
-        """, (week_start, day_of_week, meal_slot, recipe_id))
+        """, (week_start, day_of_week, meal_slot, recipe_id, user_id))
 
         entry_id = cursor.fetchone()[0]
         self._connection.commit()
@@ -354,15 +362,92 @@ class DatabaseClient:
             'recipe_foto_url': row[7],
         }
 
-    def delete_meal_plan_entry(self, entry_id: int) -> bool:
-        """Delete a meal plan entry by ID"""
+    def delete_meal_plan_entry(self, entry_id: int, user_id: int) -> bool:
+        """Delete a meal plan entry by ID, if it belongs to the user"""
         if not self.is_connected():
             raise Exception("Not connected to database")
 
         cursor = self._connection.cursor()
-        cursor.execute("DELETE FROM meal_plans WHERE id = %s", (entry_id,))
+        cursor.execute("DELETE FROM meal_plans WHERE id = %s AND user_id = %s", (entry_id, user_id))
         self._connection.commit()
         rows_affected = cursor.rowcount
         cursor.close()
 
+        return rows_affected > 0
+
+    # ── User operations ──
+
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        """Get a user (including password hash) by email, case-insensitively"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute(
+            "SELECT id, email, password_hash FROM users WHERE email = %s",
+            (email.strip().lower(),)
+        )
+        row = cursor.fetchone()
+        cursor.close()
+
+        if not row:
+            return None
+        return {'id': row[0], 'email': row[1], 'password_hash': row[2]}
+
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """Get a user's public fields by ID"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute("SELECT id, email FROM users WHERE id = %s", (user_id,))
+        row = cursor.fetchone()
+        cursor.close()
+
+        if not row:
+            return None
+        return {'id': row[0], 'email': row[1]}
+
+    def create_user(self, email: str, password_hash: Optional[str]) -> Dict[str, Any]:
+        """Create a user and give them their own copy of the starter recipes, atomically"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO users (email, password_hash) VALUES (%s, %s) RETURNING id, email",
+                (email.strip().lower(), password_hash)
+            )
+            row = cursor.fetchone()
+            cursor.execute("""
+                INSERT INTO recipes (name, category, main_ingredients, common_ingredients,
+                                     instructions, prep_time, portions, foto_url, video_url, user_id)
+                SELECT name, category, main_ingredients, common_ingredients,
+                       instructions, prep_time, portions, foto_url, video_url, %s
+                FROM starter_recipes
+                ORDER BY id
+            """, (row[0],))
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
+        finally:
+            cursor.close()
+
+        return {'id': row[0], 'email': row[1]}
+
+    def set_user_password(self, email: str, password_hash: str) -> bool:
+        """Replace a user's password hash. Returns False if no such user"""
+        if not self.is_connected():
+            raise Exception("Not connected to database")
+
+        cursor = self._connection.cursor()
+        cursor.execute(
+            "UPDATE users SET password_hash = %s WHERE email = %s",
+            (password_hash, email.strip().lower())
+        )
+        self._connection.commit()
+        rows_affected = cursor.rowcount
+        cursor.close()
         return rows_affected > 0

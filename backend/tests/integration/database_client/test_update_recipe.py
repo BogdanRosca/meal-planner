@@ -8,8 +8,9 @@ class TestUpdateRecipeIntegration:
     """Test the update_recipe functionality with real database operations"""
 
     @pytest.fixture(autouse=True)
-    def setup_and_cleanup(self, db_client):
+    def setup_and_cleanup(self, db_client, user_id):
         """Setup and cleanup for each test"""
+        self.user_id = user_id
         # This runs before each test
         self.db_client = db_client
         self.db_client.connect()
@@ -20,7 +21,7 @@ class TestUpdateRecipeIntegration:
         # This runs after each test - cleanup any test data
         for recipe_id in self.created_recipe_ids:
             try:
-                self.db_client.delete_recipe(recipe_id)
+                self.db_client.delete_recipe(recipe_id, self.user_id)
             except Exception as e:
                 print(f"Warning: Failed to delete recipe {recipe_id}: {e}")
 
@@ -36,7 +37,8 @@ class TestUpdateRecipeIntegration:
             prep_time=20,
             portions=4,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -48,7 +50,7 @@ class TestUpdateRecipeIntegration:
             'prep_time': 30
         }
 
-        updated_recipe = self.db_client.update_recipe(recipe_id, updates)
+        updated_recipe = self.db_client.update_recipe(recipe_id, self.user_id, updates)
 
         # Assertions
         assert updated_recipe is not None
@@ -61,7 +63,7 @@ class TestUpdateRecipeIntegration:
         assert updated_recipe['portions'] == 4
 
         # Verify the update persisted by retrieving the recipe again
-        retrieved_recipe = self.db_client.get_recipe_by_id(recipe_id)
+        retrieved_recipe = self.db_client.get_recipe_by_id(recipe_id, self.user_id)
         assert retrieved_recipe['name'] == 'Updated Recipe Name'
         assert retrieved_recipe['prep_time'] == 30
 
@@ -77,7 +79,8 @@ class TestUpdateRecipeIntegration:
             prep_time=15,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -92,7 +95,7 @@ class TestUpdateRecipeIntegration:
             'common_ingredients': ["garlic", "onion", "ginger"]
         }
 
-        updated_recipe = self.db_client.update_recipe(recipe_id, updates)
+        updated_recipe = self.db_client.update_recipe(recipe_id, self.user_id, updates)
 
         # Assertions
         assert updated_recipe is not None
@@ -118,7 +121,8 @@ class TestUpdateRecipeIntegration:
             prep_time=5,
             portions=1,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -138,7 +142,7 @@ class TestUpdateRecipeIntegration:
             'portions': 4
         }
 
-        updated_recipe = self.db_client.update_recipe(recipe_id, updates)
+        updated_recipe = self.db_client.update_recipe(recipe_id, self.user_id, updates)
 
         # Assertions - all fields should be updated
         assert updated_recipe is not None
@@ -157,7 +161,7 @@ class TestUpdateRecipeIntegration:
         """Test updating a recipe that doesn't exist"""
         # Try to update a recipe that doesn't exist
         updates = {'name': 'This should fail'}
-        result = self.db_client.update_recipe(99999, updates)
+        result = self.db_client.update_recipe(99999, self.user_id, updates)
 
         # Should return None
         assert result is None
@@ -174,7 +178,8 @@ class TestUpdateRecipeIntegration:
             prep_time=20,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -182,13 +187,13 @@ class TestUpdateRecipeIntegration:
 
         # Try to update with invalid fields
         updates = {'invalid_field': 'value', 'another_invalid': 123}
-        result = self.db_client.update_recipe(recipe_id, updates)
+        result = self.db_client.update_recipe(recipe_id, self.user_id, updates)
 
         # Should return None since no valid fields to update
         assert result is None
 
         # Original recipe should remain unchanged
-        unchanged_recipe = self.db_client.get_recipe_by_id(recipe_id)
+        unchanged_recipe = self.db_client.get_recipe_by_id(recipe_id, self.user_id)
         assert unchanged_recipe['name'] == 'Test Recipe'
         assert unchanged_recipe['prep_time'] == 20
 
@@ -204,7 +209,8 @@ class TestUpdateRecipeIntegration:
             prep_time=20,
             portions=2,
             foto_url="www.my-foto-url.net",
-            video_url=None
+            video_url=None,
+            user_id=self.user_id
         )
 
         recipe_id = original_recipe['id']
@@ -217,7 +223,7 @@ class TestUpdateRecipeIntegration:
             ]
         }
 
-        updated_recipe = self.db_client.update_recipe(recipe_id, updates)
+        updated_recipe = self.db_client.update_recipe(recipe_id, self.user_id, updates)
 
         # Assertions
         assert updated_recipe is not None

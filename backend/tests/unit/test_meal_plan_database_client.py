@@ -42,7 +42,7 @@ class TestGetMealPlanByWeek:
         mock_cursor.execute.return_value = None
         mock_cursor.fetchone.return_value = (1,)
 
-        entries = client.get_meal_plan_by_week('2026-03-02')
+        entries = client.get_meal_plan_by_week('2026-03-02', 7)
 
         assert len(entries) == 2
         assert entries[0]['recipe_name'] == 'Pancakes'
@@ -59,7 +59,7 @@ class TestGetMealPlanByWeek:
         mock_cursor.fetchall.return_value = []
         mock_cursor.fetchone.return_value = (1,)
 
-        entries = client.get_meal_plan_by_week('2026-03-02')
+        entries = client.get_meal_plan_by_week('2026-03-02', 7)
         assert entries == []
 
     def test_get_meal_plan_by_week_not_connected(self):
@@ -67,7 +67,7 @@ class TestGetMealPlanByWeek:
         client._connection = None
 
         with pytest.raises(Exception, match="Not connected to database"):
-            client.get_meal_plan_by_week('2026-03-02')
+            client.get_meal_plan_by_week('2026-03-02', 7)
 
 
 class TestAddMealPlanEntry:
@@ -80,14 +80,15 @@ class TestAddMealPlanEntry:
 
         mock_cursor = Mock()
         mock_connection.cursor.return_value = mock_cursor
-        # Calls: INSERT RETURNING id, then SELECT joined row
+        # Calls: recipe ownership check, INSERT RETURNING id, then SELECT joined row
         # (is_connected only calls execute + close, no fetchone)
         mock_cursor.fetchone.side_effect = [
+            (10,),                     # recipe belongs to the user
             (1,),                      # INSERT RETURNING id
             SAMPLE_MEAL_PLAN_DB_ROW,   # SELECT joined row
         ]
 
-        result = client.add_meal_plan_entry('2026-03-02', 0, 'breakfast', 10)
+        result = client.add_meal_plan_entry('2026-03-02', 0, 'breakfast', 10, 7)
 
         assert result['id'] == 1
         assert result['recipe_name'] == 'Pancakes'
@@ -99,7 +100,7 @@ class TestAddMealPlanEntry:
         client._connection = None
 
         with pytest.raises(Exception, match="Not connected to database"):
-            client.add_meal_plan_entry('2026-03-02', 0, 'breakfast', 10)
+            client.add_meal_plan_entry('2026-03-02', 0, 'breakfast', 10, 7)
 
 
 class TestDeleteMealPlanEntry:
@@ -115,7 +116,7 @@ class TestDeleteMealPlanEntry:
         mock_cursor.rowcount = 1
         mock_cursor.fetchone.return_value = (1,)
 
-        result = client.delete_meal_plan_entry(1)
+        result = client.delete_meal_plan_entry(1, 7)
 
         assert result is True
         mock_connection.commit.assert_called_once()
@@ -130,7 +131,7 @@ class TestDeleteMealPlanEntry:
         mock_cursor.rowcount = 0
         mock_cursor.fetchone.return_value = (1,)
 
-        result = client.delete_meal_plan_entry(999)
+        result = client.delete_meal_plan_entry(999, 7)
 
         assert result is False
 
@@ -139,4 +140,4 @@ class TestDeleteMealPlanEntry:
         client._connection = None
 
         with pytest.raises(Exception, match="Not connected to database"):
-            client.delete_meal_plan_entry(1)
+            client.delete_meal_plan_entry(1, 7)

@@ -80,6 +80,7 @@ describe('recipeService.importFromLink', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: 'https://youtu.be/dQw4w9WgXcQ' }),
         signal: controller.signal,
+        credentials: 'include',
       }
     );
   });

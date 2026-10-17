@@ -1,0 +1,47 @@
+name: Migrate production database
+
+# Applies pending SQL migrations (backend/db/migrations) to the production database
+# after they land on main. Already-applied files are skipped via schema_migrations.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/db/migrations/**'
+      - 'backend/db/migrate.sh'
+  workflow_dispatch:
+
+# Never run two migrations against production at the same time
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check database secret
+        env:
+          DATABASE_URL: ${{ secrets.POSTGRES_PUBLIC_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::POSTGRES_PUBLIC_URL secret is not set"
+            exit 1
+          fi
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          psql --version
+
+      - name: Apply pending migrations
+        env:
+          DATABASE_URL: ${{ secrets.POSTGRES_PUBLIC_URL }}
+        run: bash backend/db/migrate.sh

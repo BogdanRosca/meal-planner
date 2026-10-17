@@ -107,6 +107,7 @@ class TestCreateMealPlanEntryEndpoint:
             day_of_week=0,
             meal_slot="breakfast",
             recipe_id=10,
+            user_id=1,
         )
         mock_db.disconnect.assert_called_once()
 

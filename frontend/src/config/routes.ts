@@ -1,4 +1,5 @@
 export const ROUTES = {
+  LOGIN: '/login',
   MEAL_PLANNER: '/meal-planner',
   RECIPES: '/recipes',
   SHOPPING_LIST: '/shopping-list',

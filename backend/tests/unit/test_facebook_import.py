@@ -203,7 +203,7 @@ class TestFacebookImportEndpoint:
         assert body["draft"]["source"]["platform"] == "facebook"
         assert body["draft"]["duplicate_of"] == {"id": 3, "name": "Garlic Pasta"}
         mock_import.assert_called_once_with("https://www.facebook.com/share/r/1AbCdEfGh/")
-        db.find_recipes_by_video_id.assert_called_once_with(VIDEO_ID)
+        db.find_recipes_by_video_id.assert_called_once_with(VIDEO_ID, 1)
 
     def test_rejects_non_facebook_url(self):
         response = client.post("/recipes/import/facebook", json={"url": "https://www.facebook.com/Tasty"})

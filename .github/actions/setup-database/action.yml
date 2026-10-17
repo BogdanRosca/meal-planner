@@ -88,5 +88,8 @@ runs:
           'www.my-foto-url.net',
           'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         ) ON CONFLICT DO NOTHING;"
-        
+
+        # Apply schema migrations with the same runner used for production
+        PGHOST=localhost PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" bash db/migrate.sh
+
         echo "Database setup completed successfully!"

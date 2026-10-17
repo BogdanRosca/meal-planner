@@ -55,6 +55,46 @@ export const MOCK_ENTRY: MockMealPlanEntry = {
   recipe_name: 'Scrambled Eggs',
 };
 
+export const MOCK_USER = { id: 1, email: 'cook@example.com' };
+
+export async function mockAuthenticatedUser(page: Page) {
+  await page.route('**/auth/me', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: 'success', user: MOCK_USER }),
+    });
+  });
+}
+
+export async function mockAnonymousUser(page: Page) {
+  await page.route('**/auth/me', async route => {
+    await route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({ detail: 'Not authenticated' }),
+    });
+  });
+}
+
+export async function mockLogin(page: Page, succeeds: boolean) {
+  await page.route('**/auth/login', async route => {
+    await route.fulfill(
+      succeeds
+        ? {
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ status: 'success', user: MOCK_USER }),
+          }
+        : {
+            status: 401,
+            contentType: 'application/json',
+            body: JSON.stringify({ detail: 'Invalid email or password' }),
+          }
+    );
+  });
+}
+
 export async function mockRecipes(
   page: Page,
   recipes: MockRecipe[] = MOCK_RECIPES
