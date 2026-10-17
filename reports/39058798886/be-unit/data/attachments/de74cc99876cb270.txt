@@ -1,0 +1,1 @@
+WARNING  app.services.ytdlp_client:ytdlp_client.py:65 Video 1234567890123456 is missing or needs login (set FACEBOOK_COOKIES_FILE if the video is public but requires a session): ERROR: [facebook] 1234567890123456: Cannot parse data
