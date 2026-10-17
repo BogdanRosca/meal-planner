@@ -58,53 +58,57 @@ const TopBar: React.FC<TopBarProps> = ({
           <span className={styles['logo-text']}>MealCraft</span>
         </div>
 
-        {/* Navigation Section */}
-        <nav className={styles.navigation}>
-          {NAVIGATION_ITEMS.map(item => (
-            <button
-              key={item}
-              className={[
-                styles['nav-item'],
-                activeSection === item ? styles.active : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => handleNavClick(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
+        <div className={styles['top-bar-main']}>
+          <div className={styles['top-bar-content']}>
+            {/* Navigation Section */}
+            <nav className={styles.navigation}>
+              {NAVIGATION_ITEMS.map(item => (
+                <button
+                  key={item}
+                  className={[
+                    styles['nav-item'],
+                    activeSection === item ? styles.active : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => handleNavClick(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
 
-        {/* User Section */}
-        <div className={styles['user-section']}>
-          <div className={styles['language-selector']}>
-            <span className={styles.flag}>🇬🇧</span>
-          </div>
-          <div className={styles['user-profile']}>
-            <div className={styles['user-avatar']}>
-              {currentUser.avatar ? (
-                <img src={currentUser.avatar} alt={currentUser.name} />
-              ) : (
-                <div className={styles['avatar-placeholder']}>
-                  {currentUser.name
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')}
+            {/* User Section */}
+            <div className={styles['user-section']}>
+              <div className={styles['language-selector']}>
+                <span className={styles.flag}>🇬🇧</span>
+              </div>
+              <div className={styles['user-profile']}>
+                <div className={styles['user-avatar']}>
+                  {currentUser.avatar ? (
+                    <img src={currentUser.avatar} alt={currentUser.name} />
+                  ) : (
+                    <div className={styles['avatar-placeholder']}>
+                      {currentUser.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')}
+                    </div>
+                  )}
                 </div>
+                <span className={styles['user-name']}>{currentUser.name}</span>
+              </div>
+              {onLogout && (
+                <button
+                  type="button"
+                  className={styles['logout-btn']}
+                  onClick={onLogout}
+                >
+                  Log out
+                </button>
               )}
             </div>
-            <span className={styles['user-name']}>{currentUser.name}</span>
           </div>
-          {onLogout && (
-            <button
-              type="button"
-              className={styles['logout-btn']}
-              onClick={onLogout}
-            >
-              Log out
-            </button>
-          )}
         </div>
       </div>
     </header>
