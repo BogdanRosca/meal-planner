@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Apple, Coffee, LucideIcon, Moon, Sun, Utensils } from 'lucide-react';
 import styles from './Categories.module.css';
 import { useRecipes } from '../../hooks/useRecipes';
 import { useSelectedCategory } from '../../hooks/useSelectedCategory';
@@ -7,11 +8,11 @@ interface CategoriesProps {
   onCategoryClick?: (_category: string) => void;
 }
 
-const CATEGORY_ICONS: Record<string, { icon: string; color: string }> = {
-  Breakfast: { icon: '☕️', color: '#5b8266' },
-  Snack: { icon: '🍎', color: '#294936' },
-  Lunch: { icon: '☀️', color: '#3e6259' },
-  Dinner: { icon: '🌙', color: '#212922' },
+const CATEGORY_ICONS: Record<string, { icon: LucideIcon; color: string }> = {
+  Breakfast: { icon: Coffee, color: '#5b8266' },
+  Snack: { icon: Apple, color: '#294936' },
+  Lunch: { icon: Sun, color: '#3e6259' },
+  Dinner: { icon: Moon, color: '#212922' },
 };
 
 const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
@@ -41,7 +42,7 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
       return {
         id: name.toLowerCase(),
         name: normalizedName,
-        icon: CATEGORY_ICONS[normalizedName]?.icon || '🍽️',
+        icon: CATEGORY_ICONS[normalizedName]?.icon || Utensils,
         count,
         color: CATEGORY_ICONS[normalizedName]?.color || '#666',
       };
@@ -82,7 +83,9 @@ const Categories: React.FC<CategoriesProps> = ({ onCategoryClick }) => {
                 }
               >
                 <div className={styles['category-content']}>
-                  <div className={styles['category-icon']}>{category.icon}</div>
+                  <div className={styles['category-icon']} aria-hidden="true">
+                    <category.icon />
+                  </div>
                   <span className={styles['category-name']}>
                     {category.name}
                   </span>

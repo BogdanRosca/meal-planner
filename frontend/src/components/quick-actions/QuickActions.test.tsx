@@ -158,12 +158,8 @@ describe('QuickActions Component', () => {
   it('renders arrow indicators for each action', () => {
     const { container } = renderQuickActions();
 
-    const arrows = container.querySelectorAll('.action-arrow');
-    // Should have 3 arrows for quick actions (categories have their own component)
-    const quickActionArrows = Array.from(arrows).filter(
-      (arrow: Element) => arrow.textContent === '→'
-    );
-    expect(quickActionArrows.length).toBeGreaterThanOrEqual(3);
+    const arrows = container.querySelectorAll('.action-arrow svg');
+    expect(arrows).toHaveLength(4);
   });
 
   it('shows active category when location state has category', () => {

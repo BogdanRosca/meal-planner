@@ -67,10 +67,10 @@ describe('Categories Component', () => {
     const icons = container.querySelectorAll('.category-icon');
     expect(icons).toHaveLength(4);
 
-    // Check for specific icons
-    expect(container.textContent).toContain('☕️'); // Breakfast and Lunch
-    expect(container.textContent).toContain('🍎'); // Snack
-    expect(container.textContent).toContain('🌙'); // Dinner
+    expect(container.querySelector('.lucide-coffee')).toBeInTheDocument();
+    expect(container.querySelector('.lucide-apple')).toBeInTheDocument();
+    expect(container.querySelector('.lucide-sun')).toBeInTheDocument();
+    expect(container.querySelector('.lucide-moon')).toBeInTheDocument();
   });
 
   it('renders category counts with correct values', () => {
