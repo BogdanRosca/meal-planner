@@ -1,3 +1,4 @@
+// [temp] trigger CI
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import styles from './App.module.css';
