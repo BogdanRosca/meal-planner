@@ -90,7 +90,10 @@ class TestLoginEndpoint:
         response = client.post('/auth/login', json={'email': ' Cook@Example.com ', 'password': 'correct-horse'})
 
         assert response.status_code == 200
-        assert response.json() == {'status': 'success', 'user': {'id': 7, 'email': 'cook@example.com'}}
+        body = response.json()
+        assert body['status'] == 'success'
+        assert body['user'] == {'id': 7, 'email': 'cook@example.com'}
+        assert decode_access_token(body['access_token']) == 7
         mock_db.get_user_by_email.assert_called_once_with('cook@example.com')
         set_cookie = response.headers['set-cookie']
         assert f'{SESSION_COOKIE}=' in set_cookie
@@ -212,6 +215,30 @@ class TestCurrentUser:
         assert response.json() == {'status': 'success', 'user': {'id': 7, 'email': 'cook@example.com'}}
         mock_db.get_user_by_id.assert_called_once_with(7)
         mock_db.disconnect.assert_called_once()
+
+    @patch('app.auth.DatabaseClient')
+    def test_me_returns_user_from_bearer_token(self, mock_db_class):
+        mock_db = _mock_db(mock_db_class)
+        mock_db.get_user_by_id.return_value = {'id': 7, 'email': 'cook@example.com'}
+
+        response = client.get('/auth/me', headers={'Authorization': f'Bearer {create_access_token(7)}'})
+
+        assert response.status_code == 200
+        mock_db.get_user_by_id.assert_called_once_with(7)
+
+    @patch('app.auth.DatabaseClient')
+    def test_bearer_token_wins_over_cookie(self, mock_db_class):
+        mock_db = _mock_db(mock_db_class)
+        mock_db.get_user_by_id.return_value = {'id': 8, 'email': 'other@example.com'}
+        client.cookies.set(SESSION_COOKIE, create_access_token(7))
+
+        client.get('/auth/me', headers={'Authorization': f'Bearer {create_access_token(8)}'})
+
+        mock_db.get_user_by_id.assert_called_once_with(8)
+
+    @pytest.mark.parametrize('header', ['Bearer tampered', 'Bearer ', 'Basic abc', 'garbage'])
+    def test_invalid_authorization_header_returns_401(self, header):
+        assert client.get('/auth/me', headers={'Authorization': header}).status_code == 401
 
     def test_me_without_cookie_returns_401(self):
         assert client.get('/auth/me').status_code == 401

@@ -73,9 +73,17 @@ def decode_access_token(token: str) -> Optional[int]:
         return None
 
 
+def _request_token(request: Request) -> Optional[str]:
+    # Bearer header first: WebKit (Safari, every iOS browser) drops the cookie when the API is on another site
+    scheme, _, credentials = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() == "bearer" and credentials:
+        return credentials
+    return request.cookies.get(SESSION_COOKIE)
+
+
 def get_current_user(request: Request) -> AuthUser:
-    """FastAPI dependency: resolve the logged-in user from the session cookie or reject with 401"""
-    token = request.cookies.get(SESSION_COOKIE)
+    """FastAPI dependency: resolve the logged-in user from the bearer token or session cookie, or reject with 401"""
+    token = _request_token(request)
     user_id = decode_access_token(token) if token else None
     if user_id is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
