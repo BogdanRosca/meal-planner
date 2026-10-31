@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from '../config/api';
 import { User } from '../types/auth';
-import { apiFetch } from './apiClient';
+import { apiFetch, setAuthToken } from './apiClient';
 
 export class InvalidCredentialsError extends Error {
   constructor() {
@@ -17,8 +17,7 @@ const isUser = (value: unknown): value is User =>
   typeof value.id === 'number' &&
   typeof value.email === 'string';
 
-const parseUser = async (response: Response): Promise<User> => {
-  const body: unknown = await response.json();
+const userFromBody = (body: unknown): User => {
   if (typeof body === 'object' && body !== null && 'user' in body) {
     if (isUser(body.user)) {
       return body.user;
@@ -26,6 +25,9 @@ const parseUser = async (response: Response): Promise<User> => {
   }
   throw new Error('Unexpected auth response');
 };
+
+const parseUser = async (response: Response): Promise<User> =>
+  userFromBody(await response.json());
 
 export const authService = {
   /**
@@ -54,10 +56,24 @@ export const authService = {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return parseUser(response);
+    const body: unknown = await response.json();
+    const user = userFromBody(body);
+    if (
+      typeof body === 'object' &&
+      body !== null &&
+      'access_token' in body &&
+      typeof body.access_token === 'string'
+    ) {
+      setAuthToken(body.access_token);
+    }
+    return user;
   },
 
   async logout(): Promise<void> {
-    await apiFetch(API_ENDPOINTS.AUTH_LOGOUT, { method: 'POST' });
+    try {
+      await apiFetch(API_ENDPOINTS.AUTH_LOGOUT, { method: 'POST' });
+    } finally {
+      setAuthToken(null);
+    }
   },
 };

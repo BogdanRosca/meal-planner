@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '../config/api';
+import { getAuthToken, setAuthToken } from './apiClient';
 import { authService, InvalidCredentialsError } from './authService';
 
 const USER = { id: 7, email: 'cook@example.com' };
@@ -15,6 +16,7 @@ describe('authService', () => {
   beforeEach(() => {
     global.fetch = mockFetch;
     mockFetch.mockReset();
+    localStorage.clear();
   });
 
   describe('me', () => {
@@ -74,6 +76,20 @@ describe('authService', () => {
       });
     });
 
+    it('stores the access token from the response', async () => {
+      mockFetch.mockResolvedValueOnce(
+        jsonResponse(200, {
+          status: 'success',
+          user: USER,
+          access_token: 'tok',
+        })
+      );
+
+      await authService.login('cook@example.com', 'secret');
+
+      expect(getAuthToken()).toBe('tok');
+    });
+
     it('throws InvalidCredentialsError on 401', async () => {
       mockFetch.mockResolvedValueOnce(jsonResponse(401, {}));
 
@@ -99,6 +115,14 @@ describe('authService', () => {
         method: 'POST',
         credentials: 'include',
       });
+    });
+
+    it('forgets the token even if the request fails', async () => {
+      setAuthToken('tok');
+      mockFetch.mockRejectedValueOnce(new Error('offline'));
+
+      await expect(authService.logout()).rejects.toThrow('offline');
+      expect(getAuthToken()).toBeNull();
     });
   });
 });

@@ -1,5 +1,5 @@
 """
-Authentication endpoints: email + password login backed by an httpOnly session cookie
+Authentication endpoints: email + password login backed by an httpOnly session cookie and a bearer token
 """
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -36,16 +36,22 @@ def login(credentials: LoginRequest, response: Response):
         if not user or not verify_password(credentials.password, user["password_hash"]):
             raise HTTPException(status_code=401, detail=INVALID_CREDENTIALS)
 
+        access_token = create_access_token(user["id"])
         response.set_cookie(
             key=SESSION_COOKIE,
-            value=create_access_token(user["id"]),
+            value=access_token,
             max_age=session_max_age_seconds(),
             httponly=True,
             secure=cookie_secure(),
             samesite=cookie_samesite(),
             path="/",
         )
-        return {"status": "success", "user": {"id": user["id"], "email": user["email"]}}
+        # Token also goes in the body for clients whose browser blocks the cross-site cookie
+        return {
+            "status": "success",
+            "user": {"id": user["id"], "email": user["email"]},
+            "access_token": access_token,
+        }
 
     except HTTPException:
         raise
