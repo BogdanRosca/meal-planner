@@ -4,6 +4,7 @@ Integration test for the GET /recipes/{recipe_id} endpoint
 import pytest
 
 
+@pytest.mark.test_id("73ecabb4-541a-4215-b751-23177d04922d")
 def test_get_recipe_by_id_endpoint_structure(client):
     """Test that the GET /recipes/{recipe_id} endpoint exists and returns proper response structure"""
     # This test verifies the endpoint exists and handles the case where recipe doesn't exist
@@ -23,6 +24,7 @@ def test_get_recipe_by_id_endpoint_structure(client):
         assert "database" in json_response["detail"].lower() or "connect" in json_response["detail"].lower()
 
 
+@pytest.mark.test_id("c717d38a-6d62-428f-bbc1-1aff85870520")
 def test_get_recipe_by_id_invalid_id_format(client):
     """Test GET /recipes/{recipe_id} endpoint with invalid ID format"""
     response = client.get("/recipes/not-a-number")
@@ -33,6 +35,7 @@ def test_get_recipe_by_id_invalid_id_format(client):
     assert "detail" in json_response
 
 
+@pytest.mark.test_id("b12a4fa4-7eec-463e-8209-83096bad7947")
 def test_get_recipe_by_id_existing_recipe(client):
     """Test GET /recipes/{recipe_id} endpoint with an existing recipe"""
     # First, get all recipes to find a valid ID
@@ -108,6 +111,7 @@ def test_get_recipe_by_id_existing_recipe(client):
         assert isinstance(recipe_response["common_ingredients"][0], str)
 
 
+@pytest.mark.test_id("37be03c1-a811-4528-bfaf-e9f37396f16d")
 def test_get_recipe_by_id_zero_id(client):
     """Test GET /recipes/{recipe_id} endpoint with ID zero"""
     response = client.get("/recipes/0")
@@ -119,6 +123,7 @@ def test_get_recipe_by_id_zero_id(client):
     assert "detail" in json_response
 
 
+@pytest.mark.test_id("70611fcd-df62-4ff1-b1d2-402a494c1bba")
 def test_get_recipe_by_id_negative_id(client):
     """Test GET /recipes/{recipe_id} endpoint with negative ID"""
     response = client.get("/recipes/-1")

@@ -6,6 +6,7 @@ import pytest
 
 @pytest.mark.recipe
 class TestApiAlerts:
+    @pytest.mark.test_id("a4b3864d-a78f-4026-933a-7d029a5d9fca")
     def test_delete_recipe_endpoint_structure(self, client):
         """Test that the DELETE endpoint exists and returns proper response structure"""
         # This test verifies the endpoint exists and handles the case where recipe doesn't exist
@@ -24,6 +25,7 @@ class TestApiAlerts:
         elif response.status_code == 500:
             assert "database" in json_response["detail"].lower() or "connect" in json_response["detail"].lower()
 
+    @pytest.mark.test_id("578793e7-30ff-4ce0-a070-cb5b62c5273a")
     def test_delete_recipe_invalid_id_format(self, client):
         """Test DELETE endpoint with invalid ID format"""
         response = client.delete("/recipes/not-a-number")

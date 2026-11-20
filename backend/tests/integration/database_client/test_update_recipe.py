@@ -25,6 +25,7 @@ class TestUpdateRecipeIntegration:
             except Exception as e:
                 print(f"Warning: Failed to delete recipe {recipe_id}: {e}")
 
+    @pytest.mark.test_id("1a5a07ed-63fd-406d-aed6-c0d6e74d72e3")
     def test_update_recipe_name_and_prep_time(self):
         """Test updating recipe name and prep time"""
         # First, add a recipe to update
@@ -67,6 +68,7 @@ class TestUpdateRecipeIntegration:
         assert retrieved_recipe['name'] == 'Updated Recipe Name'
         assert retrieved_recipe['prep_time'] == 30
 
+    @pytest.mark.test_id("e1013a39-aa90-44fc-8417-5f32ca3b6220")
     def test_update_recipe_ingredients(self):
         """Test updating recipe ingredients"""
         # Add a recipe to update
@@ -109,6 +111,7 @@ class TestUpdateRecipeIntegration:
         assert updated_recipe['category'] == 'lunch'
         assert updated_recipe['prep_time'] == 15
 
+    @pytest.mark.test_id("e05fbd60-0ac6-415c-8c50-3171b3dccd4b")
     def test_update_recipe_all_fields(self):
         """Test updating all recipe fields"""
         # Add a recipe to update
@@ -157,6 +160,7 @@ class TestUpdateRecipeIntegration:
         assert updated_recipe['prep_time'] == 60
         assert updated_recipe['portions'] == 4
 
+    @pytest.mark.test_id("42c1c9ab-6252-4a87-9f13-e795ce8317ca")
     def test_update_nonexistent_recipe(self):
         """Test updating a recipe that doesn't exist"""
         # Try to update a recipe that doesn't exist
@@ -166,6 +170,7 @@ class TestUpdateRecipeIntegration:
         # Should return None
         assert result is None
 
+    @pytest.mark.test_id("e9149e18-8132-4756-94a0-1a4790fb6904")
     def test_update_recipe_empty_updates(self):
         """Test updating with no valid fields"""
         # Add a recipe
@@ -197,6 +202,7 @@ class TestUpdateRecipeIntegration:
         assert unchanged_recipe['name'] == 'Test Recipe'
         assert unchanged_recipe['prep_time'] == 20
 
+    @pytest.mark.test_id("2c0f94d8-67f1-45e7-b76b-beb34110dede")
     def test_update_recipe_partial_ingredients(self):
         """Test updating only main_ingredients while keeping common_ingredients"""
         # Add a recipe
