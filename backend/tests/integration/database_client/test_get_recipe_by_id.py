@@ -8,6 +8,7 @@ from app.database_client import DatabaseClient
 class TestGetRecipeById:
     """Test the get_recipe_by_id functionality"""
 
+    @pytest.mark.test_id("65012dab-387d-465b-8c52-87d556b9581b")
     def test_get_recipe_by_id_success(self, db_client, user_id):
         """Test that we can retrieve a specific recipe by ID"""
         # Connect to database
@@ -72,6 +73,7 @@ class TestGetRecipeById:
         if len(recipe['common_ingredients']) > 0:
             assert isinstance(recipe['common_ingredients'][0], str)
 
+    @pytest.mark.test_id("b70bde1d-b804-45ef-8576-5500ba743807")
     def test_get_recipe_by_id_not_found(self, db_client, user_id):
         """Test get_recipe_by_id with non-existent ID"""
         # Connect to database
@@ -83,6 +85,7 @@ class TestGetRecipeById:
         # Should return None
         assert recipe is None
 
+    @pytest.mark.test_id("7277ee89-dd2f-4f1f-bb6d-95dce4430aba")
     def test_get_recipe_by_id_not_connected(self):
         """Test get_recipe_by_id when not connected to database"""
         client = DatabaseClient()

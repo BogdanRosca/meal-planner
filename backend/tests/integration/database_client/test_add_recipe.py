@@ -26,6 +26,7 @@ class TestAddRecipe:
             except Exception as e:
                 print(f"Warning: Failed to delete recipe {recipe_id}: {e}")
 
+    @pytest.mark.test_id("19c484f7-5739-4712-994f-0221580d072e")
     def test_add_recipe(self):
         """Test that we can add a new recipe"""
         # Get initial recipe count

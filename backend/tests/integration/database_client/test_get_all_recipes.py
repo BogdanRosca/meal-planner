@@ -1,11 +1,13 @@
 """
 Tests for database client get_all_recipes functionality
 """
+import pytest
 
 
 class TestGetAllRecipes:
     """Test the get_all_recipes functionality"""
 
+    @pytest.mark.test_id("ca807b2e-01d1-4827-b47e-7d35c99a2720")
     def test_get_all_recipes(self, db_client, user_id):
         """Test that we can retrieve all recipes"""
         # Connect to database
