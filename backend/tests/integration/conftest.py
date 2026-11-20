@@ -2,6 +2,8 @@
 Shared fixtures for integration tests: a dedicated user that every test runs as
 """
 import os
+import uuid
+from pathlib import Path
 
 import httpx
 import pytest
@@ -22,6 +24,32 @@ QUALITY_HUB_URL = os.getenv('QUALITY_HUB_URL')
 QUALITY_HUB_TIMEOUT_SECONDS = 5
 
 _reports_key = pytest.StashKey[dict]()
+INTEGRATION_DIR = Path(__file__).parent
+
+
+def _test_id(item):
+    """Stable ID from the test's @pytest.mark.test_id marker.
+
+    Parametrized cases share one marker, so each case gets an ID derived
+    from it: deterministic across runs, but distinct per case.
+    """
+    base_id = item.get_closest_marker('test_id').args[0]
+    if hasattr(item, 'callspec'):
+        return str(uuid.uuid5(uuid.UUID(base_id), item.name))
+    return base_id
+
+
+def pytest_collection_modifyitems(items):
+    """Fail fast when an integration test is missing its test_id marker"""
+    missing = [
+        item.nodeid for item in items
+        if INTEGRATION_DIR in item.path.parents and item.get_closest_marker('test_id') is None
+    ]
+    if missing:
+        raise pytest.UsageError(
+            'Integration tests need @pytest.mark.test_id("<uuid4>"); missing on:\n  '
+            + '\n  '.join(missing)
+        )
 
 
 def _test_result(item, reports):
@@ -30,7 +58,11 @@ def _test_result(item, reports):
     # Without a call report, setup failed or skipped and the body never ran
     report = failed or reports.get('call') or reports['setup']
     return {
-        'name': item.nodeid,
+        "test_id": _test_id(item),
+        "test_path": item.nodeid.split("::")[0],
+        # Module-level test functions have no class
+        "test_module": item.cls.__name__ if item.cls else None,
+        "test_name": item.name,
         'status': report.outcome,
         'duration': round(sum(r.duration for r in reports.values()), 3),
     }
@@ -46,7 +78,7 @@ def _send_result(result):
         response.raise_for_status()
     except httpx.HTTPError as e:
         # Reporting must never break the test run
-        print(f"\n[quality-hub] failed to report {result['name']}: {e}")
+        print(f"\n[quality-hub] failed to report {result['test_name']}: {e}")
 
 
 @pytest.hookimpl(hookwrapper=True)
