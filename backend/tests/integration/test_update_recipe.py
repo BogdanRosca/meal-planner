@@ -2,13 +2,7 @@
 Integration tests for PATCH /recipes/{recipe_id} endpoint
 """
 import pytest
-from fastapi.testclient import TestClient
-from app.main import app
 from app.database_client import DatabaseClient
-
-
-# Create a test client
-client = TestClient(app)
 
 
 class TestUpdateRecipeEndpointIntegration:
@@ -34,7 +28,7 @@ class TestUpdateRecipeEndpointIntegration:
 
         self.db_client.disconnect()
 
-    def test_patch_recipe_success(self):
+    def test_patch_recipe_success(self, client):
         """Test successful recipe update via PATCH endpoint"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -76,7 +70,7 @@ class TestUpdateRecipeEndpointIntegration:
         assert json_response["main_ingredients"] == [{"quantity": 250, "unit": "g", "name": "pasta"}]
         assert json_response["common_ingredients"] == ["salt", "pepper"]
 
-    def test_patch_recipe_with_ingredients(self):
+    def test_patch_recipe_with_ingredients(self, client):
         """Test updating recipe ingredients via PATCH endpoint"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -119,7 +113,7 @@ class TestUpdateRecipeEndpointIntegration:
         assert json_response["category"] == "lunch"
         assert json_response["prep_time"] == 15
 
-    def test_patch_recipe_not_found(self):
+    def test_patch_recipe_not_found(self, client):
         """Test PATCH with non-existent recipe ID"""
         update_data = {"name": "This should fail"}
 
@@ -130,7 +124,7 @@ class TestUpdateRecipeEndpointIntegration:
         json_response = response.json()
         assert "Recipe with ID 99999 not found" in json_response["detail"]
 
-    def test_patch_recipe_empty_payload(self):
+    def test_patch_recipe_empty_payload(self, client):
         """Test PATCH with empty payload"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -159,7 +153,7 @@ class TestUpdateRecipeEndpointIntegration:
         json_response = response.json()
         assert "No fields provided for update" in json_response["detail"]
 
-    def test_patch_recipe_invalid_data_types(self):
+    def test_patch_recipe_invalid_data_types(self, client):
         """Test PATCH with invalid data types"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -191,7 +185,7 @@ class TestUpdateRecipeEndpointIntegration:
         json_response = response.json()
         assert "detail" in json_response
 
-    def test_patch_recipe_partial_update(self):
+    def test_patch_recipe_partial_update(self, client):
         """Test PATCH with only one field update"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -228,7 +222,7 @@ class TestUpdateRecipeEndpointIntegration:
         assert json_response["prep_time"] == 5
         assert json_response["portions"] == 1
 
-    def test_patch_recipe_invalid_ingredient_structure(self):
+    def test_patch_recipe_invalid_ingredient_structure(self, client):
         """Test PATCH with invalid ingredient structure"""
         # First create a recipe
         original_recipe = self.db_client.add_recipe(
@@ -283,7 +277,7 @@ class TestUpdateRecipeEndpointIntegration:
 
         assert recipe['rating'] is None
 
-    def test_patch_recipe_sets_and_clears_rating(self):
+    def test_patch_recipe_sets_and_clears_rating(self, client):
         """Rating can be set and then cleared with null"""
         recipe_id = self._create_recipe()['id']
 
@@ -297,7 +291,7 @@ class TestUpdateRecipeEndpointIntegration:
         assert clear_response.json()["rating"] is None
 
     @pytest.mark.parametrize("rating", [0, 6])
-    def test_patch_recipe_rejects_out_of_range_rating(self, rating):
+    def test_patch_recipe_rejects_out_of_range_rating(self, client, rating):
         """Ratings outside 1-5 are rejected"""
         recipe_id = self._create_recipe()['id']
 

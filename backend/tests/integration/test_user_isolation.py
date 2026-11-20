@@ -2,13 +2,11 @@
 Integration tests for per-user ownership: users only see and change their own recipes and meal plans
 """
 import pytest
-from fastapi.testclient import TestClient
 
 from app.auth import SESSION_COOKIE, get_current_user, hash_password
 from app.database_client import DatabaseClient
 from app.main import app
 
-client = TestClient(app)
 
 RECIPE = dict(
     name="Someone else's stew",
@@ -61,21 +59,21 @@ def test_starter_copies_are_independent_between_users(db, test_user, other_user)
     assert {r['id'] for r in mine}.isdisjoint({r['id'] for r in theirs})
 
 
-def test_foreign_recipe_is_invisible(foreign_recipe):
+def test_foreign_recipe_is_invisible(client, foreign_recipe):
     listed_ids = [r['id'] for r in client.get('/recipes').json()['recipes']]
 
     assert foreign_recipe['id'] not in listed_ids
     assert client.get(f"/recipes/{foreign_recipe['id']}").status_code == 404
 
 
-def test_foreign_recipe_cannot_be_changed_or_deleted(db, other_user, foreign_recipe):
+def test_foreign_recipe_cannot_be_changed_or_deleted(client, db, other_user, foreign_recipe):
     assert client.patch(f"/recipes/{foreign_recipe['id']}", json={"name": "Hijacked"}).status_code == 404
     assert client.delete(f"/recipes/{foreign_recipe['id']}").status_code == 404
 
     assert db.get_recipe_by_id(foreign_recipe['id'], other_user['id'])['name'] == RECIPE['name']
 
 
-def test_foreign_recipe_cannot_be_planned(foreign_recipe):
+def test_foreign_recipe_cannot_be_planned(client, foreign_recipe):
     response = client.post('/meal-plans', json={
         'week_start': '2030-01-07', 'day_of_week': 0, 'meal_slot': 'dinner', 'recipe_id': foreign_recipe['id']
     })
@@ -94,7 +92,7 @@ def test_meal_plans_are_per_user(db, test_user, other_user):
         db.delete_meal_plan_entry(entry['id'], test_user['id'])
 
 
-def test_login_cookie_grants_access(db, test_user):
+def test_login_cookie_grants_access(client, db, test_user):
     db.set_user_password(test_user['email'], hash_password('integration-pass'))
     app.dependency_overrides.pop(get_current_user, None)
     try:
