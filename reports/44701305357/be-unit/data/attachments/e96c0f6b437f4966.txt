@@ -1,0 +1,1 @@
+WARNING  app.services.transcript_client:transcript_client.py:27 Transcript unavailable for dQw4w9WgXcQ: captions disabled
