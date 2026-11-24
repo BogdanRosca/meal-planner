@@ -16,10 +16,10 @@ jobs:
       - name: 📁 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python 3.13.7
+      - name: 🐍 Set up Python 3.13
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13.7"
+          python-version: "3.13"
 
       - name: 🏗️ Install dependencies
         run: |
@@ -42,10 +42,10 @@ jobs:
       - name: 📁 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python 3.13.7
+      - name: 🐍 Set up Python 3.13
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13.7"
+          python-version: "3.13"
 
       - name: 🏗️ Install dependencies
         run: |
@@ -133,7 +133,7 @@ jobs:
       - name: 🐍 Set up Python 3.13
         uses: actions/setup-python@v4
         with:
-          python-version: "3.13.7"
+          python-version: "3.13"
 
       - name: 🏗️ Install dependencies
         run: |
@@ -156,6 +156,9 @@ jobs:
           working-directory: "./backend"
 
       - name: 🧪 Run tests
+        env:
+          # Reports each integration result to the quality hub. Empty disables reporting
+          QUALITY_HUB_URL: ${{ secrets.QUALITY_HUB_URL }}
         run: |
           set -o pipefail
           pytest tests/integration -v --alluredir=allure-results 2>&1 | tee integration-test-output.txt

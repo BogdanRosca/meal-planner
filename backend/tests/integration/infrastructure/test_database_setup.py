@@ -35,6 +35,7 @@ class TestDatabaseInfrastructure:
         yield connection
         connection.close()
 
+    @pytest.mark.test_id("f63500e4-159d-4e40-be12-661eae584849")
     def test_database_connection(self, db_connection):
         """Test that we can connect to the database"""
         assert db_connection is not None
@@ -47,6 +48,7 @@ class TestDatabaseInfrastructure:
 
         assert result[0] == 1
 
+    @pytest.mark.test_id("2c7db306-9375-4f4e-893c-c582b5289d34")
     def test_recipes_table_exists(self, db_connection):
         """Test that the recipes table exists"""
         cursor = db_connection.cursor()
@@ -64,6 +66,7 @@ class TestDatabaseInfrastructure:
 
         assert table_exists is True
 
+    @pytest.mark.test_id("1ea93916-cfaa-490f-b1b0-c57f89f27f05")
     def test_recipes_table_schema(self, db_connection):
         """Test that the recipes table has the correct schema"""
         cursor = db_connection.cursor()
